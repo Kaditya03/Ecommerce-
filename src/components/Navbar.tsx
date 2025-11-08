@@ -3,13 +3,26 @@
 import React from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Monsieur_La_Doulaise } from "next/font/google";
+
+import { Monsieur_La_Doulaise, Eagle_Lake, Poppins } from "next/font/google";
 
 // ✅ Google Font
 const monsieur = Monsieur_La_Doulaise({
   subsets: ["latin"],
   weight: "400",
 });
+
+const eagle = Eagle_Lake({
+subsets:["latin"],
+weight:"400",
+style:"normal",
+});
+
+const poppins= Poppins({
+    subsets:["latin" ],
+    weight:["100","300","200","400"],
+    style:"normal",
+})
 
 // ✅ Navbar Component
 const Navbar: React.FC = () => {
@@ -30,13 +43,15 @@ const Navbar: React.FC = () => {
     setServicesOpen(menu === "services" ? !servicesOpen : false);
   };
 
+
+
   return (
     <nav className="fixed top-0 left-0 w-full flex items-center justify-between px-6 md:px-16 lg:px-20 xl:px-32 py-4 border-b border-gray-300 bg-white z-50 transition-all">
       
       {/* ✅ Logo */}
       <div className="flex justify-start items-center">
         <Link
-          href="/home"
+          href="/"
           className={`${monsieur.className} text-4xl text-indigo-600 tracking-wide`}
         >
           Aurindel
@@ -44,7 +59,7 @@ const Navbar: React.FC = () => {
       </div>
 
       {/* ✅ Desktop Menu */}
-      <div className="hidden sm:flex items-center gap-8">
+      <div className={`hidden sm:flex items-center gap-8 ${eagle.className}`}>
 
         {/* HOME DROPDOWN (animated) */}
         <div
@@ -53,12 +68,12 @@ const Navbar: React.FC = () => {
           onMouseLeave={() => setIsHomeHover(false)}
         >
           <Link
-            href="/home"
+            href="/"
             className="relative hover:text-indigo-600 transition pb-1 
               after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0
               after:bg-indigo-600 after:transition-all after:duration-300 hover:after:w-full"
           >
-            Home
+          Home
           </Link>
 
           <AnimatePresence>
@@ -68,7 +83,7 @@ const Navbar: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
-                className="absolute left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg py-2 w-40"
+                className={`absolute left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg py-2 w-40 ${poppins.className}`}
               >
                 {["Overview", "Updates", "News"].map((item) => (
                   <Link
@@ -91,18 +106,21 @@ const Navbar: React.FC = () => {
           label="About"
           href="/about"
           items={["Our Team", "Mission", "Vision"]}
+        fontClass={poppins.className}
         />
 
         <AnimatedDropdown
           label="Contact"
           href="/contact"
           items={["Email", "Phone", "Map"]}
+          fontClass={poppins.className}
         />
 
         <AnimatedDropdown
           label="Services"
           href="/services"
           items={["Web Design", "App Development", "Consulting"]}
+          fontClass={poppins.className}
         />
 
         {/* SEARCH BAR */}
@@ -173,7 +191,7 @@ const Navbar: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.25 }}
-            className="absolute top-[60px] left-0 w-full bg-white shadow-md py-4 flex flex-col items-start gap-2 px-5 text-sm md:hidden"
+            className={`absolute top-[60px] left-0 w-full bg-white shadow-md py-4 flex flex-col items-start gap-2 px-5 text-sm md:hidden ${eagle.className}`}
           >
             <MobileDropdown label="Home" open={homeOpen} onClick={() => toggleMenu("home")} links={["Overview", "Updates", "News"]} />
             <MobileDropdown label="About" open={aboutOpen} onClick={() => toggleMenu("about")} links={["Our Team", "Mission", "Vision"]} />
@@ -195,9 +213,10 @@ interface DropdownProps {
   label: string;
   href: string;
   items: string[];
+  fontClass?:string;
 }
 
-const AnimatedDropdown: React.FC<DropdownProps> = ({ label, href, items }) => {
+const AnimatedDropdown: React.FC<DropdownProps> = ({ label, href, items, fontClass, }) => {
   const [hover, setHover] = React.useState(false);
 
   return (
@@ -221,7 +240,7 @@ const AnimatedDropdown: React.FC<DropdownProps> = ({ label, href, items }) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className="absolute left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg py-2 w-40"
+            className={`absolute left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg py-2 w-40 ${poppins.className}`}
           >
             {items.map((item) => (
               <Link
@@ -257,7 +276,7 @@ const MobileDropdown: React.FC<MobileDropdownProps> = ({ label, open, onClick, l
         // base classes
         `flex justify-between w-full px-2 py-2 hover:bg-gray-100 rounded-md relative
          after:content-[''] after:absolute after:left-2 after:bottom-0 after:h-[2px]
-         after:bg-indigo-600 after:transition-all after:duration-300
+         after:bg-indigo-600 after:transition-all after:duration-300 
         ` +
         // when open, set after width; otherwise keep it zero (so mobile shows underline when open)
         (open ? " after:w-[90%]" : " after:w-0")
@@ -293,7 +312,7 @@ const MobileDropdown: React.FC<MobileDropdownProps> = ({ label, open, onClick, l
                 `relative block py-1 text-gray-700 hover:text-indigo-600
                  after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px]
                  after:bg-indigo-600 after:transition-all after:duration-300 after:w-0
-                 hover:after:w-full focus:after:w-full active:after:w-full`
+                 hover:after:w-full focus:after:w-full active:after:w-full ${poppins.className}`
               }
             >
               {link}
