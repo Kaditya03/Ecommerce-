@@ -12,8 +12,9 @@ import {
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
+import { useProfile } from "@/context/ProfileContext";
 
-/* ================= FONTS ================= */
+/* ================= FONTS (UNCHANGED) ================= */
 
 const monsieur = Monsieur_La_Doulaise({
   subsets: ["latin"],
@@ -42,28 +43,27 @@ export default function Navbar() {
   const [contactOpen, setContactOpen] = React.useState(false);
   const [servicesOpen, setServicesOpen] = React.useState(false);
 
-  /* ✅ FIX: separate refs (NO UI CHANGE) */
   const [profileOpen, setProfileOpen] = React.useState(false);
+
   const desktopProfileRef = React.useRef<HTMLDivElement | null>(null);
   const mobileProfileRef = React.useRef<HTMLDivElement | null>(null);
 
+  const router = useRouter();
+  const { isLoggedIn } = useAuth();
+  const { cartCount } = useCart();
+  const { photo } = useProfile();
+
+  /* Close profile dropdown on outside click */
   React.useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
-        desktopProfileRef.current &&
-        desktopProfileRef.current.contains(event.target as Node)
-      )
+        desktopProfileRef.current?.contains(event.target as Node) ||
+        mobileProfileRef.current?.contains(event.target as Node)
+      ) {
         return;
-
-      if (
-        mobileProfileRef.current &&
-        mobileProfileRef.current.contains(event.target as Node)
-      )
-        return;
-
+      }
       setProfileOpen(false);
     }
-
     document.addEventListener("mousedown", handleClickOutside);
     return () =>
       document.removeEventListener("mousedown", handleClickOutside);
@@ -78,10 +78,6 @@ export default function Navbar() {
     setContactOpen(menu === "contact" ? !contactOpen : false);
     setServicesOpen(menu === "services" ? !servicesOpen : false);
   };
-
-  const router = useRouter();
-  const { isLoggedIn } = useAuth();
-  const { cartCount } = useCart();
 
   return (
     <>
@@ -133,7 +129,7 @@ export default function Navbar() {
           </div>
 
           {/* DESKTOP ICONS */}
-          <div className="hidden sm:flex items-center gap-1.5 md:gap-2 lg:gap-2.5 ml-auto">
+          <div className="hidden sm:flex items-center gap-2 ml-auto">
             <Icon onClick={() => setShowSearch(true)}>🔍</Icon>
 
             <div className="relative">
@@ -147,10 +143,14 @@ export default function Navbar() {
 
             <Icon>❤️</Icon>
 
+            {/* PROFILE */}
             <div className="relative" ref={desktopProfileRef}>
+              <ProfileAvatar
+                photo={photo}
+                onClick={() => setProfileOpen((p) => !p)}
+              />
               <ProfileDropdown
                 open={profileOpen}
-                setOpen={setProfileOpen}
                 isLoggedIn={isLoggedIn}
                 router={router}
               />
@@ -170,31 +170,6 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* SEARCH BAR */}
-        <AnimatePresence>
-          {showSearch && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="w-full px-4 py-3 bg-white border-t flex items-center gap-3 z-60"
-            >
-              <input
-                autoFocus
-                type="text"
-                placeholder="Explore authentic handcrafted products..."
-                className="flex-1 border rounded-full px-5 py-3 outline-none"
-              />
-              <button
-                onClick={() => setShowSearch(false)}
-                className="p-2 hover:bg-gray-200 rounded-full"
-              >
-                ✕
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         {/* MOBILE MENU */}
         <AnimatePresence>
           {menuOpen && (
@@ -204,25 +179,17 @@ export default function Navbar() {
               exit={{ opacity: 0, y: -10 }}
               className={`sm:hidden bg-white p-4 shadow-lg ${poppins.className}`}
             >
-              {/* MOBILE ICONS */}
               <div className="flex justify-center gap-3 border-b pb-3 mb-3">
                 <Icon onClick={() => setShowSearch(true)}>🔍</Icon>
-
-                <div className="relative">
-                  <Icon onClick={() => router.push("/cart")}>🛒</Icon>
-                  {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 text-xs bg-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center">
-                      {cartCount}
-                    </span>
-                  )}
-                </div>
-
-                <Icon>❤️</Icon>
+                <Icon onClick={() => router.push("/cart")}>🛒</Icon>
 
                 <div className="relative" ref={mobileProfileRef}>
+                  <ProfileAvatar
+                    photo={photo}
+                    onClick={() => setProfileOpen((p) => !p)}
+                  />
                   <ProfileDropdown
                     open={profileOpen}
-                    setOpen={setProfileOpen}
                     isLoggedIn={isLoggedIn}
                     router={router}
                   />
@@ -242,37 +209,62 @@ export default function Navbar() {
   );
 }
 
+/* ================= PROFILE AVATAR ================= */
+
+function ProfileAvatar({ photo, onClick }: any) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-9 h-9 rounded-full overflow-hidden hover:ring-2 hover:ring-indigo-400 transition-all duration-300"
+    >
+      {photo ? (
+        <motion.img
+          src={photo}
+          alt="profile"
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.3 }}
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center text-lg">
+          👤
+        </div>
+      )}
+    </button>
+  );
+}
+
 /* ================= PROFILE DROPDOWN ================= */
 
-function ProfileDropdown({ open, setOpen, isLoggedIn, router }: any) {
-  return (
-    <>
-      <Icon onClick={() => setOpen((prev: boolean) => !prev)}>👤</Icon>
+function ProfileDropdown({ open, isLoggedIn, router }: any) {
+  const { logout } = useAuth();
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            className={`absolute right-0 mt-3 w-52 bg-white border rounded-md shadow-lg z-50 ${poppins.className}`}
-          >
-            {!isLoggedIn ? (
-              <div className="flex flex-col">
-                <button onClick={() => router.push("/login")} className="px-4 py-2 text-left hover:bg-indigo-50">Login</button>
-                <button onClick={() => router.push("/register")} className="px-4 py-2 text-left hover:bg-indigo-50">Create Account</button>
-              </div>
-            ) : (
-              <div className="flex flex-col">
-                <button onClick={() => router.push("/account")} className="px-4 py-2 text-left hover:bg-indigo-50">Account</button>
-                <button onClick={() => router.push("/orders")} className="px-4 py-2 text-left hover:bg-indigo-50">My Orders</button>
-                <button className="px-4 py-2 text-left text-red-600 hover:bg-red-50">Logout</button>
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          className={`absolute right-0 mt-3 w-52 bg-white border rounded-md shadow-lg z-50 ${poppins.className}`}
+        >
+          {!isLoggedIn ? (
+            <div className="flex flex-col">
+              <button onClick={() => router.push("/login")} className="px-4 py-2 text-left hover:bg-indigo-50">Login</button>
+              <button onClick={() => router.push("/register")} className="px-4 py-2 text-left hover:bg-indigo-50">Create Account</button>
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              <button onClick={() => router.push("/profile")} className="px-4 py-2 text-left hover:bg-indigo-50">My Profile</button>
+              <button onClick={() => router.push("/profile/edit")} className="px-4 py-2 text-left hover:bg-indigo-50">Edit Profile</button>
+              <button onClick={() => router.push("/orders")} className="px-4 py-2 text-left hover:bg-indigo-50">My Orders</button>
+              <button onClick={logout} className="px-4 py-2 text-left text-red-600 hover:bg-red-50">Logout</button>
+            </div>
+          )}
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 

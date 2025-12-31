@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
 
 export default function Login() {
   const router = useRouter();
+  const { login } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,14 +32,16 @@ export default function Login() {
 
       if (!res.ok) {
         setError(data.message || "Login failed");
-        setLoading(false);
         return;
       }
 
-      // ✅ Save JWT token
+      // ✅ Save token
       localStorage.setItem("token", data.token);
 
-      // ✅ Redirect to home page
+      // ✅ Update Auth Context (CRITICAL)
+      login();
+
+      // ✅ Redirect
       router.push("/");
     } catch (err) {
       setError("Something went wrong. Please try again.");
@@ -122,7 +126,7 @@ export default function Login() {
             </a>
           </div>
 
-          {/* ERROR MESSAGE */}
+          {/* ERROR */}
           {error && (
             <p className="text-red-500 text-sm mt-4">{error}</p>
           )}

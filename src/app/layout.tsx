@@ -4,6 +4,7 @@ import "./globals.css";
 import { MenuProvider } from "@/context/MenuContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
+import { ProfileProvider } from "@/context/ProfileContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,11 +38,14 @@ export default function RootLayout({
         {/* ✅ NOW MenuProvider ACTUALLY WRAPS EVERYTHING */}
         <AuthProvider>
           <CartProvider>
+            <ProfileProvider>
+
 
 
         <MenuProvider>
           {children}
         </MenuProvider>
+            </ProfileProvider>
           </CartProvider>
         </AuthProvider>
       </body>
