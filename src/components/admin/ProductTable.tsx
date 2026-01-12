@@ -1,77 +1,80 @@
 "use client";
 
-import { useState } from "react";
+import { toast } from "sonner";
+import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function ProductTable({
   products,
-  refresh,
+  fetchProducts,
 }: any) {
-  const toggleSection = async (
-    product: any,
-    section: string
-  ) => {
-    const updated = {
-      sections: product.sections.includes(section)
-        ? product.sections.filter((s: string) => s !== section)
-        : [...product.sections, section],
-    };
-
-    await fetch(`/admin/api/products/${product._id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updated),
+  const deleteProduct = async (product: any) => {
+    // Optimistic UI + Undo
+    toast("Product deleted", {
+      action: {
+        label: "Undo",
+        onClick: async () => {
+          await fetch("/api/admin/products", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(product),
+          });
+          fetchProducts();
+        },
+      },
+      duration: 5000,
     });
 
-    refresh();
-  };
-
-  const deleteProduct = async (id: string) => {
-    await fetch(`/admin/api/products/${id}`, {
+    await fetch(`/api/admin/products/${product._id}`, {
       method: "DELETE",
     });
-    refresh();
+
+    fetchProducts();
   };
 
   return (
-    <div className="space-y-4">
-      {products.map((p: any) => (
-        <div
-          key={p._id}
-          className="bg-white p-4 rounded-xl shadow flex justify-between items-center"
-        >
-          <div>
-            <p className="font-medium">{p.name}</p>
-            <p className="text-sm text-gray-500">
-              ₹{p.price} • {p.category}
-            </p>
-          </div>
+    <div className="bg-white rounded-xl shadow overflow-hidden">
+      <table className="w-full text-sm">
+        <thead className="bg-gray-50 text-gray-600">
+          <tr>
+            <th className="p-4 text-left">Product</th>
+            <th>Price</th>
+            <th>Category</th>
+            <th className="text-right pr-4">Actions</th>
+          </tr>
+        </thead>
 
-          <div className="flex gap-3">
-            {["best-sellers", "new-arrivals", "bulking"].map(
-              (s) => (
-                <button
-                  key={s}
-                  onClick={() => toggleSection(p, s)}
-                  className={`px-3 py-1 rounded-full text-xs ${
-                    p.sections.includes(s)
-                      ? "bg-green-600 text-white"
-                      : "bg-gray-200"
-                  }`}
-                >
-                  {s}
-                </button>
-              )
-            )}
-
-            <button
-              onClick={() => deleteProduct(p._id)}
-              className="text-red-600"
+        <tbody>
+          {products.map((p: any) => (
+            <motion.tr
+              key={p._id}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="border-t hover:bg-gray-50"
             >
-              Delete
-            </button>
-          </div>
-        </div>
-      ))}
+              <td className="p-4">{p.name}</td>
+              <td>₹{p.price}</td>
+              <td>{p.category}</td>
+
+              <td className="text-right pr-4 space-x-3">
+                <Link
+                  href={`/admin/products/${p._id}/edit`}
+                  className="text-indigo-600 hover:underline"
+                >
+                  Edit
+                </Link>
+
+                <button
+                  onClick={() => deleteProduct(p)}
+                  className="text-red-500 hover:underline"
+                >
+                  Delete
+                </button>
+              </td>
+            </motion.tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

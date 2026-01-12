@@ -1,33 +1,23 @@
-import { products } from "@/data/products";
-import CategoryClient from "@/components/CategoryClient";
-import { notFound } from "next/navigation";
+import CategoryClient from "./CategoryClient";
 
-const categoryTitles: Record<string, string> = {
-  pottery: "Pottery Handicrafts",
-  handlooms: "Handloom Textiles",
-  "brass-art": "Brass Art Collection",
-  "wood-craft": "Wooden Handicrafts",
-  paintings: "Traditional Paintings",
-  "home-decor": "Handcrafted Home Décor",
+type Props = {
+  params: Promise<{ category: string }>;
 };
 
-export default async function CategoryPage({
-  params,
-}: {
-  params: Promise<{ category: string }>;
-}) {
+export default async function CategoryPage({ params }: Props) {
   const { category } = await params;
 
-  const categoryProducts = products.filter(
-    (p) => p.category === category
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_APP_URL}/api/products?category=${category}`,
+    { cache: "no-store" }
   );
 
-  if (!categoryProducts.length) notFound();
+  const products = await res.json();
 
   return (
     <CategoryClient
-      title={categoryTitles[category]}
-      products={categoryProducts}
+      category={category}
+      products={products}
     />
   );
 }

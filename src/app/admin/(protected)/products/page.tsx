@@ -1,83 +1,112 @@
 "use client";
 
 import { useState } from "react";
-import ImageUploader from "@/components/admin/ImageUploader";
 import { motion } from "framer-motion";
+import ImageUploader from "@/components/admin/ImageUploader";
 
 export default function AdminProducts() {
   const [images, setImages] = useState<string[]>([]);
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
+  const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [sections, setSections] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
 
-  const saveProduct = async () => {
-    await fetch("/api/admin/products", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name,
-        price,
-        images,
-        category,
-        sections,
-        minOrderQty: 50,
-      }),
-    });
+  /* ================= SAVE PRODUCT ================= */
 
-    setImages([]);
-    setName("");
-    setPrice("");
-    setCategory("");
-    setSections([]);
-  };
+ const saveProduct = async () => {
+  if (!name || !price || !category || !images.length) {
+    alert("Please fill all required fields");
+    return;
+  }
+
+  setSaving(true);
+
+  const res = await fetch("/api/admin/products", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name,
+      price,
+      description,
+      images,
+      category,
+      sections,
+      minOrderQty: 50,
+    }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    console.error(data);
+    alert(data.message || "Failed to save product");
+    setSaving(false);
+    return;
+  }
+
+  alert("Product saved successfully!");
+
+  setImages([]);
+  setName("");
+  setPrice("");
+  setDescription("");
+  setCategory("");
+  setSections([]);
+  setSaving(false);
+};
+
+
+  /* ================= UI ================= */
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-5xl space-y-10"
+      className="max-w-6xl space-y-10"
     >
-      <h1 className="text-3xl font-semibold">
-        Add Product
+      <h1 className="text-3xl font-semibold tracking-wide">
+        Add New Product
       </h1>
 
-     <ImageUploader
-  onUpload={(urls) =>
-    setImages((prev) => [...prev, ...urls])
-  }
-/>
+      {/* ================= IMAGE UPLOAD ================= */}
+      <ImageUploader
+        onUpload={(urls) =>
+          setImages((prev) => [...prev, ...urls])
+        }
+      />
 
-{images.length > 0 && (
-  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-    {images.map((img, index) => (
-      <div
-        key={index}
-        className="relative h-40 rounded-xl overflow-hidden border shadow-sm bg-white"
-      >
-        <img
-          src={img}
-          alt="Product"
-          className="w-full h-full object-cover"
-        />
+      {/* IMAGE PREVIEW */}
+      {images.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mt-6">
+          {images.map((img, index) => (
+            <div
+              key={index}
+              className="relative h-40 rounded-xl overflow-hidden border bg-white shadow-sm"
+            >
+              <img
+                src={img}
+                alt="Product"
+                className="w-full h-full object-cover"
+              />
 
-        {/* REMOVE BUTTON */}
-        <button
-          onClick={() =>
-            setImages((prev) =>
-              prev.filter((_, i) => i !== index)
-            )
-          }
-          className="absolute top-2 right-2 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center text-sm shadow hover:bg-red-500 hover:text-white transition"
-        >
-          ✕
-        </button>
-      </div>
-    ))}
-  </div>
-)}
+              <button
+                onClick={() =>
+                  setImages((prev) =>
+                    prev.filter((_, i) => i !== index)
+                  )
+                }
+                className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white shadow text-sm flex items-center justify-center hover:bg-red-500 hover:text-white transition"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
-
+      {/* ================= PRODUCT INFO ================= */}
       <div className="grid md:grid-cols-2 gap-6">
         <input
           placeholder="Product Name"
@@ -92,6 +121,13 @@ export default function AdminProducts() {
           className="h-12 border rounded-xl px-4"
           value={price}
           onChange={(e) => setPrice(e.target.value)}
+        />
+
+        <textarea
+          placeholder="Product Description"
+          className="md:col-span-2 h-32 border rounded-xl px-4 py-3 resize-none"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
         />
 
         <select
@@ -109,36 +145,38 @@ export default function AdminProducts() {
         </select>
       </div>
 
-      {/* Sections */}
+      {/* ================= SECTIONS ================= */}
       <div className="flex gap-4 flex-wrap">
         {["best-sellers", "new-arrivals", "bulking"].map(
-          (s) => (
+          (section) => (
             <button
-              key={s}
+              key={section}
               onClick={() =>
                 setSections((prev) =>
-                  prev.includes(s)
-                    ? prev.filter((x) => x !== s)
-                    : [...prev, s]
+                  prev.includes(section)
+                    ? prev.filter((s) => s !== section)
+                    : [...prev, section]
                 )
               }
-              className={`px-5 py-2 rounded-full border ${
-                sections.includes(s)
+              className={`px-5 py-2 rounded-full border transition ${
+                sections.includes(section)
                   ? "bg-indigo-600 text-white"
-                  : "bg-white"
+                  : "bg-white hover:bg-gray-100"
               }`}
             >
-              {s.replace("-", " ")}
+              {section.replace("-", " ")}
             </button>
           )
         )}
       </div>
 
+      {/* ================= SAVE ================= */}
       <button
         onClick={saveProduct}
-        className="h-12 w-28 bg-indigo-600 text-white rounded-xl"
+        disabled={saving}
+        className="h-12 w-36 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition disabled:opacity-60"
       >
-        Save Product
+        {saving ? "Saving..." : "Save Product"}
       </button>
     </motion.div>
   );

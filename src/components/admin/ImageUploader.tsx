@@ -1,35 +1,53 @@
 "use client";
 
+import { useState } from "react";
+
 export default function ImageUploader({
   onUpload,
 }: {
   onUpload: (urls: string[]) => void;
 }) {
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
+  const [uploading, setUploading] = useState(false);
 
+  const handleUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+
+    setUploading(true);
     const uploadedUrls: string[] = [];
 
     for (const file of Array.from(e.target.files)) {
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData,
-      });
+      try {
+        const res = await fetch("/api/admin/upload", {
+          method: "POST",
+          body: formData,
+        });
 
-      if (!res.ok) {
-        console.error("Upload failed");
-        continue;
+        if (!res.ok) {
+          console.error("Upload failed");
+          continue;
+        }
+
+        const data = await res.json();
+
+        // ✅ IMPORTANT: Cloudinary secure_url
+        uploadedUrls.push(data.url);
+      } catch (err) {
+        console.error("Upload error:", err);
       }
-
-      const data = await res.json();
-      uploadedUrls.push(data.url); // ✅ Cloudinary URL
     }
 
-    // 🔥 IMPORTANT: pass array of URLs
+    // ✅ SEND URLS BACK TO PARENT
     onUpload(uploadedUrls);
+
+    setUploading(false);
+
+    // reset input so same file can be uploaded again
+    e.target.value = "";
   };
 
   return (
@@ -41,11 +59,22 @@ export default function ImageUploader({
         accept="image/*"
         onChange={handleUpload}
       />
+
       <div className="text-center">
-        <div className="text-4xl text-indigo-600 mb-2">+</div>
-        <p className="text-sm font-medium text-indigo-700">
-          Upload Images
-        </p>
+        {uploading ? (
+          <p className="text-indigo-600 font-medium animate-pulse">
+            Uploading...
+          </p>
+        ) : (
+          <>
+            <div className="text-4xl text-indigo-600 mb-2">
+              +
+            </div>
+            <p className="text-sm font-medium text-indigo-700">
+              Upload Images
+            </p>
+          </>
+        )}
       </div>
     </label>
   );

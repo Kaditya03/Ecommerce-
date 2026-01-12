@@ -1,24 +1,24 @@
-import { products } from "@/data/products";
-import ProductClient from "@/components/ProductClient";
 import { notFound } from "next/navigation";
+import ProductClient from "@/components/ProductClient";
 
 export async function generateMetadata({
   params,
 }: {
   params: { slug: string };
 }) {
-  const product = products.find(
-    (p) => p.slug === params.slug
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_APP_URL}/api/products/slug/${params.slug}`,
+    { cache: "no-store" }
   );
 
-  if (!product) return {};
+  if (!res.ok) return {};
+
+  const product = await res.json();
 
   return {
     title: `${product.name} | Aurindel Handicrafts`,
     description: product.description,
     openGraph: {
-      title: product.name,
-      description: product.description,
       images: product.images,
     },
   };
@@ -27,16 +27,16 @@ export async function generateMetadata({
 export default async function ProductPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) {
-  // ✅ UNWRAP PARAMS
-  const { slug } = await params;
-
-  const product = products.find(
-    (p) => p.slug === slug
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_APP_URL}/api/products/slug/${params.slug}`,
+    { cache: "no-store" }
   );
 
-  if (!product) notFound();
+  if (!res.ok) notFound();
+
+  const product = await res.json();
 
   return <ProductClient product={product} />;
 }

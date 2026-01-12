@@ -69,9 +69,10 @@ export default function ProductClient({ product }: any) {
               ₹{product.price}
             </p>
 
-            <p className="text-gray-600 leading-relaxed max-w-xl">
-              {product.description}
-            </p>
+           <p className="text-gray-600 leading-relaxed">
+  {product.description}
+</p>
+
 
             {/* BADGES */}
             <div className="flex flex-wrap gap-3">
