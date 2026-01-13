@@ -8,13 +8,8 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const category = searchParams.get("category");
 
-  const query: any = {};
-
-  if (category) {
-    query.category = category;
-  }
-
-  const products = await Product.find(query).sort({ createdAt: -1 });
+  const filter = category ? { category } : {};
+  const products = await Product.find(filter);
 
   return NextResponse.json(products);
 }

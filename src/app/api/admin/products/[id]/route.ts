@@ -1,35 +1,35 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Product from "@/models/Product";
-import slugify from "slugify";
+import jwt from "jsonwebtoken";
 
-export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: Request) {
+  await connectDB();
+
+  // 🔐 Optional: admin auth (recommended)
+  // const auth = req.headers.get("authorization");
+  // if (!auth) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+
+  const products = await Product.find().sort({ createdAt: -1 });
+
+  return NextResponse.json(products);
+}
+
+export async function POST(req: Request) {
   await connectDB();
 
   const body = await req.json();
 
-  const product = await Product.findByIdAndUpdate(
-    params.id,
-    {
-      ...body,
-      slug: slugify(body.name, { lower: true }),
-    },
-    { new: true }
-  );
+  const product = await Product.create({
+    name: body.name,
+    slug: body.slug,
+    price: body.price,
+    description: body.description,
+    category: body.category,
+    sections: body.sections,
+    images: body.images,
+    minOrderQty: body.minOrderQty || 50,
+  });
 
-  return NextResponse.json(product);
-}
-
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  await connectDB();
-
-  await Product.findByIdAndDelete(params.id);
-
-  return NextResponse.json({ success: true });
+  return NextResponse.json(product, { status: 201 });
 }

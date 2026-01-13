@@ -1,80 +1,147 @@
 "use client";
 
-import { toast } from "sonner";
-import { motion } from "framer-motion";
 import Link from "next/link";
+import { Trash2, Pencil } from "lucide-react";
 
 export default function ProductTable({
   products,
-  fetchProducts,
-}: any) {
-  const deleteProduct = async (product: any) => {
-    // Optimistic UI + Undo
-    toast("Product deleted", {
-      action: {
-        label: "Undo",
-        onClick: async () => {
-          await fetch("/api/admin/products", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(product),
-          });
-          fetchProducts();
-        },
-      },
-      duration: 5000,
-    });
+  refresh,
+}: {
+  products: any[];
+  refresh: () => void;
+}) {
+  const deleteProduct = async (id: string) => {
+    if (!confirm("Delete this product?")) return;
 
-    await fetch(`/api/admin/products/${product._id}`, {
+    await fetch(`/api/admin/products/${id}`, {
       method: "DELETE",
     });
 
-    fetchProducts();
+    refresh(); // 🔥 real-time update
   };
 
+  if (!products.length) {
+    return (
+      <div className="text-center text-gray-500 py-20">
+        No products found
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white rounded-xl shadow overflow-hidden">
-      <table className="w-full text-sm">
-        <thead className="bg-gray-50 text-gray-600">
-          <tr>
-            <th className="p-4 text-left">Product</th>
-            <th>Price</th>
-            <th>Category</th>
-            <th className="text-right pr-4">Actions</th>
-          </tr>
-        </thead>
+    <>
+      {/* ================= DESKTOP / TABLET TABLE ================= */}
+      <div className="hidden md:block bg-white rounded-xl border overflow-x-auto">
+        <table className="min-w-full text-sm">
+          <thead className="bg-gray-50 text-left">
+            <tr>
+              <th className="p-4">Product</th>
+              <th className="p-4">Category</th>
+              <th className="p-4">Price</th>
+              <th className="p-4 text-right">Actions</th>
+            </tr>
+          </thead>
 
-        <tbody>
-          {products.map((p: any) => (
-            <motion.tr
-              key={p._id}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="border-t hover:bg-gray-50"
-            >
-              <td className="p-4">{p.name}</td>
-              <td>₹{p.price}</td>
-              <td>{p.category}</td>
+          <tbody>
+            {products.map((p) => (
+              <tr
+                key={p._id}
+                className="border-t hover:bg-gray-50 transition"
+              >
+                <td className="p-4 flex items-center gap-4">
+                  <img
+                    src={p.images?.[0]}
+                    className="w-14 h-14 rounded-lg object-cover border"
+                    alt={p.name}
+                  />
+                  <div>
+                    <p className="font-medium text-gray-900">
+                      {p.name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      ID: {p._id.slice(-6)}
+                    </p>
+                  </div>
+                </td>
 
-              <td className="text-right pr-4 space-x-3">
-                <Link
-                  href={`/admin/products/${p._id}/edit`}
-                  className="text-indigo-600 hover:underline"
-                >
-                  Edit
-                </Link>
+                <td className="p-4 capitalize">
+                  {p.category?.replace(/-/g, " ")}
+                </td>
 
-                <button
-                  onClick={() => deleteProduct(p)}
-                  className="text-red-500 hover:underline"
-                >
-                  Delete
-                </button>
-              </td>
-            </motion.tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+                <td className="p-4 font-semibold">
+                  ₹{p.price}
+                </td>
+
+                <td className="p-4 text-right flex justify-end gap-4">
+                  <Link
+                    href={`/admin/products/edit/${p._id}`}
+                    className="flex items-center gap-1 text-indigo-600 hover:underline"
+                  >
+                    <Pencil size={16} />
+                    Edit
+                  </Link>
+
+                  <button
+                    onClick={() => deleteProduct(p._id)}
+                    className="flex items-center gap-1 text-red-600 hover:underline"
+                  >
+                    <Trash2 size={16} />
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* ================= MOBILE CARD VIEW ================= */}
+      <div className="grid gap-4 md:hidden">
+        {products.map((p) => (
+          <div
+            key={p._id}
+            className="bg-white border rounded-xl p-4 shadow-sm"
+          >
+            <div className="flex gap-4">
+              <img
+                src={p.images?.[0]}
+                className="w-20 h-20 rounded-lg object-cover border"
+                alt={p.name}
+              />
+
+              <div className="flex-1">
+                <h3 className="font-semibold text-gray-900">
+                  {p.name}
+                </h3>
+
+                <p className="text-sm text-gray-500 capitalize">
+                  {p.category?.replace(/-/g, " ")}
+                </p>
+
+                <p className="font-bold mt-1">
+                  ₹{p.price}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 flex gap-3">
+              <Link
+                href={`/admin/products/edit/${p._id}`}
+                className="flex-1 text-center py-2 rounded-lg border text-sm font-medium hover:bg-gray-50"
+              >
+                Edit
+              </Link>
+
+              <button
+                onClick={() => deleteProduct(p._id)}
+                className="flex-1 py-2 rounded-lg border text-sm font-medium text-red-500 hover:bg-red-50"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
   );
 }

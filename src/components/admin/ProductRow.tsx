@@ -1,38 +1,37 @@
 "use client";
 
-import { motion } from "framer-motion";
+import ProductRow from "./ProductRow";
 
-export default function ProductRow({ product, refresh }: any) {
-  const deleteProduct = async () => {
-    await fetch(`/api/admin/products/${product._id}`, {
-      method: "DELETE",
-    });
-    refresh();
-  };
-
+export default function ProductTable({
+  products,
+  refresh,
+}: {
+  products: any[];
+  refresh: () => void;
+}) {
   return (
-    <motion.div
-      whileHover={{ scale: 1.01 }}
-      className="flex items-center gap-4 p-4 border rounded-xl bg-white"
-    >
-      <img
-        src={product.images[0]}
-        className="h-16 w-16 rounded-lg object-cover"
-      />
+    <div className="overflow-x-auto bg-white rounded-2xl border">
+      <table className="w-full text-sm">
+        <thead className="bg-gray-50 text-left">
+          <tr>
+            <th className="p-4">Image</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th className="text-right p-4">Actions</th>
+          </tr>
+        </thead>
 
-      <div className="flex-1">
-        <p className="font-medium">{product.name}</p>
-        <p className="text-sm text-gray-500">
-          {product.category}
-        </p>
-      </div>
-
-      <button
-        onClick={deleteProduct}
-        className="text-red-500 text-sm"
-      >
-        Delete
-      </button>
-    </motion.div>
+        <tbody>
+          {products.map((product) => (
+            <ProductRow
+              key={product._id}
+              product={product}
+              refresh={refresh}
+            />
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
