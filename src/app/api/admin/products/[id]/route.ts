@@ -1,35 +1,42 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Product from "@/models/Product";
-import jwt from "jsonwebtoken";
 
-export async function GET(req: Request) {
-  await connectDB();
+export async function DELETE(
+  req: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    await connectDB();
 
-  // 🔐 Optional: admin auth (recommended)
-  // const auth = req.headers.get("authorization");
-  // if (!auth) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    // ✅ FIX: await params
+    const { id } = await context.params;
 
-  const products = await Product.find().sort({ createdAt: -1 });
+    if (!id) {
+      return NextResponse.json(
+        { message: "Product ID missing" },
+        { status: 400 }
+      );
+    }
 
-  return NextResponse.json(products);
-}
+    const deleted = await Product.findByIdAndDelete(id);
 
-export async function POST(req: Request) {
-  await connectDB();
+    if (!deleted) {
+      return NextResponse.json(
+        { message: "Product not found" },
+        { status: 404 }
+      );
+    }
 
-  const body = await req.json();
-
-  const product = await Product.create({
-    name: body.name,
-    slug: body.slug,
-    price: body.price,
-    description: body.description,
-    category: body.category,
-    sections: body.sections,
-    images: body.images,
-    minOrderQty: body.minOrderQty || 50,
-  });
-
-  return NextResponse.json(product, { status: 201 });
+    return NextResponse.json(
+      { message: "Product deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("DELETE PRODUCT ERROR:", error);
+    return NextResponse.json(
+      { message: "Failed to delete product" },
+      { status: 500 }
+    );
+  }
 }
