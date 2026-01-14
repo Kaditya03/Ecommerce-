@@ -1,18 +1,14 @@
-import Product from "@/models/product";
-import dbConnect from "@/lib/dbConnect";
+import connectDB from "@/lib/db";
+import Product from "@/models/Product";
 import ProductCard from "@/components/ProductCard";
 
 export default async function ProductsPage() {
-  await dbConnect();
+  await connectDB();
 
-  const products = await Product.find({ isDeleted: false }).lean();
-
-  if (!products.length) {
-    return <p className="p-6">No products found</p>;
-  }
+  const products = await Product.find().lean();
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-6">
+    <div className="max-w-7xl mx-auto px-4 py-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {products.map((product: any) => (
         <ProductCard key={product._id} product={product} />
       ))}
