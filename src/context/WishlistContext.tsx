@@ -47,21 +47,22 @@ export function WishlistProvider({
   }, [wishlist]);
 
   /* TOGGLE */
-  const toggleWishlist = (product: WishlistItem) => {
-    setWishlist((prev) => {
-      const exists = prev.find(
-        (item) => item._id === product._id
+const toggleWishlist = (product: WishlistItem) => {
+  setWishlist((prev) => {
+    const exists = prev.find(
+      (item) => item._id === product._id
+    );
+
+    if (exists) {
+      return prev.filter(
+        (item) => item._id !== product._id
       );
+    }
 
-      if (exists) {
-        return prev.filter(
-          (item) => item._id !== product._id
-        );
-      }
+    return [...prev, product];
+  });
+};
 
-      return [...prev, product];
-    });
-  };
 
   /* CHECK */
   const isWishlisted = (id: string) => {

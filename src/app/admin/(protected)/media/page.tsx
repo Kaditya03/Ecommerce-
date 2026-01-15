@@ -1,26 +1,60 @@
-import MediaUploader from "@/components/admin/MediaUploader";
-import MediaGrid from "@/components/admin/MediaGrid";
+"use client";
 
-export default async function AdminMedia() {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL}/api/admin/media`,
-    { cache: "no-store" }
-  );
+import { useState } from "react";
+import { motion } from "framer-motion";
 
-  const images = await res.json();
+type MediaUploaderProps = {
+  onUpload?: (urls: string[]) => void; // ✅ OPTIONAL
+};
+
+export default function MediaUploader({ onUpload }: MediaUploaderProps) {
+  const [uploading, setUploading] = useState(false);
+
+  const handleUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (!e.target.files) return;
+
+    setUploading(true);
+    const uploadedUrls: string[] = [];
+
+    for (const file of Array.from(e.target.files)) {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) continue;
+
+      const data = await res.json();
+      uploadedUrls.push(data.url);
+    }
+
+    setUploading(false);
+
+    // ✅ only call if provided
+    onUpload?.(uploadedUrls);
+  };
 
   return (
-    <div className="space-y-10">
-      <div>
-        <h1 className="text-3xl font-semibold">Media Library</h1>
-        <p className="text-gray-500 mt-1">
-          Upload and manage Cloudinary images
-        </p>
-      </div>
+    <motion.label
+      whileHover={{ scale: 1.02 }}
+      className="cursor-pointer flex items-center justify-center h-44 rounded-2xl border-2 border-dashed border-indigo-400 bg-indigo-50 hover:bg-indigo-100 transition"
+    >
+      <input
+        type="file"
+        hidden
+        multiple
+        accept="image/*"
+        onChange={handleUpload}
+      />
 
-      <MediaUploader />
-
-      <MediaGrid images={images} />
-    </div>
+      <span className="text-indigo-600 font-medium">
+        {uploading ? "Uploading..." : "Click to Upload Images"}
+      </span>
+    </motion.label>
   );
 }

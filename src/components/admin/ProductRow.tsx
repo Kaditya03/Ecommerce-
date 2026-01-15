@@ -1,37 +1,58 @@
 "use client";
 
-import ProductRow from "./ProductRow";
+import Link from "next/link";
+import { Trash2, Pencil } from "lucide-react";
 
-export default function ProductTable({
-  products,
+export default function ProductRow({
+  product,
   refresh,
 }: {
-  products: any[];
+  product: any;
   refresh: () => void;
 }) {
-  return (
-    <div className="overflow-x-auto bg-white rounded-2xl border">
-      <table className="w-full text-sm">
-        <thead className="bg-gray-50 text-left">
-          <tr>
-            <th className="p-4">Image</th>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Price</th>
-            <th className="text-right p-4">Actions</th>
-          </tr>
-        </thead>
+  const deleteProduct = async () => {
+    if (!confirm("Delete this product?")) return;
 
-        <tbody>
-          {products.map((product) => (
-            <ProductRow
-              key={product._id}
-              product={product}
-              refresh={refresh}
-            />
-          ))}
-        </tbody>
-      </table>
-    </div>
+    await fetch(`/api/admin/products/${product._id}`, {
+      method: "DELETE",
+    });
+
+    refresh(); // realtime update
+  };
+
+  return (
+    <tr className="border-t">
+      <td className="p-4">
+        <img
+          src={product.images?.[0]}
+          alt={product.name}
+          className="w-12 h-12 rounded-lg object-cover border"
+        />
+      </td>
+
+      <td className="p-4 font-medium">{product.name}</td>
+
+      <td className="p-4 capitalize">
+        {product.category?.replace(/-/g, " ")}
+      </td>
+
+      <td className="p-4 font-semibold">₹{product.price}</td>
+
+      <td className="p-4 text-right space-x-4">
+        <Link
+          href={`/admin/products/edit/${product._id}`}
+          className="inline-flex items-center gap-1 text-indigo-600 hover:underline"
+        >
+          <Pencil size={16} /> Edit
+        </Link>
+
+        <button
+          onClick={deleteProduct}
+          className="inline-flex items-center gap-1 text-red-600 hover:underline"
+        >
+          <Trash2 size={16} /> Delete
+        </button>
+      </td>
+    </tr>
   );
 }

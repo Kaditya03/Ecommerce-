@@ -54,17 +54,19 @@ export default function WishlistPage() {
           >
             {wishlist.map((item) => (
               <motion.div
-              key={item.id}
+              key={item._id}
               whileHover={{ y: -4 }}
               className="bg-white rounded-2xl shadow-md overflow-hidden"
               >
                 {/* IMAGE */}
                 <Link href={`/products/${item.slug}`}>
                   <img
-                    src={item.image}
-                    alt={item.name}
-                    className="h-52 w-full object-cover"
-                    />
+                   
+  src={item.images?.[0]}
+  alt={item.name}
+  className="h-52 w-full object-cover"
+/>
+
                 </Link>
 
                 {/* CONTENT */}

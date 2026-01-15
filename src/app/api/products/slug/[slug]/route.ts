@@ -1,19 +1,34 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Product from "@/models/Product";
 
+/* ================= GET PRODUCT BY SLUG ================= */
+
 export async function GET(
-  req: Request,
-  { params }: { params: { slug: string } }
+  req: NextRequest,
+  context: { params: Promise<{ slug: string }> }
 ) {
-  await connectDB();
+  try {
+    await connectDB();
 
-  const product = await Product.findOne({ slug: params.slug });
+    // ✅ params MUST be awaited
+    const { slug } = await context.params;
 
-  if (!product) {
-    return NextResponse.json({ message: "Not found" }, { status: 404 });
+    const product = await Product.findOne({ slug });
+
+    if (!product) {
+      return NextResponse.json(
+        { message: "Product not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(product);
+  } catch (error) {
+    console.error("GET PRODUCT BY SLUG ERROR:", error);
+    return NextResponse.json(
+      { message: "Server error" },
+      { status: 500 }
+    );
   }
-
-  return NextResponse.json(product);
 }
-

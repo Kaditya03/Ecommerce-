@@ -7,77 +7,85 @@ import { Plus, Minus, ShoppingBag, Heart, ArrowRight } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 
-export default function ProductCard({ product }: any) {
+interface Product {
+  _id: string;
+  name: string;
+  price: number;
+  images: string[];
+  slug: string;
+  category: string;
+  minOrderQty?: number;
+}
+
+export default function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
   const { toggleWishlist, isWishlisted } = useWishlist();
 
-  const MIN_QTY = product.minOrderQty || 50;
+  const MIN_QTY = product.minOrderQty ?? 50;
   const STEP = 10;
 
-  const [qty, setQty] = useState(MIN_QTY);
-  const [isHovered, setIsHovered] = useState(false);
+  const [qty, setQty] = useState<number>(MIN_QTY);
+  const [hovered, setHovered] = useState(false);
   const [added, setAdded] = useState(false);
 
   const handleAdd = () => {
     addToCart(product, qty);
     setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
+    setTimeout(() => setAdded(false), 1500);
   };
 
   return (
     <motion.div
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className="group relative bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] transition-all duration-500 flex flex-col"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      whileHover={{ y: -6 }}
+      transition={{ type: "spring", stiffness: 180 }}
+      className="relative bg-white rounded-2xl border shadow-sm hover:shadow-xl transition flex flex-col"
     >
-      {/* IMAGE SECTION */}
-      <div className="relative h-55 overflow-hidden bg-[#F8F9FB]">
+      {/* IMAGE */}
+      <div className="relative h-44 overflow-hidden bg-gray-50 rounded-t-2xl">
         <Link href={`/products/${product.slug}`}>
           <motion.img
             src={product.images?.[0]}
             alt={product.name}
-            animate={{ scale: isHovered ? 1.05 : 1 }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full h-full object-cover mix-blend-multiply"
+            animate={{ scale: hovered ? 1.05 : 1 }}
+            transition={{ duration: 0.4 }}
+            className="w-full h-full object-cover"
           />
         </Link>
 
-        {/* TOP BADGES (ONLY NEW NOW) */}
-        <div className="absolute top-4 left-4">
-          {product.isNew && (
-            <span className="bg-black text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">
-              New
-            </span>
-          )}
-        </div>
+        {/* CATEGORY */}
+        <span className="absolute top-3 left-3 bg-white/90 px-3 py-1 text-[11px] rounded-full shadow capitalize">
+          {product.category.replace(/-/g, " ")}
+        </span>
 
-        {/* WISHLIST BUTTON */}
+        {/* WISHLIST */}
         <button
           onClick={() => toggleWishlist(product)}
-          className="absolute top-4 right-4 z-10 p-2.5 rounded-full bg-white/80 backdrop-blur-md shadow-sm hover:bg-white transition-colors group/heart"
+          className="absolute top-3 right-3 p-2 bg-white rounded-full shadow hover:scale-110 transition"
         >
           <Heart
-            size={18}
-            className={`transition-all duration-300 ${
+            size={16}
+            className={
               isWishlisted(product._id)
-                ? "fill-rose-500 text-rose-500 scale-110"
-                : "text-slate-400 group-hover/heart:text-rose-400"
-            }`}
+                ? "fill-red-500 text-red-500"
+                : "text-gray-400"
+            }
           />
         </button>
 
-        {/* QUICK VIEW OVERLAY */}
+        {/* QUICK VIEW */}
         <AnimatePresence>
-          {isHovered && (
+          {hovered && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              className="absolute bottom-4 left-4 right-4 hidden md:block"
+              exit={{ opacity: 0 }}
+              className="absolute bottom-3 left-3 right-3 hidden md:block"
             >
               <Link
                 href={`/products/${product.slug}`}
-                className="w-full py-3 bg-white/90 backdrop-blur-xl text-slate-900 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 shadow-xl hover:bg-white transition-all"
+                className="w-full py-2 bg-white text-sm font-semibold rounded-xl flex items-center justify-center gap-2 shadow"
               >
                 View Details <ArrowRight size={14} />
               </Link>
@@ -86,99 +94,67 @@ export default function ProductCard({ product }: any) {
         </AnimatePresence>
       </div>
 
-      {/* CONTENT SECTION */}
-      <div className="px-2 py-4 flex flex-col flex-grow">
+      {/* CONTENT */}
+      <div className="px-4 py-3 flex flex-col flex-1">
+        <h3 className="text-sm font-semibold line-clamp-1">
+          {product.name}
+        </h3>
 
-        <div className="mb-1">
-          <span className="text-[10px] uppercase tracking-[0.15em] text-slate-400 font-bold">
-            {product.category || "Collection"}
-          </span>
-          <Link href={`/products/${product.slug}`}>
-            <h3 className="text-base font-semibold text-slate-800 leading-tight line-clamp-1 group-hover:text-indigo-600 transition-colors">
-              {product.name}
-            </h3>
-          </Link>
-        </div>
-
-        {/* PRICE + MOQ (MOVED HERE ✅) */}
-        <div className="flex items-end justify-between mt-2 mb-4">
-          <div className="flex items-baseline gap-1">
-            <span className="text-xl font-extrabold text-slate-900">
-              ₹{product.price}
-            </span>
-            <span className="text-xs text-slate-400 font-medium">/unit</span>
-          </div>
-
-          <span className="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
+        <div className="flex items-center justify-between mt-1">
+          <p className="text-indigo-600 font-bold">
+            ₹{product.price}
+          </p>
+          <span className="text-[11px] bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full">
             MOQ {MIN_QTY}
           </span>
         </div>
 
-        {/* INTERACTIVE ACTIONS */}
-        <div className="mt-auto space-y-3">
-          <div className="flex items-center justify-between bg-slate-50 rounded-2xl p-1.5 border border-slate-100">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setQty((q) => Math.max(MIN_QTY, q - STEP))}
-                className="w-8 h-8 flex items-center justify-center rounded-xl bg-white shadow-sm hover:bg-slate-50 text-slate-600 transition-all active:scale-90"
-              >
-                <Minus size={14} />
-              </button>
+        {/* QTY */}
+        <div className="flex items-center justify-between mt-3">
+          <div className="flex items-center gap-2 bg-gray-100 rounded-full px-2 py-1">
+            <button
+              onClick={() =>
+                setQty((q: number) =>
+                  Math.max(MIN_QTY, q - STEP)
+                )
+              }
+              className="w-7 h-7 flex items-center justify-center rounded-full bg-white shadow"
+            >
+              <Minus size={12} />
+            </button>
 
-              <span className="w-10 text-center text-sm font-bold text-slate-700 font-mono">
-                {qty}
-              </span>
-
-              <button
-                onClick={() => setQty((q) => q + STEP)}
-                className="w-8 h-8 flex items-center justify-center rounded-xl bg-white shadow-sm hover:bg-slate-50 text-slate-600 transition-all active:scale-90"
-              >
-                <Plus size={14} />
-              </button>
-            </div>
-
-            <span className="text-[10px] font-bold text-slate-400 pr-2 uppercase tracking-tighter">
-              Step +{STEP}
+            <span className="min-w-[36px] text-center text-sm font-medium">
+              {qty}
             </span>
+
+            <button
+              onClick={() =>
+                setQty((q: number) => q + STEP)
+              }
+              className="w-7 h-7 flex items-center justify-center rounded-full bg-white shadow"
+            >
+              <Plus size={12} />
+            </button>
           </div>
 
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            onClick={handleAdd}
-            disabled={added}
-            className={`w-full py-3.5 rounded-2xl flex items-center justify-center gap-2 text-xs font-bold tracking-wide transition-all duration-300 shadow-lg ${
-              added
-                ? "bg-emerald-500 shadow-emerald-200 text-white"
-                : "bg-slate-900 shadow-slate-200 text-white hover:bg-indigo-600 hover:shadow-indigo-200"
-            }`}
-          >
-            <AnimatePresence mode="wait">
-              {added ? (
-                <motion.div
-                  key="check"
-                  initial={{ opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-2"
-                >
-                  <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center">
-                    ✓
-                  </div>
-                  Added to Cart
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="cart"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="flex items-center gap-2"
-                >
-                  <ShoppingBag size={16} />
-                  Add to Cart
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.button>
+          <span className="text-[10px] text-gray-400">
+            +{STEP}
+          </span>
         </div>
+
+        {/* ADD TO CART */}
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={handleAdd}
+          className={`mt-3 h-9 rounded-full text-xs font-semibold flex items-center justify-center gap-2 transition ${
+            added
+              ? "bg-green-600 text-white"
+              : "bg-indigo-600 hover:bg-indigo-700 text-white"
+          }`}
+        >
+          <ShoppingBag size={14} />
+          {added ? "Added" : `Add ${qty}`}
+        </motion.button>
       </div>
     </motion.div>
   );

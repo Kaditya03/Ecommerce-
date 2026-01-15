@@ -25,7 +25,12 @@ export default function ProductForm({ refresh }: any) {
 
   return (
     <div className="bg-white p-6 rounded-2xl shadow space-y-4">
-      <MediaUploader onUpload={setImages} />
+    <MediaUploader
+  onUpload={(urls) =>
+    setImages((prev) => [...prev, ...urls])
+  }
+/>
+
 
       <select onChange={(e) => setCategory(e.target.value)}>
         <option value="">Select Category</option>

@@ -3,27 +3,41 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 
-export default function MediaUploader() {
+type MediaUploaderProps = {
+  onUpload: (urls: string[]) => void;
+};
+
+export default function MediaUploader({ onUpload }: MediaUploaderProps) {
   const [uploading, setUploading] = useState(false);
 
-  const handleUpload = async (e: any) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const handleUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (!e.target.files) return;
 
     setUploading(true);
 
-    const formData = new FormData();
-    formData.append("file", file);
+    const uploadedUrls: string[] = [];
 
-    await fetch("/api/admin/upload", {
-      method: "POST",
-      body: formData,
-    });
+    for (const file of Array.from(e.target.files)) {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) continue;
+
+      const data = await res.json();
+      uploadedUrls.push(data.url); // ✅ Cloudinary URL
+    }
 
     setUploading(false);
 
-    // ✅ FORCE MEDIA PAGE REFRESH
-    window.location.reload();
+    // ✅ SEND URLS BACK TO PARENT
+    onUpload(uploadedUrls);
   };
 
   return (
@@ -31,9 +45,16 @@ export default function MediaUploader() {
       whileHover={{ scale: 1.02 }}
       className="cursor-pointer flex items-center justify-center h-44 rounded-2xl border-2 border-dashed border-indigo-400 bg-indigo-50 hover:bg-indigo-100 transition"
     >
-      <input type="file" hidden onChange={handleUpload} />
+      <input
+        type="file"
+        hidden
+        multiple
+        accept="image/*"
+        onChange={handleUpload}
+      />
+
       <span className="text-indigo-600 font-medium">
-        {uploading ? "Uploading..." : "Click to Upload Image"}
+        {uploading ? "Uploading..." : "Click to Upload Images"}
       </span>
     </motion.label>
   );
