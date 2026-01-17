@@ -22,7 +22,7 @@ export default function MediaUploader({ onUpload }: MediaUploaderProps) {
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await fetch("/api/admin/upload", {
+      const res = await fetch("/api/admin/upload",{cache:"no-store",
         method: "POST",
         body: formData,
       });

@@ -6,7 +6,7 @@ export default function AdminOrders() {
   const [orders, setOrders] = useState<any[]>([]);
 
   const load = async () => {
-    const res = await fetch("/api/admin/orders");
+    const res = await fetch("/api/admin/orders",{cache:"no-store"});
     setOrders(await res.json());
   };
 
