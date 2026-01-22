@@ -49,7 +49,7 @@ export default function CartPage() {
             {/* CART ITEMS */}
             <div className="lg:col-span-2 space-y-6">
               {items.map((item) => (
-                <CartItem key={item.id} item={item} />
+                <CartItem key={item._id} item={item} />
               ))}
             </div>
 
