@@ -8,32 +8,32 @@ const Categories = () => {
     {
       name: "Pottery",
       slug: "pottery",
-      img: "/images/pottery.webp",
+      img: "/images/categories/pottery.webp",
     },
     {
       name: "Handlooms",
       slug: "handlooms",
-      img: "/images/handloom.jpg",
+      img: "/images/categories/handloom.jpg",
     },
     {
       name: "Brass Art",
       slug: "brass-art",
-      img: "/images/brass.jpg",
+      img: "/images/categories/brass.jpg",
     },
     {
       name: "Wood Craft",
       slug: "wood-craft",
-      img: "/images/wood.webp",
+      img: "/images/categories/wood.webp",
     },
     {
       name: "Paintings",
       slug: "paintings",
-      img: "/images/paintings.jpg",
+      img: "/images/categories/paintings.jpg",
     },
     {
       name: "Home Decor",
       slug: "home-decor",
-      img: "/images/decor.webp",
+      img: "/images/categories/decor.webp",
     },
   ];
 

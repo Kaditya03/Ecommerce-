@@ -1,17 +1,21 @@
 import { notFound } from "next/navigation";
 import CategoryLayout from "@/components/category/CategoryLayout";
 
-interface PageProps {
+export default async function CategoryPage({
+  params,
+}: {
   params: Promise<{ category: string }>;
-}
-
-export default async function CategoryPage({ params }: PageProps) {
-  const { category } = await params; 
+}) {
+  // ✅ MUST AWAIT params
+  const { category } = await params;
 
   if (!category) notFound();
 
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL}/api/products?category=${category}`,
+    `${baseUrl}/api/products?category=${category}`,
     { cache: "no-store" }
   );
 

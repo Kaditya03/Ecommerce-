@@ -1,22 +1,19 @@
 import CategoryLayout from "@/components/category/CategoryLayout";
 
-export default async function CategoryPage({
-  params,
-}: {
-  params: Promise<{ category: string }>;
-}) {
-  const { category } = await params;
+export default async function CategoriesPage() {
+  const res = await fetch("/api/products", {
+    cache: "no-store",
+  });
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL}/api/products?category=${category}`,
-    { cache: "no-store" }
-  );
+  if (!res.ok) {
+    throw new Error("Failed to fetch products");
+  }
 
   const products = await res.json();
 
   return (
     <CategoryLayout
-      category={category}
+      category="all"
       products={products}
     />
   );
