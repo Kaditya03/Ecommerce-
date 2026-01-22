@@ -4,15 +4,13 @@ import jwt from "jsonwebtoken";
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Allow admin login page without token
+  // Allow login page
   if (pathname === "/admin/login") {
     return NextResponse.next();
   }
 
   if (pathname.startsWith("/admin")) {
-    const token =
-      req.cookies.get("token")?.value ||
-      req.headers.get("authorization")?.replace("Bearer ", "");
+    const token = req.cookies.get("admin_token")?.value;
 
     if (!token) {
       return NextResponse.redirect(
@@ -27,9 +25,11 @@ export function middleware(req: NextRequest) {
       );
 
       if (decoded.role !== "admin") {
-        return NextResponse.redirect(new URL("/", req.url));
+        return NextResponse.redirect(
+          new URL("/", req.url)
+        );
       }
-    } catch {
+    } catch (err) {
       return NextResponse.redirect(
         new URL("/admin/login", req.url)
       );

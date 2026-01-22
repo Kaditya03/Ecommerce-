@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
   await connectDB();
+
   const { email, password } = await req.json();
 
   const admin = await Admin.findOne({ email });
@@ -32,8 +33,9 @@ export async function POST(req: Request) {
 
   const res = NextResponse.json({ success: true });
 
-  res.cookies.set("token", token, {
+  res.cookies.set("admin_token", token, {
     httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     path: "/",
   });
