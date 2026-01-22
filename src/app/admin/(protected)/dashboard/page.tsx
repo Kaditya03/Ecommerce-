@@ -4,7 +4,7 @@ import Charts from "@/components/admin/Charts";
 import { Package, ShoppingCart, IndianRupee } from "lucide-react";
 
 export default async function Dashboard() {
-  const headersList = await headers(); // ✅ MUST await
+  const headersList = await headers();
   const host = headersList.get("host");
 
   const baseUrl = host?.includes("localhost")
@@ -16,7 +16,7 @@ export default async function Dashboard() {
   });
 
   if (!res.ok) {
-    throw new Error("Failed to load dashboard data");
+    throw new Error("Failed to load dashboard");
   }
 
   const data = await res.json();
@@ -24,9 +24,9 @@ export default async function Dashboard() {
   return (
     <div className="space-y-10">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard title="Products" value={data.products} icon={<Package size={22} />} />
-        <StatCard title="Orders" value={data.orders} icon={<ShoppingCart size={22} />} />
-        <StatCard title="Revenue" value={`₹${data.revenue}`} icon={<IndianRupee size={22} />} />
+        <StatCard title="Products" value={data.products} icon={<Package />} />
+        <StatCard title="Orders" value={data.orders} icon={<ShoppingCart />} />
+        <StatCard title="Revenue" value={`₹${data.revenue}`} icon={<IndianRupee />} />
       </div>
 
       <Charts data={data.chart} />
