@@ -10,24 +10,24 @@ export default function AdminLogin() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [status, setStatus] = useState<
-    "idle" | "loading" | "error" | "success"
-  >("idle");
+  const [show, setShow] = useState(false);
+  const [status, setStatus] =
+    useState<"idle" | "loading" | "success" | "error">("idle");
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("loading");
 
     const res = await fetch("/api/admin/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ email, password }),
     });
 
     if (res.ok) {
       setStatus("success");
-      setTimeout(() => router.push("/admin/dashboard"), 900);
+      setTimeout(() => router.push("/admin/dashboard"), 800);
     } else {
       setStatus("error");
       setTimeout(() => setStatus("idle"), 1500);
@@ -35,104 +35,70 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f8fafc] to-[#eef2ff] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-indigo-100 px-4">
       <motion.form
-        onSubmit={handleLogin}
+        onSubmit={handleSubmit}
         initial={{ opacity: 0, y: 40 }}
-        animate={{
-          opacity: 1,
-          y: 0,
-          x: status === "error" ? [0, -10, 10, -6, 6, 0] : 0,
-        }}
-        transition={{ duration: 0.4 }}
-        className="
-          w-full max-w-md
-          bg-white
-          rounded-2xl
-          border border-gray-200
-          shadow-[0_30px_60px_rgba(0,0,0,0.08)]
-          p-8 sm:p-10
-        "
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md bg-white rounded-3xl shadow-xl p-8"
       >
-        {/* ================= BRAND HEADER ================= */}
-        <div className="flex flex-col items-center mb-8">
-          {/* Logo */}
-          <div className="w-14 h-14 rounded-xl bg-indigo-600 flex items-center justify-center shadow-md mb-3">
-            {/* Replace image src with your logo */}
-            {/* <img src="/logo.svg" alt="Logo" className="w-8 h-8" /> */}
-            <span className="text-white font-bold text-xl">A</span>
+        {/* LOGO */}
+        <div className="flex flex-col items-center mb-6">
+          <div className="w-14 h-14 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-xl font-bold shadow-lg">
+            A
           </div>
-
-          {/* Organization Name */}
-          <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">
-            Aurindel Admin
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Secure administration portal
+          <h1 className="mt-3 text-2xl font-semibold">Admin Panel</h1>
+          <p className="text-sm text-gray-500">
+            Login to manage your store
           </p>
         </div>
 
-        {/* ================= EMAIL ================= */}
-        <div className="mb-5">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Email address
+        {/* EMAIL */}
+        <div className="mb-4">
+          <label className="text-sm font-medium text-gray-600">
+            Email
           </label>
           <input
             type="email"
             required
-            placeholder="admin@aurindel.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="
-              w-full h-11 px-4
-              rounded-lg
-              border border-gray-300
-              focus:ring-2 focus:ring-indigo-500
-              focus:border-indigo-500
-              outline-none
-            "
+            placeholder="admin@example.com"
+            className="w-full mt-1 px-4 py-2 rounded-lg border focus:ring-2 focus:ring-indigo-500 outline-none"
           />
         </div>
 
-        {/* ================= PASSWORD ================= */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        {/* PASSWORD */}
+        <div className="mb-5">
+          <label className="text-sm font-medium text-gray-600">
             Password
           </label>
           <div className="relative">
             <input
-              type={showPassword ? "text" : "password"}
+              type={show ? "text" : "password"}
               required
-              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="
-                w-full h-11 px-4 pr-11
-                rounded-lg
-                border border-gray-300
-                focus:ring-2 focus:ring-indigo-500
-                focus:border-indigo-500
-                outline-none
-              "
+              placeholder="••••••••"
+              className="w-full mt-1 px-4 py-2 rounded-lg border focus:ring-2 focus:ring-indigo-500 outline-none"
             />
             <button
               type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              onClick={() => setShow(!show)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
             >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {show ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
         </div>
 
-        {/* ================= FEEDBACK ================= */}
+        {/* STATUS */}
         <AnimatePresence>
           {status === "error" && (
             <motion.p
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="text-sm text-red-500 text-center mb-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-sm text-red-500 text-center mb-3"
             >
               Invalid email or password
             </motion.p>
@@ -140,43 +106,35 @@ export default function AdminLogin() {
 
           {status === "success" && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex items-center justify-center gap-2 text-green-600 mb-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex justify-center items-center gap-2 text-green-600 mb-3"
             >
               <CheckCircle size={18} />
-              <span className="text-sm font-medium">
-                Login successful
-              </span>
+              Login successful
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* ================= BUTTON ================= */}
+        {/* BUTTON */}
         <button
           type="submit"
-          disabled={status === "loading" || status === "success"}
-          className={`
-            w-full h-11 rounded-lg font-medium transition
-            ${
-              status === "success"
-                ? "bg-green-600 text-white"
-                : "bg-indigo-600 text-white hover:bg-indigo-700"
-            }
-            ${status === "loading" && "opacity-70 cursor-not-allowed"}
-          `}
+          disabled={status === "loading"}
+          className={`w-full py-3 rounded-xl font-semibold transition ${
+            status === "success"
+              ? "bg-green-600 text-white"
+              : "bg-indigo-600 hover:bg-indigo-700 text-white"
+          }`}
         >
           {status === "loading"
             ? "Signing in..."
             : status === "success"
             ? "Welcome"
-            : "Sign in"}
+            : "Login"}
         </button>
 
-        {/* ================= FOOTER ================= */}
         <p className="text-xs text-center text-gray-400 mt-6">
-          © 2026 Aurindel. All rights reserved.
+          © {new Date().getFullYear()} Aurindel Admin
         </p>
       </motion.form>
     </div>

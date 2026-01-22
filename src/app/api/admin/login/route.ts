@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 import connectDB from "@/lib/db";
 import Admin from "@/models/Admin";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 export async function POST(req: Request) {
   await connectDB();
@@ -33,14 +33,12 @@ export async function POST(req: Request) {
 
   const res = NextResponse.json({ success: true });
 
-res.cookies.set("token", token, {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax",
-  path: "/",
-  maxAge: 60 * 60 * 24, // 1 day
-});
-
+  res.cookies.set("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+  });
 
   return res;
 }
