@@ -1,24 +1,34 @@
+import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import connectDB from "@/lib/db";
 import User from "@/models/User";
 
 export async function GET() {
-  await connectDB();
-
-  const token = cookies().get("token")?.value;
-
-  if (!token) return Response.json({ user: null });
-
   try {
+    await connectDB();
+
+    // ✅ FIX: await cookies()
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
+
+    if (!token) {
+      return NextResponse.json({ user: null });
+    }
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       id: string;
     };
 
     const user = await User.findById(decoded.id).select("-password");
 
-    return Response.json({ user });
-  } catch {
-    return Response.json({ user: null });
+    if (!user) {
+      return NextResponse.json({ user: null });
+    }
+
+    return NextResponse.json({ user });
+  } catch (error) {
+    console.error("AUTH ME ERROR:", error);
+    return NextResponse.json({ user: null });
   }
 }
