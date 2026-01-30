@@ -1,449 +1,197 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
 import {
-  Monsieur_La_Doulaise,
-  Eagle_Lake,
-  Poppins,
-} from "next/font/google";
+  Search,
+  ShoppingBag,
+  User,
+  Menu,
+  X,
+  ChevronDown,
+  ChevronRight,
+  LogOut,
+  Heart,
+  Globe,
+  Mail,
+  ArrowRight,
+} from "lucide-react";
 
 import { useMenu } from "@/context/MenuContext";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
-import { useProfile } from "@/context/ProfileContext";
-import { useWishlist } from "@/context/WishlistContext";
 
-/* ================= FONTS ================= */
+/* ================= TYPES ================= */
 
-const monsieur = Monsieur_La_Doulaise({ subsets: ["latin"], weight: "400" });
-const eagle = Eagle_Lake({ subsets: ["latin"], weight: "400" });
-const poppins = Poppins({ subsets: ["latin"], weight: ["300", "400"] });
+type MobileMenu = "shop" | "about" | null;
 
-/* ================= NAVBAR ================= */
+type NavSubLinkProps = {
+  title: string;
+  desc: string;
+  href: string;
+};
+
+/* ================= COMPONENT ================= */
 
 export default function Navbar() {
-  const router = useRouter();
-
   const { menuOpen, setMenuOpen } = useMenu();
-  const { isLoggedIn } = useAuth();
   const { cartCount } = useCart();
-  const { wishlist } = useWishlist();
-  const { photo } = useProfile();
+  const { isLoggedIn, user, logout } = useAuth();
 
-  const [showSearch, setShowSearch] = React.useState(false);
-  const [profileOpen, setProfileOpen] = React.useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [activeMobileSub, setActiveMobileSub] = useState<MobileMenu>(null);
 
-  const [homeOpen, setHomeOpen] = React.useState(false);
-  const [aboutOpen, setAboutOpen] = React.useState(false);
-  const [collectionsOpen, setCollectionsOpen] = React.useState(false);
-  const [contactOpen, setContactOpen] = React.useState(false);
-  const [servicesOpen, setServicesOpen] = React.useState(false);
-
-  const desktopProfileRef = React.useRef<HTMLDivElement | null>(null);
-  const mobileProfileRef = React.useRef<HTMLDivElement | null>(null);
-
-  /* Close profile dropdown on outside click */
-  React.useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (
-        desktopProfileRef.current?.contains(e.target as Node) ||
-        mobileProfileRef.current?.contains(e.target as Node)
-      )
-        return;
-      setProfileOpen(false);
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 30);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const toggleMobileMenu = (menu: string) => {
-    setHomeOpen(menu === "home" ? !homeOpen : false);
-    setAboutOpen(menu === "about" ? !aboutOpen : false);
-    setCollectionsOpen(menu === "collections" ? !collectionsOpen : false);
-    setContactOpen(menu === "contact" ? !contactOpen : false);
-    setServicesOpen(menu === "services" ? !servicesOpen : false);
+  const closeMenu = () => {
+    setMenuOpen(false);
+    setActiveMobileSub(null);
   };
 
   return (
     <>
-      {/* OVERLAY */}
-      <AnimatePresence>
-        {(menuOpen || showSearch) && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.4 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black z-40"
-            onClick={() => {
-              setMenuOpen(false);
-              setShowSearch(false);
-            }}
-          />
-        )}
-      </AnimatePresence>
+      {/* ================= NAVBAR ================= */}
+      <nav
+        className={`fixed top-0 left-0 w-full z-[100] transition-all duration-700 ${
+          scrolled
+            ? "bg-white/95 backdrop-blur-xl py-3 border-b border-stone-100 shadow-sm"
+            : "bg-white md:bg-transparent py-4 md:py-8"
+        }`}
+      >
+        <div className="max-w-[1600px] mx-auto px-6 md:px-12 flex items-center justify-between">
+          {/* LEFT */}
+          <div className="hidden lg:flex items-center gap-10 flex-1 text-[10px] uppercase tracking-[0.4em] text-stone-500 font-medium">
+            <div className="relative group py-2">
+              <span className="flex items-center gap-1 cursor-default">
+                Collections <ChevronDown size={10} />
+              </span>
+              <div className="absolute top-full -left-4 mt-2 w-60 bg-white border border-stone-100 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-500 p-6 z-[110]">
+                <NavSubLink title="Pottery" desc="Handcrafted Earth" href="/collections/pottery" />
+                <NavSubLink title="Handlooms" desc="Traditional Weaves" href="/collections/handlooms" />
+                <NavSubLink title="Brass Art" desc="Timeless Metalwork" href="/collections/brass" />
+              </div>
+            </div>
 
-      {/* NAVBAR */}
-      <nav className="fixed top-0 left-0 w-full bg-white border-b z-50">
-        <div className="flex items-center px-4 md:px-8 py-4">
+            <div className="relative group py-2">
+              <span className="flex items-center gap-1 cursor-default">
+                About <ChevronDown size={10} />
+              </span>
+              <div className="absolute top-full -left-4 mt-2 w-72 bg-white border border-stone-100 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-500 p-6 z-[110]">
+                <NavSubLink title="Our Story" desc="The Aurindel Heritage" href="/about" />
+                <NavSubLink title="Artisans" desc="Meet the Makers" href="/about/artisans" />
+                <NavSubLink title="Sustainability" desc="Our Green Commitment" href="/about/sustainability" />
+                <NavSubLink title="Workshops" desc="Learn the Craft" href="/about/workshops" />
+              </div>
+            </div>
+          </div>
+
           {/* LOGO */}
-          <Link
-            href="/"
-            className={`${monsieur.className} text-4xl text-indigo-700`}
-          >
-            Aurindel
+          <Link href="/" className="flex justify-center">
+            <div
+              className={`relative transition-all duration-700 ${
+                scrolled ? "h-7 w-24 md:h-10 md:w-36" : "h-8 w-28 md:h-14 md:w-52"
+              }`}
+            >
+              <Image src="/images/AurindelLogo.png" alt="Aurindel" fill className="object-contain" priority />
+            </div>
           </Link>
 
-          {/* DESKTOP LINKS */}
-          <div
-            className={`hidden sm:flex gap-10 absolute left-1/2 -translate-x-1/2 ${eagle.className}`}
-          >
-            <DesktopDropdown
-              label="Home"
-              items={["Overview", "Updates", "News"]}
-            />
-            <DesktopDropdown
-              label="About"
-              items={["Our Team", "Mission", "Vision"]}
-            />
-            <DesktopDropdown
-              label="Collections"
-              items={[
-                "Home Decor",
-                "Art & Paintings",
-                "Brass & Metal Art",
-                "Wooden Handicrafts",
-                "Traditional Textiles",
-              ]}
-            />
-            <DesktopDropdown
-              label="Contact"
-              items={["Email", "Phone", "Map"]}
-            />
-            <DesktopDropdown
-              label="Services"
-              items={["Web Design", "App Development", "Consulting"]}
-            />
-          </div>
+          {/* RIGHT */}
+          <div className="flex items-center gap-4 flex-1 justify-end">
+            <Search size={18} />
 
-          {/* DESKTOP ICONS */}
-          <div className="hidden sm:flex items-center gap-3 ml-auto">
-            <Icon onClick={() => setShowSearch(true)}>🔍</Icon>
-
-            <BadgeIcon
-              icon="🛒"
-              count={cartCount}
-              onClick={() => router.push("/cart")}
-            />
-
-            <BadgeIcon
-              icon="❤️"
-              count={wishlist.length}
-              red
-              onClick={() => router.push("/wishlist")}
-            />
-
-            <div ref={desktopProfileRef} className="relative">
-              <ProfileAvatar
-                photo={photo}
-                onClick={() => setProfileOpen((p) => !p)}
-              />
-              <ProfileDropdown
-                open={profileOpen}
-                isLoggedIn={isLoggedIn}
-                router={router}
-              />
-            </div>
-          </div>
-
-          {/* HAMBURGER */}
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="sm:hidden ml-auto p-2"
-          >
-            <div className="space-y-1">
-              <span className="block w-6 h-0.5 bg-indigo-600" />
-              <span className="block w-6 h-0.5 bg-indigo-600" />
-              <span className="block w-6 h-0.5 bg-indigo-600" />
-            </div>
-          </button>
-        </div>
-
-        {/* MOBILE MENU */}
-        <AnimatePresence>
-          {menuOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className={`sm:hidden bg-white p-4 shadow-lg ${poppins.className}`}
-            >
-              <div className="flex justify-center gap-4 border-b pb-3 mb-3">
-                <Icon onClick={() => setShowSearch(true)}>🔍</Icon>
-
-                <BadgeIcon
-                  icon="🛒"
-                  count={cartCount}
-                  onClick={() => router.push("/cart")}
-                />
-
-                <BadgeIcon
-                  icon="❤️"
-                  count={wishlist.length}
-                  red
-                  onClick={() => router.push("/wishlist")}
-                />
-
-                <div ref={mobileProfileRef} className="relative">
-                  <ProfileAvatar
-                    photo={photo}
-                    onClick={() => setProfileOpen((p) => !p)}
-                  />
-                  <ProfileDropdown
-                    open={profileOpen}
-                    isLoggedIn={isLoggedIn}
-                    router={router}
-                  />
-                </div>
+            <div className="hidden lg:block relative group">
+              <User size={18} />
+              <div className="absolute right-0 mt-2 w-52 bg-white border shadow-xl opacity-0 group-hover:opacity-100 transition-all p-5">
+                {!isLoggedIn ? (
+                  <>
+                    <Link href="/login">Sign In</Link>
+                    <Link href="/register">Join</Link>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-xs">Hello, {user?.name}</p>
+                    <button onClick={logout}>Logout</button>
+                  </>
+                )}
               </div>
+            </div>
 
-              <MobileDropdown
-                label="Home"
-                items={["Overview", "Updates", "News"]}
-                open={homeOpen}
-                onClick={() => toggleMobileMenu("home")}
-              />
-              <MobileDropdown
-                label="About"
-                items={["Our Team", "Mission", "Vision"]}
-                open={aboutOpen}
-                onClick={() => toggleMobileMenu("about")}
-              />
-              <MobileDropdown
-                label="Collections"
-                items={[
-                  "Home Decor",
-                  "Art & Paintings",
-                  "Brass & Metal Art",
-                  "Wooden Handicrafts",
-                  "Traditional Textiles",
-                ]}
-                open={collectionsOpen}
-                onClick={() => toggleMobileMenu("collections")}
-              />
-              <MobileDropdown
-                label="Contact"
-                items={["Email", "Phone", "Map"]}
-                open={contactOpen}
-                onClick={() => toggleMobileMenu("contact")}
-              />
-              <MobileDropdown
-                label="Services"
-                items={["Web Design", "App Development", "Consulting"]}
-                open={servicesOpen}
-                onClick={() => toggleMobileMenu("services")}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+            <Link href="/cart" className="relative">
+              <ShoppingBag size={18} />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-black text-white text-[9px] px-1 rounded-full">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+
+            <button onClick={() => setMenuOpen(true)} className="lg:hidden">
+              <Menu size={22} />
+            </button>
+          </div>
+        </div>
       </nav>
 
-      {/* SEARCH MODAL */}
-      <SearchModal
-        open={showSearch}
-        onClose={() => setShowSearch(false)}
-      />
+      {/* ================= MOBILE MENU ================= */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            className="fixed inset-0 bg-stone-50 z-[200]"
+          >
+            <div className="flex justify-between p-6 border-b">
+              <span>Menu</span>
+              <button onClick={closeMenu}>
+                <X />
+              </button>
+            </div>
+
+            <div className="p-8 space-y-4">
+              <button
+                onClick={() =>
+                  setActiveMobileSub(activeMobileSub === "shop" ? null : "shop")
+                }
+                className="w-full flex justify-between"
+              >
+                Collections <ChevronRight />
+              </button>
+
+              {activeMobileSub === "shop" && (
+                <div className="pl-4 space-y-2">
+                  {["Pottery", "Handlooms", "Brass Art"].map((i) => (
+                    <Link key={i} href={`/collections/${i.toLowerCase()}`}>
+                      {i}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
 
-/* ================= SEARCH MODAL ================= */
+/* ================= SUB COMPONENT ================= */
 
-function SearchModal({ open, onClose }: any) {
-  const router = useRouter();
-  const [query, setQuery] = React.useState("");
-
-  React.useEffect(() => {
-    function esc(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", esc);
-    return () => document.removeEventListener("keydown", esc);
-  }, [onClose]);
-
-  if (!open) return null;
-
+function NavSubLink({ title, desc, href }: NavSubLinkProps) {
   return (
-    <div className="fixed top-24 left-1/2 -translate-x-1/2 w-[90%] sm:w-[420px] bg-white border rounded-lg shadow-xl z-50 p-4">
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (!query.trim()) return;
-          router.push(`/search?q=${encodeURIComponent(query)}`);
-          onClose();
-        }}
-      >
-        <input
-          autoFocus
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search products..."
-          className="w-full border px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
-      </form>
-    </div>
-  );
-}
-
-/* ================= COMMON COMPONENTS ================= */
-
-function Icon({ children, onClick }: any) {
-  return (
-    <button
-      onClick={onClick}
-      className="p-2 text-xl hover:bg-gray-100 rounded-full transition"
-    >
-      {children}
-    </button>
-  );
-}
-
-function BadgeIcon({ icon, count, onClick, red }: any) {
-  return (
-    <div className="relative">
-      <Icon onClick={onClick}>{icon}</Icon>
-      {count > 0 && (
-        <span
-          className={`absolute -top-1 -right-1 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center ${
-            red ? "bg-red-500" : "bg-indigo-600"
-          }`}
-        >
-          {count}
-        </span>
-      )}
-    </div>
-  );
-}
-
-function ProfileAvatar({ photo, onClick }: any) {
-  return (
-    <button
-      onClick={onClick}
-      className="w-9 h-9 rounded-full overflow-hidden hover:ring-2 hover:ring-indigo-400"
-    >
-      {photo ? (
-        <img src={photo} className="w-full h-full object-cover" />
-      ) : (
-        <div className="w-full h-full flex items-center justify-center">
-          👤
-        </div>
-      )}
-    </button>
-  );
-}
-
-function ProfileDropdown({ open, isLoggedIn, router }: any) {
-  const { logout } = useAuth();
-  if (!open) return null;
-
-  return (
-    <div
-      className={`absolute right-0 mt-3 w-52 bg-white border rounded-md shadow-lg z-50 ${poppins.className}`}
-    >
-      {!isLoggedIn ? (
-        <>
-          <button
-            onClick={() => router.push("/login")}
-            className="block w-full px-4 py-2 text-left hover:bg-indigo-50"
-          >
-            Login
-          </button>
-          <button
-            onClick={() => router.push("/register")}
-            className="block w-full px-4 py-2 text-left hover:bg-indigo-50"
-          >
-            Create Account
-          </button>
-        </>
-      ) : (
-        <>
-          <button
-            onClick={() => router.push("/profile")}
-            className="block w-full px-4 py-2 text-left hover:bg-indigo-50"
-          >
-            My Profile
-          </button>
-          <button
-            onClick={() => router.push("/orders")}
-            className="block w-full px-4 py-2 text-left hover:bg-indigo-50"
-          >
-            My Orders
-          </button>
-          <button
-            onClick={logout}
-            className="block w-full px-4 py-2 text-left text-red-600 hover:bg-red-50"
-          >
-            Logout
-          </button>
-        </>
-      )}
-    </div>
-  );
-}
-
-function DesktopDropdown({ label, items }: any) {
-  const [open, setOpen] = React.useState(false);
-  return (
-    <div
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-      className="relative"
-    >
-      <span className="cursor-pointer text-indigo-600">{label}</span>
-      {open && (
-        <div
-          className={`absolute mt-2 w-48 bg-white border rounded-md shadow-md ${poppins.className}`}
-        >
-          {items.map((item: string) => (
-            <div
-              key={item}
-              className="px-4 py-2 hover:bg-indigo-50 cursor-pointer"
-            >
-              {item}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function MobileDropdown({ label, items, open, onClick }: any) {
-  return (
-    <div className="border-b py-2">
-      <button
-        onClick={onClick}
-        className="w-full flex justify-between px-2 py-2 text-indigo-600"
-      >
-        {label}
-        <span className={open ? "rotate-180" : ""}>▼</span>
-      </button>
-      {open && (
-        <div className="pl-4">
-          {items.map((item: string) => (
-            <Link
-              key={item}
-              href="#"
-              className="block py-1 text-sm hover:bg-indigo-50"
-            >
-              {item}
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
+    <Link href={href} className="group flex flex-col mb-4">
+      <span className="text-[10px] uppercase tracking-widest flex items-center gap-2">
+        {title}
+        <ChevronRight size={10} className="opacity-0 group-hover:opacity-100" />
+      </span>
+      <span className="text-[9px] text-stone-400 italic">{desc}</span>
+    </Link>
   );
 }

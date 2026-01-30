@@ -1,23 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Minus, ShoppingBag, Heart, ArrowRight } from "lucide-react";
+import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
+import { Plus, Minus, ShoppingBag, Heart, ArrowUpRight, CheckCircle2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 
-interface Product {
-  _id: string;
-  name: string;
-  price: number;
-  images: string[];
-  slug: string;
-  category: string;
-  minOrderQty?: number;
-}
-
-export default function ProductCard({ product }: { product: Product }) {
+export default function ProductCard({ product }: { product: any }) {
   const { addToCart } = useCart();
   const { toggleWishlist, isWishlisted } = useWishlist();
 
@@ -25,137 +15,146 @@ export default function ProductCard({ product }: { product: Product }) {
   const STEP = 10;
 
   const [qty, setQty] = useState<number>(MIN_QTY);
-  const [hovered, setHovered] = useState(false);
   const [added, setAdded] = useState(false);
+
+  // --- 3D TILT LOGIC ---
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const mouseXSpring = useSpring(x);
+  const mouseYSpring = useSpring(y);
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["7deg", "-7deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-7deg", "7deg"]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    x.set((e.clientX - rect.left) / rect.width - 0.5);
+    y.set((e.clientY - rect.top) / rect.height - 0.5);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
 
   const handleAdd = () => {
     addToCart(product, qty);
     setAdded(true);
-    setTimeout(() => setAdded(false), 1500);
+    setTimeout(() => setAdded(false), 2000);
   };
 
   return (
     <motion.div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      whileHover={{ y: -6 }}
-      transition={{ type: "spring", stiffness: 180 }}
-      className="relative bg-white rounded-2xl border shadow-sm hover:shadow-xl transition flex flex-col"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+      className="group relative bg-[#FAF9F6] rounded-[2.5rem] p-4 transition-shadow duration-500 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)] border border-stone-200/50"
     >
-      {/* IMAGE */}
-      <div className="relative h-44 overflow-hidden bg-gray-50 rounded-t-2xl">
+      {/* IMAGE LAYER (Z-INDEX DEPTH) */}
+      <div 
+        style={{ transform: "translateZ(30px)" }}
+        className="relative h-64 overflow-hidden rounded-[2rem] bg-stone-100 shadow-inner"
+      >
         <Link href={`/products/${product.slug}`}>
           <motion.img
             src={product.images?.[0]}
             alt={product.name}
-            animate={{ scale: hovered ? 1.05 : 1 }}
-            transition={{ duration: 0.4 }}
+            whileHover={{ scale: 1.1 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="w-full h-full object-cover"
           />
         </Link>
 
-        {/* CATEGORY */}
-        <span className="absolute top-3 left-3 bg-white/90 px-3 py-1 text-[11px] rounded-full shadow capitalize">
-          {product.category.replace(/-/g, " ")}
-        </span>
-
-        {/* WISHLIST */}
-        <button
-          onClick={() => toggleWishlist(product)}
-          className="absolute top-3 right-3 p-2 bg-white rounded-full shadow hover:scale-110 transition"
-        >
-          <Heart
-            size={16}
-            className={
-              isWishlisted(product._id)
-                ? "fill-red-500 text-red-500"
-                : "text-gray-400"
-            }
-          />
-        </button>
-
-        {/* QUICK VIEW */}
-        <AnimatePresence>
-          {hovered && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="absolute bottom-3 left-3 right-3 hidden md:block"
-            >
-              <Link
-                href={`/products/${product.slug}`}
-                className="w-full py-2 bg-white text-sm font-semibold rounded-xl flex items-center justify-center gap-2 shadow"
-              >
-                View Details <ArrowRight size={14} />
-              </Link>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* CONTENT */}
-      <div className="px-4 py-3 flex flex-col flex-1">
-        <h3 className="text-sm font-semibold line-clamp-1">
-          {product.name}
-        </h3>
-
-        <div className="flex items-center justify-between mt-1">
-          <p className="text-indigo-600 font-bold">
-            ₹{product.price}
-          </p>
-          <span className="text-[11px] bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full">
-            MOQ {MIN_QTY}
+        {/* FLOATING BADGES */}
+        <div className="absolute top-4 left-4 right-4 flex justify-between items-start pointer-events-none">
+          <span className="bg-white/80 backdrop-blur-md px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] rounded-full text-stone-900 border border-white/50 shadow-sm pointer-events-auto">
+            {product.category.replace(/-/g, " ")}
           </span>
+          <button
+            onClick={() => toggleWishlist(product)}
+            className="p-2.5 bg-white/80 backdrop-blur-md rounded-full shadow-sm hover:bg-white transition-all pointer-events-auto"
+          >
+            <Heart
+              size={14}
+              className={isWishlisted(product._id) ? "fill-red-500 text-red-500" : "text-stone-400"}
+            />
+          </button>
         </div>
 
-        {/* QTY */}
-        <div className="flex items-center justify-between mt-3">
-          <div className="flex items-center gap-2 bg-gray-100 rounded-full px-2 py-1">
+        {/* Z-LIFTED QUICK VIEW BUTTON */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-stone-900/10 backdrop-blur-[2px]">
+           <Link 
+            href={`/products/${product.slug}`}
+            className="px-6 py-3 bg-white text-stone-900 text-[10px] font-black uppercase tracking-widest rounded-full shadow-2xl flex items-center gap-2 hover:scale-105 transition-transform"
+           >
+            Explore <ArrowUpRight size={14} />
+           </Link>
+        </div>
+      </div>
+
+      {/* CONTENT LAYER */}
+      <div className="px-2 pt-6 pb-2" style={{ transform: "translateZ(50px)" }}>
+        <div className="flex justify-between items-start mb-2">
+          <h3 className="text-sm font-medium text-stone-900 tracking-tight font-serif italic">
+            {product.name}
+          </h3>
+          <p className="text-sm font-bold text-stone-900">₹{product.price}</p>
+        </div>
+
+        <div className="flex items-center gap-2 mb-6">
+           <div className="h-[1px] flex-1 bg-stone-200"></div>
+           <span className="text-[9px] font-bold text-stone-400 uppercase tracking-widest">
+            Min. {MIN_QTY} Pcs
+           </span>
+        </div>
+
+        {/* 3D INTERACTION BAR */}
+        <div className="flex items-center gap-3">
+          <div className="flex-1 flex items-center justify-between bg-white border border-stone-200 rounded-2xl p-1 shadow-sm">
             <button
-              onClick={() =>
-                setQty((q: number) =>
-                  Math.max(MIN_QTY, q - STEP)
-                )
-              }
-              className="w-7 h-7 flex items-center justify-center rounded-full bg-white shadow"
+              onClick={() => setQty(q => Math.max(MIN_QTY, q - STEP))}
+              className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-stone-50 transition-colors"
             >
               <Minus size={12} />
             </button>
-
-            <span className="min-w-[36px] text-center text-sm font-medium">
-              {qty}
-            </span>
-
+            <span className="text-xs font-bold text-stone-900">{qty}</span>
             <button
-              onClick={() =>
-                setQty((q: number) => q + STEP)
-              }
-              className="w-7 h-7 flex items-center justify-center rounded-full bg-white shadow"
+              onClick={() => setQty(q => q + STEP)}
+              className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-stone-50 transition-colors"
             >
               <Plus size={12} />
             </button>
           </div>
 
-          <span className="text-[10px] text-gray-400">
-            +{STEP}
-          </span>
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={handleAdd}
+            className={`h-10 w-12 flex items-center justify-center rounded-2xl transition-all shadow-lg ${
+              added ? "bg-stone-900 text-white shadow-stone-300" : "bg-white text-stone-900 border border-stone-200 hover:bg-stone-900 hover:text-white"
+            }`}
+          >
+            <AnimatePresence mode="wait">
+              {added ? (
+                <motion.div key="check" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
+                  <CheckCircle2 size={18} />
+                </motion.div>
+              ) : (
+                <motion.div key="bag" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
+                  <ShoppingBag size={18} strokeWidth={1.5} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.button>
         </div>
-
-        {/* ADD TO CART */}
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          onClick={handleAdd}
-          className={`mt-3 h-9 rounded-full text-xs font-semibold flex items-center justify-center gap-2 transition ${
-            added
-              ? "bg-green-600 text-white"
-              : "bg-indigo-600 hover:bg-indigo-700 text-white"
-          }`}
-        >
-          <ShoppingBag size={14} />
-          {added ? "Added" : `Add ${qty}`}
-        </motion.button>
       </div>
+
+      {/* GLOW EFFECT (MOUSE FOLLOW) */}
+      <motion.div
+        style={{
+          transform: "translateZ(60px)",
+          opacity: useTransform(mouseYSpring, [-0.5, 0.5], [0, 0.3]),
+        }}
+        className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent pointer-events-none rounded-[2.5rem]"
+      />
     </motion.div>
   );
 }

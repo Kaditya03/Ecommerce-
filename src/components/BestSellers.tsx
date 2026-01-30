@@ -1,118 +1,166 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { Plus, ArrowRight, Heart } from "lucide-react";
 import "swiper/css";
 
-const BestSellers = () => {
-  const products = [
-    {
-      name: "Spice Box With Spoon In Sheesham Wood",
-      img: "/images/p1.jpg",
-      price: "Rs. 999",
-      old: "Rs. 1,749",
-      off: "43% Off",
-    },
-    {
-      name: "Moroccan Flame Hand-etched Lamp",
-      img: "/images/p2.webp",
-      price: "Rs. 1,599",
-      old: "Rs. 3,499",
-      off: "54% Off",
-    },
-    {
-      name: "Mughal Roots Floral Planter Pots",
-      img: "/images/p3.webp",
-      price: "Rs. 899",
-      old: "Rs. 1,375",
-      off: "35% Off",
-    },
-    {
-      name: "Pyramid Table Lamp in Sheesham Wood",
-      img: "/images/p4.webp",
-      price: "Rs. 1,199",
-      old: "Rs. 2,415",
-      off: "50% Off",
-    },
-    {
-      name: "Mughal Cylindrical Duo Jars",
-      img: "/images/p5.jpg",
-      price: "Rs. 949",
-      old: "Rs. 1,750",
-      off: "46% Off",
-    },
-  ];
+/* ================= TYPES ================= */
+
+type Product = {
+  id: string;
+  name: string;
+  sub: string;
+  img: string;
+  price: string;
+  off: string;
+};
+
+/* ================= DATA ================= */
+
+const products: Product[] = [
+  { id: "01", name: "Spice Box With Spoon", sub: "Sheesham Wood", img: "/images/p1.jpg", price: "On Request", off: "43% Off" },
+  { id: "02", name: "Moroccan Flame Lamp", sub: "Hand-etched Brass", img: "/images/p2.webp", price: "On Request", off: "54% Off" },
+  { id: "03", name: "Mughal Roots Planter", sub: "Ceramic Art", img: "/images/p3.webp", price: "On Request", off: "35% Off" },
+  { id: "04", name: "Pyramid Table Lamp", sub: "Geometric Wood", img: "/images/p4.webp", price: "On Request", off: "50% Off" },
+  { id: "05", name: "Mughal Cylindrical Jars", sub: "Handcrafted Glass", img: "/images/p5.jpg", price: "On Request", off: "46% Off" },
+];
+
+/* ================= PRODUCT CARD ================= */
+
+const ProductCard = ({ p }: { p: Product }) => {
+  const [isTouched, setIsTouched] = useState<boolean>(false);
+
+  const handleTouch = () => {
+    setIsTouched(true);
+    setTimeout(() => setIsTouched(false), 3000);
+  };
 
   return (
-    <div className="w-full py-12 px-6 md:px-12">
-      
-      {/* SECTION TITLE */}
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold">Best-Sellers</h2>
-        <Link
-          href="/best-sellers"
-          className="px-4 py-2 text-blue-700 font-medium   
-             hover:bg-green-600 hover:text-white transition-all duration-300"
+    <div className="group relative flex flex-col bg-white" onClick={handleTouch}>
+      <div className="relative aspect-[4/5] overflow-hidden bg-[#F5F5F3] rounded-sm shadow-sm">
+        <img
+          src={p.img}
+          alt={p.name}
+          className={`h-full w-full object-cover transition-transform duration-[1.5s] ease-out ${
+            isTouched ? "scale-110" : "md:group-hover:scale-110"
+          }`}
+        />
+
+        <div className="absolute top-4 left-4 md:top-5 md:left-5">
+          <span className="block text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
+            {p.id} // {p.off}
+          </span>
+        </div>
+
+        <button
+          className={`absolute top-4 right-4 h-9 w-9 md:h-10 md:w-10 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm transition-all duration-500 ${
+            isTouched
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-2 md:group-hover:opacity-100 md:group-hover:translate-y-0"
+          }`}
         >
-          View All
-        </Link>
+          <Heart size={16} className="text-gray-900" />
+        </button>
+
+        <button
+          className={`absolute inset-x-0 bottom-0 flex items-center justify-center gap-3 bg-black py-4 md:py-5 text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] text-white transition-transform duration-500 ease-out ${
+            isTouched ? "translate-y-0" : "translate-y-full md:group-hover:translate-y-0"
+          }`}
+        >
+          <Plus size={14} /> Add to Collection
+        </button>
       </div>
 
-      {/* DESKTOP GRID (hidden on mobile) */}
-      <div className="hidden md:grid grid-cols-3 lg:grid-cols-5 gap-6">
-        {products.map((p, i) => (
-          <div
-            key={i}
-            className="border rounded-lg shadow hover:shadow-lg transition duration-300 bg-white"
-          >
-            <img src={p.img} className="w-full h-70 object-cover " />
+      <div className="mt-5 md:mt-6 flex flex-col items-center text-center px-2">
+        <span className="text-[8px] md:text-[10px] uppercase tracking-[0.3em] text-gray-400 mb-1 font-semibold">
+          {p.sub}
+        </span>
 
-            <div className="p-4">
-              <p className="font-medium text-gray-700 h-16">{p.name}</p>
+        <h3 className="text-base md:text-xl font-light tracking-tight text-gray-900 font-serif italic leading-tight">
+          {p.name}
+        </h3>
 
-              <div className="mt-3">
-                <span className="text-lg font-bold">{p.price}</span>
-                <span className="text-gray-500 ml-2 line-through">{p.old}</span>
-                <span className="text-green-600 ml-2">{p.off}</span>
-              </div>
-            </div>
+        <div
+          className={`mt-2 md:mt-3 h-[1px] bg-gray-200 transition-all duration-700 ${
+            isTouched
+              ? "w-12 bg-blue-600"
+              : "w-5 md:group-hover:w-12 md:group-hover:bg-blue-600"
+          }`}
+        />
 
-            <button className="w-full bg-blue-600 text-white py-3  hover:bg-blue-700 transition">
-              + Add to cart
-            </button>
-          </div>
-        ))}
+        <p className="mt-3 text-xs md:text-sm font-bold text-gray-900 tracking-widest">
+          {p.price}
+        </p>
       </div>
-
-      {/* MOBILE SLIDER */}
-      <div className="md:hidden">
-        <Swiper spaceBetween={15} slidesPerView={1.3}>
-          {products.map((p, i) => (
-            <SwiperSlide key={i}>
-              <div className="border rounded-lg shadow bg-white">
-                <img src={p.img} className="w-full h-70 object-cover rounded-t-lg" />
-
-                <div className="p-4">
-                  <p className="font-medium text-gray-700 h-16">{p.name}</p>
-
-                  <div className="mt-3">
-                    <span className="text-lg font-bold">{p.price}</span>
-                    <span className="text-gray-500 ml-2 line-through">{p.old}</span>
-                    <span className="text-green-600 ml-2">{p.off}</span>
-                  </div>
-                </div>
-
-                <button className="w-full bg-blue-600 text-white py-2 rounded-b-lg">
-                  + Add to cart
-                </button>
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      </div>
-
     </div>
+  );
+};
+
+/* ================= MAIN COMPONENT ================= */
+
+const BestSellers = () => {
+  return (
+    <section className="w-full bg-[#FCFCFB] pt-16 pb-24 px-4 md:px-12 overflow-hidden">
+      <div className="mx-auto max-w-[1440px]">
+
+        {/* HEADER */}
+        <div className="relative mb-20 md:mb-28 flex flex-col items-center text-center">
+          <span className="absolute top-[-10px] md:top-[-20px] left-1/2 -translate-x-1/2 text-[50px] md:text-[140px] font-black text-gray-100/60 select-none leading-none -z-10 tracking-tighter uppercase">
+            Timeless
+          </span>
+
+          <div className="relative z-10">
+            <h2 className="text-4xl md:text-8xl font-serif tracking-tighter text-gray-900 leading-tight">
+              The <span className="italic text-gray-400 font-light">Curated</span>
+            </h2>
+
+            <div className="mt-6 md:mt-8 flex flex-col items-center">
+              <div className="h-[1.5px] w-12 md:w-16 bg-blue-600 mb-6 md:mb-8" />
+              <p className="max-w-2xl text-[9px] md:text-xs uppercase tracking-[0.4em] text-gray-600 font-bold">
+                Handpicked treasures.{" "}
+                <span className="text-black">Timeless craftsmanship.</span>
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-10 md:mt-14">
+            <Link
+              href="/all"
+              className="group flex flex-col items-center gap-3 md:gap-4 text-[9px] md:text-[10px] font-black uppercase tracking-[0.4em] text-gray-900"
+            >
+              <span className="transition-all md:group-hover:tracking-[0.6em]">
+                View Entire Edit
+              </span>
+              <span className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-full border border-gray-200 transition-all duration-500 md:group-hover:bg-black md:group-hover:text-white">
+                <ArrowRight size={16} />
+              </span>
+            </Link>
+          </div>
+        </div>
+
+        {/* GRID */}
+        <div className="hidden md:grid grid-cols-5 gap-8 lg:gap-12">
+          {products.map((p, i) => (
+            <div key={p.id} className={i % 2 !== 0 ? "mt-20" : ""}>
+              <ProductCard p={p} />
+            </div>
+          ))}
+        </div>
+
+        {/* MOBILE SLIDER */}
+        <div className="md:hidden -mx-4">
+          <Swiper spaceBetween={20} slidesPerView={1.3} centeredSlides>
+            {products.map((p) => (
+              <SwiperSlide key={p.id} className="py-4">
+                <ProductCard p={p} />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+      </div>
+    </section>
   );
 };
 

@@ -3,32 +3,30 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { useProfile } from "@/context/ProfileContext";
+import { motion, AnimatePresence } from "framer-motion";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Github } from "lucide-react";
 import Link from "next/link";
 
 export default function Login() {
   const router = useRouter();
   const { login } = useAuth();
-  const { setPhoto } = useProfile();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
-
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
+    setLoading(true);
 
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
 
@@ -39,135 +37,105 @@ export default function Login() {
         return;
       }
 
-      // ✅ Store token (remember me respected)
-      if (rememberMe) {
-        localStorage.setItem("token", data.token);
+      // ✅ Save user to context
+      login(data.user);
+
+      // ✅ Redirect by role
+      if (data.user.role === "admin") {
+        router.push("/admin/dashboard");
       } else {
-        sessionStorage.setItem("token", data.token);
+        router.push("/");
       }
-
-      // ✅ Update auth state
-      login();
-
-      // ✅ Load profile image (Cloudinary URL from DB)
-      if (data.user?.photo) {
-        setPhoto(data.user.photo);
-      }
-
-      // ✅ Redirect
-      router.push("/");
     } catch (err) {
-      setError("Something went wrong. Please try again.");
+      setError("Something went wrong. Try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex h-[700px] w-full">
-      {/* LEFT IMAGE */}
-      <div className="w-full hidden md:inline-block">
-        <img
-          className="h-full"
-          src="/images/login-left_img1.png"
-          alt="leftSideImage"
-        />
-      </div>
+    <div className="relative min-h-screen w-full flex items-center justify-center bg-[#FAF9F6] overflow-hidden">
+      <div className="relative z-10 flex w-full max-w-[1100px] h-[700px] bg-white/40 backdrop-blur-2xl rounded-[3rem] border border-white/50 shadow-xl overflow-hidden m-4">
 
-      {/* RIGHT FORM */}
-      <div className="w-full flex flex-col items-center justify-center">
-        <form
-          onSubmit={handleLogin}
-          className="md:w-96 w-80 flex flex-col items-center justify-center"
-        >
-          <h2 className="text-4xl text-gray-900 font-medium">Sign in</h2>
-          <p className="text-sm text-gray-500/90 mt-3">
-            Welcome back! Please sign in to continue
-          </p>
+        {/* LEFT IMAGE */}
+        <div className="w-1/2 hidden md:block relative overflow-hidden">
+          <img
+            src="/images/login-left_img1.png"
+            className="h-full w-full object-cover"
+            alt="Login"
+          />
+        </div>
 
-          {/* GOOGLE BUTTON (UI KEPT) */}
-          <button
-            type="button"
-            className="w-full mt-8 bg-gray-500/10 flex items-center justify-center h-12 rounded-full"
-          >
-            <img
-              src="https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/login/googleLogo.svg"
-              alt="googleLogo"
-            />
-          </button>
+        {/* FORM */}
+        <div className="flex-1 flex items-center justify-center p-10">
+          <form onSubmit={handleLogin} className="w-full max-w-sm space-y-6">
 
-          <div className="flex items-center gap-4 w-full my-5">
-            <div className="w-full h-px bg-gray-300/90"></div>
-            <p className="w-full text-nowrap text-sm text-gray-500/90">
-              or sign in with email
-            </p>
-            <div className="w-full h-px bg-gray-300/90"></div>
-          </div>
+            <h2 className="text-3xl font-serif text-center">Welcome Back</h2>
 
-          {/* EMAIL */}
-          <div className="flex items-center w-full border border-gray-300/60 h-12 rounded-full pl-6 gap-2">
-            <input
-              type="email"
-              placeholder="Email"
-              className="bg-transparent text-gray-500/80 outline-none text-sm w-full h-full"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          {/* PASSWORD */}
-          <div className="flex items-center mt-6 w-full border border-gray-300/60 h-12 rounded-full pl-6 gap-2">
-            <input
-              type="password"
-              placeholder="Password"
-              className="bg-transparent text-gray-500/80 outline-none text-sm w-full h-full"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          {/* REMEMBER ME + FORGOT */}
-          <div className="w-full flex items-center justify-between mt-8 text-gray-500/80">
-            <div className="flex items-center gap-2">
+            {/* EMAIL */}
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
-                className="h-5"
-                type="checkbox"
-                id="remember"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
+                type="email"
+                className="w-full pl-12 h-12 border rounded-xl"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
-              <label className="text-sm" htmlFor="remember">
-                Remember me
-              </label>
             </div>
-           <Link href="/forgot-password" className="text-sm underline">
-  Forgot password?
-</Link>
 
-          </div>
+            {/* PASSWORD */}
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type={showPassword ? "text" : "password"}
+                className="w-full pl-12 pr-12 h-12 border rounded-xl"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
 
-          {/* ERROR MESSAGE */}
-          {error && (
-            <p className="text-red-500 text-sm mt-4">{error}</p>
-          )}
+            {/* ERROR */}
+            <AnimatePresence>
+              {error && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="text-red-500 text-sm text-center"
+                >
+                  {error}
+                </motion.p>
+              )}
+            </AnimatePresence>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-8 w-full h-11 rounded-full text-white bg-indigo-500 hover:opacity-90"
-          >
-            {loading ? "Logging in..." : "Login"}
-          </button>
+            {/* BUTTON */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full h-12 bg-black text-white rounded-xl font-semibold"
+            >
+              {loading ? "Signing in..." : "Login"}
+            </button>
 
-          <p className="text-gray-500/90 text-sm mt-4">
-            Don’t have an account?{" "}
-            <a className="text-indigo-400 hover:underline" href="/register">
-              Sign up
-            </a>
-          </p>
-        </form>
+            <p className="text-center text-sm text-gray-500">
+              Don’t have an account?{" "}
+              <Link href="/register" className="text-black font-semibold">
+                Sign up
+              </Link>
+            </p>
+          </form>
+        </div>
       </div>
     </div>
   );

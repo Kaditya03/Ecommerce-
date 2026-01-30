@@ -1,20 +1,22 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Product from "@/models/Product";
+import mongoose from "mongoose";
+
+export const runtime = "nodejs";
 
 export async function DELETE(
-  req: Request,
-  context: { params: Promise<{ id: string }> }
+  request: NextRequest,
+  { params }: { params: any } // ✅ FIXED
 ) {
   try {
     await connectDB();
 
-    // ✅ FIX: await params
-    const { id } = await context.params;
+    const { id } = params;
 
-    if (!id) {
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        { message: "Product ID missing" },
+        { message: "Invalid product ID" },
         { status: 400 }
       );
     }

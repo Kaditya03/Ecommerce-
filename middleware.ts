@@ -4,21 +4,19 @@ import jwt from "jsonwebtoken";
 export function middleware(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
 
-  // Allow login page
-  if (req.nextUrl.pathname === "/admin/login") {
-    return NextResponse.next();
+  if (!token)
+    return NextResponse.redirect(new URL("/login", req.url));
+
+  const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+
+  if (
+    req.nextUrl.pathname.startsWith("/admin") &&
+    decoded.role !== "admin"
+  ) {
+    return NextResponse.redirect(new URL("/", req.url));
   }
 
-  if (!token) {
-    return NextResponse.redirect(new URL("/admin/login", req.url));
-  }
-
-  try {
-    jwt.verify(token, process.env.JWT_SECRET!);
-    return NextResponse.next();
-  } catch {
-    return NextResponse.redirect(new URL("/admin/login", req.url));
-  }
+  return NextResponse.next();
 }
 
 export const config = {

@@ -4,69 +4,47 @@ import User from "@/models/User";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
+export const runtime = "nodejs";
+
 export async function POST(req: Request) {
-  try {
-    await connectDB();
+  await connectDB();
 
-    // ✅ USE EMAIL, NOT NAME
-    const { email, password } = await req.json();
+  const { email, password } = await req.json();
 
-    if (!email || !password) {
-      return NextResponse.json(
-        { message: "Email and password are required" },
-        { status: 400 }
-      );
-    }
+  const user = await User.findOne({ email });
 
+  if (!user)
+    return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
 
+  if (!user.isEmailVerified)
+    return NextResponse.json({ message: "Verify email first" }, { status: 403 });
 
-    // ✅ FIND USER BY EMAIL
-    const user = await User.findOne({ email });
-    if (!user) {
-      return NextResponse.json(
-        { message: "Invalid email or password" },
-        { status: 401 }
-      );
-    }
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch)
+    return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
 
-    if (!user.isEmailVerified) {
-  return NextResponse.json(
-    { message: "Please verify your email before logging in" },
-    { status: 403 }
+  const token = jwt.sign(
+    { id: user._id, role: user.role },
+    process.env.JWT_SECRET!,
+    { expiresIn: "7d" }
   );
-}
 
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return NextResponse.json(
-        { message: "Invalid email or password" },
-        { status: 401 }
-      );
-    }
+  const res = NextResponse.json({
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
+  });
 
-    const token = jwt.sign(
-      { id: user._id, role: "user" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "7d" }
-    );
+  res.cookies.set("token", token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+  });
 
-    return NextResponse.json({
-      message: "Login successful",
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        photo:user.photo,
-      },
-    });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { message: "Login failed" },
-      { status: 500 }
-    );
-  }
+  return res;
 }

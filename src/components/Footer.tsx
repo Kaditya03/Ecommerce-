@@ -1,61 +1,198 @@
-import React from "react";
+"use client";
+
+import React, { useRef } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import {
+  Instagram,
+  Facebook,
+  Twitter,
+  ArrowUpRight,
+  Mail,
+  Globe,
+  ArrowRight,
+} from "lucide-react";
+
+/* ================= TYPES ================= */
+
+type FooterLink = {
+  n: string;
+  h: string;
+};
+
+type FooterGroupProps = {
+  title: string;
+  links: FooterLink[];
+};
+
+type SocialBtnProps = {
+  icon: React.ReactNode;
+};
+
+/* ================= MAIN FOOTER ================= */
 
 const Footer = () => {
+  const currentYear = new Date().getFullYear();
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end end"],
+  });
+
+  const rotateX = useTransform(scrollYProgress, [0, 1], [10, 0]);
+  const scale = useTransform(scrollYProgress, [0, 1], [0.95, 1]);
+  const animatedRotateX = useSpring(rotateX, { stiffness: 100, damping: 30 });
+  const animatedScale = useSpring(scale, { stiffness: 100, damping: 30 });
+
   return (
-    <footer className="bg-gray-900 text-gray-300 py-10 px-6 md:px-20">
+    <footer
+      ref={containerRef}
+      className="bg-[#faf9f6] pt-32 pb-12 px-6 md:px-12 lg:px-24 overflow-hidden perspective-1000"
+    >
+      <motion.div
+        style={{ rotateX: animatedRotateX, scale: animatedScale }}
+        className="max-w-[1700px] mx-auto origin-bottom"
+      >
+        {/* TOP SECTION */}
+        <div className="flex flex-col lg:flex-row justify-between gap-16 mb-32">
+          <div className="space-y-8 max-w-2xl">
+            <div className="relative h-14 w-56">
+              <Image
+                src="/images/AurindelLogo.png"
+                alt="Aurindel"
+                fill
+                className="object-contain object-left"
+              />
+            </div>
 
-      {/* Main Footer Grid */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
+            <p className="text-stone-400 text-3xl md:text-5xl font-extralight leading-[1.1]">
+              Honoring the <span className="italic text-stone-800">hand</span>,<br />
+              Elevating the <span className="italic text-stone-800">soul</span>.
+            </p>
+          </div>
 
-        {/* Brand */}
-        <div>
-          <h1 className="text-2xl font-semibold text-white mb-4">Aurindel</h1>
-          <p className="text-gray-400 text-sm leading-relaxed">
-            Crafting premium quality products with love and elegance.
-          </p>
+          {/* NEWSLETTER */}
+          <motion.div
+            whileHover={{ translateZ: 20 }}
+            className="w-full lg:w-[450px] bg-white p-8 md:p-12 rounded-3xl border border-stone-100 shadow-[0_40px_80px_-15px_rgba(0,0,0,0.05)]"
+          >
+            <h3 className="text-[10px] uppercase tracking-[0.5em] text-stone-400 mb-6 font-bold">
+              The Aurindel Club
+            </h3>
+
+            <p className="text-stone-500 text-sm mb-8">
+              Join for exclusive access to heritage drops and artisan stories.
+            </p>
+
+            <div className="flex items-center border-b border-stone-200 pb-3">
+              <input
+                type="email"
+                placeholder="YOUR EMAIL"
+                className="w-full bg-transparent outline-none text-[11px] tracking-[0.2em]"
+              />
+              <ArrowRight size={18} />
+            </div>
+          </motion.div>
         </div>
 
-        {/* Links */}
-        <div>
-          <h2 className="text-white font-semibold mb-3">Quick Links</h2>
-          <ul className="space-y-2 text-sm">
-            <li className="hover:text-white transition">Home</li>
-            <li className="hover:text-white transition">About</li>
-            <li className="hover:text-white transition">Products</li>
-            <li className="hover:text-white transition">Contact</li>
-          </ul>
+        {/* LINKS GRID */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-32">
+          <FooterGroup
+            title="Curation"
+            links={[
+              { n: "Pottery", h: "/collections/pottery" },
+              { n: "Handlooms", h: "/collections/handlooms" },
+              { n: "Brass Art", h: "/collections/brass" },
+              { n: "Woodcraft", h: "/collections/wood" },
+            ]}
+          />
+
+          <FooterGroup
+            title="Heritage"
+            links={[
+              { n: "Our Story", h: "/about" },
+              { n: "Artisans", h: "/about/artisans" },
+              { n: "Sustainability", h: "/about/sustainability" },
+              { n: "Contact", h: "/contact" },
+            ]}
+          />
+
+          <FooterGroup
+            title="Services"
+            links={[
+              { n: "Shipping Policy", h: "/policies/shipping" },
+              { n: "Returns", h: "/policies/refund" },
+              { n: "Care Guide", h: "/care" },
+              { n: "Bespoke", h: "/bespoke" },
+            ]}
+          />
+
+          <div>
+            <h4 className="text-[10px] uppercase tracking-[0.4em] mb-10 font-black">
+              Socials
+            </h4>
+            <div className="flex gap-6">
+              <SocialBtn icon={<Instagram size={18} />} />
+              <SocialBtn icon={<Facebook size={18} />} />
+              <SocialBtn icon={<Twitter size={18} />} />
+            </div>
+
+            <div className="mt-10 space-y-2 text-[10px] uppercase tracking-[0.2em] text-stone-400">
+              <p className="flex items-center gap-2">
+                <Mail size={12} /> support@aurindel.com
+              </p>
+              <p className="flex items-center gap-2">
+                <Globe size={12} /> New Delhi, India
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* Policies */}
-        <div>
-          <h2 className="text-white font-semibold mb-3">Policies</h2>
-          <ul className="space-y-2 text-sm">
-            <li className="hover:text-white transition">Privacy Policy</li>
-            <li className="hover:text-white transition">Terms & Conditions</li>
-            <li className="hover:text-white transition">Refund Policy</li>
-            <li className="hover:text-white transition">Shipping Policy</li>
-          </ul>
+        {/* FOOTER BASE */}
+        <div className="pt-10 border-t text-[9px] uppercase tracking-[0.4em] text-stone-400 flex flex-col md:flex-row justify-between">
+          <p>© {currentYear} Aurindel Studio</p>
+          <div className="flex gap-10 mt-4 md:mt-0">
+            <span>Accessibility</span>
+            <span>Terms</span>
+            <span>Privacy</span>
+          </div>
         </div>
-
-        {/* Contact */}
-        <div>
-          <h2 className="text-white font-semibold mb-3">Contact Us</h2>
-          <ul className="space-y-2 text-sm">
-            <li>Email: support@aurindel.com</li>
-            <li>Phone: +91 98765 43210</li>
-            <li>Location: New Delhi, India</li>
-          </ul>
-        </div>
-
-      </div>
-
-      {/* Divider */}
-      <div className="border-t border-gray-700 mt-10 pt-5 text-center text-sm text-gray-500">
-        © {new Date().getFullYear()} Aurindel — All Rights Reserved.
-      </div>
-
+      </motion.div>
     </footer>
   );
 };
+
+/* ================= SUB COMPONENTS ================= */
+
+const FooterGroup = ({ title, links }: FooterGroupProps) => (
+  <div>
+    <h4 className="text-[10px] uppercase tracking-[0.4em] mb-10 font-black">
+      {title}
+    </h4>
+    <ul className="space-y-5">
+      {links.map((link) => (
+        <li key={link.n}>
+          <Link
+            href={link.h}
+            className="text-[11px] uppercase tracking-[0.25em] text-stone-400 hover:text-stone-900 transition"
+          >
+            {link.n}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  </div>
+);
+
+const SocialBtn = ({ icon }: SocialBtnProps) => (
+  <motion.div
+    whileHover={{ y: -5, rotateZ: 10 }}
+    className="p-2 border rounded-full cursor-pointer"
+  >
+    {icon}
+  </motion.div>
+);
 
 export default Footer;

@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-  throw new Error("❌ Please define MONGODB_URI in .env.local");
+  throw new Error(" Please define MONGODB_URI in .env.local");
 }
 
 let cached = (global as any).mongoose || {
@@ -25,5 +25,6 @@ async function connectDB() {
 
   return cached.conn;
 }
+// console.log("Connected to DB:", mongoose.connection.name);
 
 export default connectDB;
