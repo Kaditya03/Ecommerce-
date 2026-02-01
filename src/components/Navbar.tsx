@@ -3,135 +3,120 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, AnimatePresence, Variants } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
   ShoppingBag,
   User,
-  Menu,
   X,
-  ChevronDown,
-  ChevronRight,
+  Menu,
+  Heart,
+  Settings,
+  Package,
   LogOut,
-  ArrowRight,
-  Instagram,
-  Linkedin,
+  ArrowRight
 } from "lucide-react";
 
 import { useMenu } from "@/context/MenuContext";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 
-type MobileMenu = "shop" | "about" | null;
-
 export default function Navbar() {
+  const router = useRouter();
   const { menuOpen, setMenuOpen } = useMenu();
   const { cartCount } = useCart();
   const { isLoggedIn, user, logout } = useAuth();
-
   const [scrolled, setScrolled] = useState(false);
-  const [activeMobileSub, setActiveMobileSub] = useState<MobileMenu>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 30);
+    const onScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const closeMenu = () => {
+  const handleCloseToHome = () => {
     setMenuOpen(false);
-    setActiveMobileSub(null);
-  };
-
-  // Fixed Variants with explicit Types for Next.js Build
-  const menuVariants: Variants = {
-    closed: { 
-      opacity: 0, 
-      x: "100%",
-      transition: {
-        duration: 0.5,
-        ease: [0.32, 0, 0.67, 0]
-      }
-    },
-    open: { 
-      opacity: 1, 
-      x: 0, 
-      transition: { 
-        duration: 0.6, 
-        ease: [0.22, 1, 0.36, 1],
-        staggerChildren: 0.1,
-        delayChildren: 0.2
-      } 
-    }
-  };
-
-  const itemVariants: Variants = {
-    closed: { opacity: 0, y: 20 },
-    open: { opacity: 1, y: 0 }
+    router.push("/");
   };
 
   return (
     <>
-      {/* ================= NAVBAR ================= */}
-      <nav
-        className={`fixed top-0 left-0 w-full z-[100] transition-all duration-700 ${
-          scrolled
-            ? "bg-white/95 backdrop-blur-xl py-3 border-b border-stone-100 shadow-sm"
-            : "bg-white md:bg-transparent py-4 md:py-8"
-        }`}
-      >
-        <div className="max-w-[1600px] mx-auto px-6 md:px-12 flex items-center justify-between">
+      <nav className={`top-0 left-0 w-full z-[100] transition-all duration-500 ${
+        scrolled 
+          ? "fixed bg-white/95 backdrop-blur-xl shadow-sm border-b border-stone-100 py-3" 
+          : "sticky lg:absolute bg-[#FBFBFA] lg:bg-transparent py-4 md:py-10" 
+      }`}>
+        <div className="max-w-[1800px] mx-auto px-6 md:px-12 flex items-center justify-between">
           
-          {/* LEFT (Desktop) */}
-          <div className="hidden lg:flex items-center gap-10 flex-1 text-[10px] uppercase tracking-[0.4em] text-stone-500">
-            <DesktopDropdown title="Collections">
-              <NavSubLink title="Pottery" desc="Handcrafted Earth" href="/collections/pottery" />
-              <NavSubLink title="Handlooms" desc="Traditional Weaves" href="/collections/handlooms" />
-              <NavSubLink title="Brass Art" desc="Timeless Metalwork" href="/collections/brass" />
-            </DesktopDropdown>
-
-            <DesktopDropdown title="About">
-              <NavSubLink title="Our Story" desc="The Aurindel Heritage" href="/about" />
-              <NavSubLink title="Artisans" desc="Meet the Makers" href="/about/artisans" />
-              <NavSubLink title="Sustainability" desc="Our Green Commitment" href="/about/sustainability" />
-            </DesktopDropdown>
-          </div>
-
-          {/* LOGO */}
-          <Link href="/">
-            <div
-              className={`relative transition-all duration-700 ${
-                scrolled ? "h-7 w-24 md:h-10 md:w-36" : "h-8 w-28 md:h-14 md:w-52"
-              }`}
-            >
-              <Image src="/images/AurindelLogo.png" alt="Aurindel" fill className="object-contain" />
+          {/* LOGO - Original Colors */}
+          <Link href="/" className="flex-shrink-0 z-[110]">
+            <div className={`relative transition-all duration-500 ${
+              scrolled ? "h-6 w-20 md:h-8 md:w-28" : "h-7 w-24 md:h-12 md:w-40"
+            }`}>
+              <Image 
+                src="/images/AurindelLogo.png" 
+                alt="Aurindel" 
+                fill 
+                priority
+                unoptimized
+                className="object-contain object-left" 
+              />
             </div>
           </Link>
 
-          {/* RIGHT */}
-          <div className="flex items-center gap-5 flex-1 justify-end">
-            <button className="text-stone-700 hover:text-black transition-colors">
-              <Search size={20} strokeWidth={1.5} />
-            </button>
+          {/* DESKTOP NAV - Synced Words */}
+          <div className={`hidden lg:flex items-center gap-10 text-[10px] uppercase tracking-[0.4em] font-bold transition-colors duration-500 ${
+            scrolled ? "text-stone-500" : "text-black"
+          }`}>
+            <NavLink href="/about" label="About Us" />
+            <NavLink href="/contact" label="Contact" />
+            <NavLink href="/archives" label="Archives" />
+          </div>
 
-            {/* Desktop User Group */}
-            <div className="hidden lg:block relative group">
-              <User size={20} strokeWidth={1.5} />
-              <div className="absolute right-0 mt-4 w-60 bg-white border border-stone-100 shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 p-6 z-[120] rounded-xl">
+          {/* RIGHT ACTIONS */}
+          <div className="flex items-center gap-3 md:gap-7 z-[110] text-black">
+            <button className="p-2 hover:bg-stone-200/20 rounded-full transition-colors">
+              <Search size={18} strokeWidth={1.5} />
+            </button>
+            
+            <Link href="/cart" className="relative p-2 hover:bg-stone-200/20 rounded-full group transition-colors">
+              <ShoppingBag size={18} strokeWidth={1.5} />
+              {cartCount > 0 && (
+                <span className="absolute top-1 right-1 text-[7px] w-3.5 h-3.5 flex items-center justify-center rounded-full font-bold bg-black text-white">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+
+            {/* PROFILE DROPDOWN - RESTORED FEATURES */}
+            <div className="hidden md:block relative group">
+              <div className="flex items-center gap-2 cursor-pointer p-2 hover:bg-stone-100 rounded-full transition-colors">
+                <User size={18} strokeWidth={1.5} />
+                {isLoggedIn && (
+                  <span className="text-[9px] uppercase tracking-widest font-bold">
+                    {user?.name?.split(' ')[0]}
+                  </span>
+                )}
+              </div>
+              
+              <div className="absolute right-0 mt-4 w-60 bg-white border border-stone-100 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 rounded-2xl overflow-hidden p-2 text-black font-sans">
                 {!isLoggedIn ? (
-                  <div className="space-y-4">
-                    <p className="text-[10px] uppercase tracking-widest text-stone-400 font-bold mb-2">Welcome</p>
-                    <Link href="/login" className="block text-sm hover:translate-x-1 transition-transform">Sign In</Link>
-                    <Link href="/register" className="block text-sm hover:translate-x-1 transition-transform font-medium">Create Account</Link>
+                  <div className="p-5 flex flex-col gap-4">
+                    <p className="text-[9px] uppercase tracking-[0.2em] text-stone-400 font-bold">Member Access</p>
+                    <Link href="/login" className="bg-black text-white text-center py-3 rounded-xl text-[10px] uppercase tracking-widest font-bold hover:bg-stone-800 transition-all">Sign In</Link>
+                    <Link href="/register" className="text-center text-[10px] uppercase tracking-widest font-bold text-stone-600 hover:text-black transition-all">Join Aurindel</Link>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    <div className="pb-3 border-b border-stone-100">
-                        <p className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">Account</p>
-                        <p className="text-sm font-serif italic mt-1">{user?.name}</p>
+                  <div className="flex flex-col gap-1">
+                    <div className="p-4 border-b border-stone-50 mb-1">
+                       <p className="text-[10px] font-bold uppercase tracking-tight">{user?.name}</p>
+                       <p className="text-[9px] text-stone-400 lowercase">{user?.email}</p>
                     </div>
-                    <Link href="/orders" className="block text-sm hover:translate-x-1 transition-transform">My Orders</Link>
-                    <button onClick={logout} className="flex items-center gap-2 text-xs text-red-500 font-medium">
+                    <ProfileItem icon={<Package size={14}/>} label="Orders" href="/account/orders" />
+                    <ProfileItem icon={<Heart size={14}/>} label="Wishlist" href="/wishlist" />
+                    <ProfileItem icon={<Settings size={14}/>} label="Settings" href="/account/settings" />
+                    <button onClick={logout} className="flex items-center gap-3 w-full p-3 text-red-500 hover:bg-red-50 transition-all rounded-lg text-[10px] uppercase font-bold mt-1 border-t border-stone-50">
                       <LogOut size={14} /> Logout
                     </button>
                   </div>
@@ -139,107 +124,63 @@ export default function Navbar() {
               </div>
             </div>
 
-            <Link href="/cart" className="relative text-stone-700 hover:text-black transition-colors">
-              <ShoppingBag size={20} strokeWidth={1.5} />
-              {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-stone-900 text-white text-[8px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-
+            {/* MOBILE TOGGLE */}
             <button 
-                onClick={() => setMenuOpen(true)} 
-                className="lg:hidden p-1.5 bg-stone-100 rounded-full text-stone-900 active:scale-90 transition-transform"
+              onClick={() => setMenuOpen(!menuOpen)} 
+              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-full bg-stone-100/50 text-black"
             >
-              <Menu size={20} />
+              {menuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
       </nav>
 
-      {/* ================= MOBILE MENU ================= */}
+      {/* FULLSCREEN MOBILE MENU */}
       <AnimatePresence>
         {menuOpen && (
-          <motion.div
-            variants={menuVariants}
-            initial="closed"
-            animate="open"
-            exit="closed"
-            className="fixed inset-0 bg-white z-[200] flex flex-col"
+          <motion.div 
+            initial={{ y: "-100%" }} 
+            animate={{ y: 0 }} 
+            exit={{ y: "-100%" }} 
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed inset-0 bg-[#FBFBFA] z-[200] flex flex-col"
           >
-            <div className="flex justify-between items-center px-8 py-7">
-              <div className="relative h-6 w-20">
-                 <Image src="/images/AurindelLogo.png" alt="Aurindel" fill className="object-contain" />
-              </div>
-              <button 
-                onClick={closeMenu}
-                className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center text-stone-900"
-              >
-                <X size={18} />
+            <div className="flex items-center justify-between p-6 border-b border-stone-100">
+              <Image src="/images/AurindelLogo.png" alt="Logo" width={90} height={35} className="object-contain" />
+              <button onClick={handleCloseToHome} className="w-10 h-10 flex items-center justify-center bg-black text-white rounded-full">
+                <X size={20} />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-8 py-6 space-y-10">
-              <nav className="space-y-8">
-                <motion.div variants={itemVariants}>
-                    <button
-                        onClick={() => setActiveMobileSub(activeMobileSub === "shop" ? null : "shop")}
-                        className="group flex items-baseline justify-between w-full"
-                    >
-                        <span className="text-4xl font-serif italic text-stone-900">Collections</span>
-                        <ChevronRight className={`transition-transform duration-300 ${activeMobileSub === "shop" ? "rotate-90" : ""}`} size={20} />
-                    </button>
-                    <AnimatePresence>
-                        {activeMobileSub === "shop" && (
-                            <motion.div 
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: "auto", opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                className="overflow-hidden pl-2 mt-4 space-y-4"
-                            >
-                                {["Pottery", "Handlooms", "Brass Art"].map((item) => (
-                                    <Link key={item} href={`/collections/${item.toLowerCase().replace(' ', '-')}`} className="block text-lg text-stone-500 font-light" onClick={closeMenu}>
-                                        {item}
-                                    </Link>
-                                ))}
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </motion.div>
+            <div className="flex flex-col p-8 space-y-12 overflow-y-auto">
+                {/* Main Links */}
+                <div className="flex flex-col space-y-6">
+                  <MobileLink href="/about" label="About Us" onClick={() => setMenuOpen(false)} />
+                  <MobileLink href="/contact" label="Contact" onClick={() => setMenuOpen(false)} />
+                  <MobileLink href="/archives" label="Archives" onClick={() => setMenuOpen(false)} />
+                </div>
 
-                <motion.div variants={itemVariants}>
-                    <Link href="/about" onClick={closeMenu} className="text-4xl font-serif italic text-stone-900 block">
-                        Our Story
-                    </Link>
-                </motion.div>
-
-                <motion.div variants={itemVariants}>
-                    <Link href="/about/artisans" onClick={closeMenu} className="text-4xl font-serif italic text-stone-900 block">
-                        Meet Artisans
-                    </Link>
-                </motion.div>
-              </nav>
-
-              <motion.div variants={itemVariants} className="pt-10 border-t border-stone-100 space-y-6">
-                <p className="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-400">Membership</p>
-                {isLoggedIn ? (
-                  <div className="flex gap-4">
-                     <Link href="/profile" className="flex-1 h-14 border border-stone-200 rounded-2xl flex items-center justify-center text-sm font-medium">Profile</Link>
-                     <button onClick={logout} className="w-14 h-14 border border-stone-200 rounded-2xl flex items-center justify-center text-red-500"><LogOut size={18} /></button>
-                  </div>
-                ) : (
-                  <Link href="/login" onClick={closeMenu} className="flex items-center justify-between w-full h-16 px-6 bg-stone-900 text-white rounded-2xl">
-                    <span className="text-sm font-bold uppercase tracking-widest">Sign In</span>
-                    <ArrowRight size={18} />
-                  </Link>
-                )}
-              </motion.div>
-
-              <motion.div variants={itemVariants} className="flex gap-6 pt-6">
-                 <Link href="#" className="w-10 h-10 rounded-full border border-stone-100 flex items-center justify-center text-stone-400"><Instagram size={18} /></Link>
-                 <Link href="#" className="w-10 h-10 rounded-full border border-stone-100 flex items-center justify-center text-stone-400"><Linkedin size={18} /></Link>
-              </motion.div>
+                {/* Profile Section */}
+                <div className="pt-8 border-t border-stone-200">
+                  {isLoggedIn ? (
+                    <div className="space-y-6">
+                      <div className="mb-2">
+                       
+                        <p className="text-xl font-medium">{user?.name}</p>
+                      </div>
+                      <div className="grid grid-cols-1 gap-4">
+                        <MobileProfileItem icon={<Package size={18}/>} label="My Orders" href="/account/orders" />
+                        <MobileProfileItem icon={<Heart size={18}/>} label="Your Wishlist" href="/wishlist" />
+                        <MobileProfileItem icon={<Settings size={18}/>} label="Account Settings" href="/account/settings" />
+                      </div>
+                      <button onClick={logout} className="flex items-center gap-3 py-4 text-red-500 text-[10px] uppercase font-bold border-t border-stone-200 mt-4 w-full">
+                        <LogOut size={16}/> Logout
+                      </button>
+                    </div>
+                  ) : (
+                    <Link href="/login" onClick={() => setMenuOpen(false)} className="block w-full py-5 text-center bg-black text-white rounded-2xl text-[10px] uppercase font-bold tracking-widest shadow-lg">Sign In</Link>
+                  )}
+                </div>
             </div>
           </motion.div>
         )}
@@ -248,27 +189,37 @@ export default function Navbar() {
   );
 }
 
-function DesktopDropdown({ title, children }: { title: string; children: React.ReactNode; }) {
+/* Helper Components */
+
+function NavLink({ href, label }: { href: string, label: string }) {
   return (
-    <div className="relative group py-2">
-      <span className="flex items-center gap-1 cursor-default hover:text-stone-900 transition-colors">
-        {title} <ChevronDown size={10} className="group-hover:rotate-180 transition-transform duration-300" />
-      </span>
-      <div className="absolute top-full -left-4 mt-2 bg-white border border-stone-100 shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 p-8 z-[110] rounded-xl min-w-[240px]">
-        {children}
-      </div>
-    </div>
+    <Link href={href} className="transition-all relative group opacity-80 hover:opacity-100">
+      {label}
+      <span className="absolute -bottom-1 left-0 w-0 h-px bg-black transition-all group-hover:w-full" />
+    </Link>
   );
 }
 
-function NavSubLink({ title, desc, href }: { title: string; desc: string; href: string }) {
+function ProfileItem({ icon, label, href }: { icon: React.ReactNode, label: string, href: string }) {
   return (
-    <Link href={href} className="group block mb-5 last:mb-0">
-      <p className="text-xs uppercase tracking-widest flex items-center justify-between group-hover:text-stone-900 transition-colors">
-        {title}
-        <ChevronRight size={10} className="opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
-      </p>
-      <span className="text-[10px] text-stone-400 italic group-hover:text-stone-600 transition-colors">{desc}</span>
+    <Link href={href} className="flex items-center gap-3 p-3 hover:bg-stone-50 rounded-lg transition-all text-[10px] uppercase font-bold text-stone-600 hover:text-black">
+      {icon} {label}
     </Link>
   );
+}
+
+function MobileLink({ href, label, onClick }: { href: string, label: string, onClick: () => void }) {
+  return (
+    <Link href={href} onClick={onClick} className="text-sm font-bold uppercase tracking-[0.4em] flex items-center justify-between py-2 active:opacity-50">
+      {label} <ArrowRight size={16} className="text-stone-300" />
+    </Link>
+  );
+}
+
+function MobileProfileItem({ icon, label, href }: { icon: React.ReactNode, label: string, href: string }) {
+    return (
+      <Link href={href} className="flex items-center gap-4 py-1 text-[11px] uppercase tracking-widest font-bold text-stone-600">
+        <span className="text-stone-300">{icon}</span> {label}
+      </Link>
+    );
 }
