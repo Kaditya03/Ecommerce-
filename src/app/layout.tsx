@@ -6,6 +6,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { ProfileProvider } from "@/context/ProfileContext";
 import { WishlistProvider } from "@/context/WishlistContext";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,7 +23,7 @@ export const metadata: Metadata = {
   description:
     "Discover handcrafted decor, jewelry, and artisan goods made with love at Aurindel.",
   icons: {
-    icon: "/favicon.ico.jpg",
+    icon: "images/AurindelLogo_site.png",
   },
 };
 
@@ -36,7 +37,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* ✅ NOW MenuProvider ACTUALLY WRAPS EVERYTHING */}
+        
         <AuthProvider>
           <CartProvider>
             <WishlistProvider>
@@ -47,6 +48,7 @@ export default function RootLayout({
 
         <MenuProvider>
           {children}
+           <Toaster richColors position="top-right" />
         </MenuProvider>
             </ProfileProvider>
             </WishlistProvider>

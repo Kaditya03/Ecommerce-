@@ -3,11 +3,9 @@
 import { useState } from "react";
 import ImageUploader from "@/components/admin/ImageUploader";
 import { motion } from "framer-motion";
-import { Save } from "lucide-react";
+import { Save, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-
 
 export default function AddProductPage() {
   const router = useRouter();
@@ -21,36 +19,45 @@ export default function AddProductPage() {
   const [loading, setLoading] = useState(false);
 
   const saveProduct = async () => {
-    if (!name || !price || !category || images.length === 0) {
+    if (!name || !category || images.length === 0) {
       alert("Please fill all required fields");
       return;
     }
 
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const res = await fetch("/api/admin-auth/products", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name,
-        price,
-        description,
-        images,
-        category,
-        sections,
-        minOrderQty: 50,
-      }),
-    });
+      const res = await fetch("/api/admin-auth/products", {
+        method: "POST",
+        credentials: "include", // ✅ REQUIRED (DO NOT REMOVE)
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          price: price || "On Request",
+          description,
+          images,
+          category,
+          sections,
+          minOrderQty: 50,
+        }),
+      });
 
-    setLoading(false);
+      if (!res.ok) {
+        const err = await res.json();
+        console.error("SAVE PRODUCT ERROR:", err);
+        alert(err.message || "Failed to save product");
+        return;
+      }
 
-    if (!res.ok) {
-      alert("Failed to save product");
-      return;
+      router.push("/admin/products");
+    } catch (error) {
+      console.error("SAVE PRODUCT FAILED:", error);
+      alert("Something went wrong while saving product");
+    } finally {
+      setLoading(false);
     }
-
-    // Redirect to product list
-    router.push("/admin/products");
   };
 
   return (
@@ -59,39 +66,33 @@ export default function AddProductPage() {
       animate={{ opacity: 1, y: 0 }}
       className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-10"
     >
-     {/* HEADER */}
-<div className="mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+      {/* HEADER */}
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900">
+            Add New Product
+          </h1>
+          <p className="text-gray-500 text-sm mt-1">
+            Product will be visible to customers immediately
+          </p>
+        </div>
 
-  <div>
-    <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900">
-      Add New Product
-    </h1>
-    <p className="text-gray-500 text-sm mt-1">
-      Product will be visible to customers immediately
-    </p>
-  </div>
+        <Link href="/admin/products">
+          <motion.button
+            whileHover={{ x: -4 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl border bg-white text-gray-700 hover:bg-gray-50 transition shadow-sm"
+          >
+            <ArrowLeft size={18} />
+            <span className="text-sm font-medium">Back</span>
+          </motion.button>
+        </Link>
+      </div>
 
-  {/* BACK BUTTON */}
-  <Link href="/admin/products">
-    <motion.button
-      whileHover={{ x: -4 }}
-      whileTap={{ scale: 0.95 }}
-      className="flex items-center gap-2 px-4 py-2 rounded-xl border bg-white text-gray-700 hover:bg-gray-50 transition shadow-sm"
-    >
-      <ArrowLeft size={18} />
-      <span className="text-sm font-medium">Back</span>
-    </motion.button>
-  </Link>
-</div>
-
-
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
         {/* IMAGE UPLOAD */}
         <div className="space-y-5">
-          <h2 className="font-medium text-gray-800">
-            Product Images
-          </h2>
+          <h2 className="font-medium text-gray-800">Product Images</h2>
 
           <ImageUploader
             onUpload={(urls) =>
@@ -101,7 +102,6 @@ export default function AddProductPage() {
 
           {images.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
-
               {images.map((img, i) => (
                 <div
                   key={i}
@@ -131,9 +131,7 @@ export default function AddProductPage() {
         {/* FORM */}
         <div className="space-y-6">
           <div>
-            <label className="text-sm font-medium">
-              Product Name
-            </label>
+            <label className="text-sm font-medium">Product Name</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -143,22 +141,7 @@ export default function AddProductPage() {
           </div>
 
           <div>
-            <label className="text-sm font-medium">
-              Price (₹)
-            </label>
-            <input
-              type="number"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              className="mt-1 w-full h-11 rounded-xl border px-4"
-              placeholder="499"
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium">
-              Description
-            </label>
+            <label className="text-sm font-medium">Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -168,9 +151,7 @@ export default function AddProductPage() {
           </div>
 
           <div>
-            <label className="text-sm font-medium">
-              Category
-            </label>
+            <label className="text-sm font-medium">Category</label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
@@ -187,11 +168,8 @@ export default function AddProductPage() {
           </div>
 
           <div>
-            <label className="text-sm font-medium">
-              Sections
-            </label>
-           <div className="flex flex-wrap gap-2 sm:gap-3 mt-2">
-
+            <label className="text-sm font-medium">Sections</label>
+            <div className="flex flex-wrap gap-2 sm:gap-3 mt-2">
               {[
                 { label: "Best Sellers", value: "best-sellers" },
                 { label: "New Arrivals", value: "new-arrivals" },

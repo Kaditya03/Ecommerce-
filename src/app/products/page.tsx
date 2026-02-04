@@ -1,6 +1,6 @@
 import connectDB from "@/lib/db";
 import Product from "@/models/Product";
-import ProductCard from "@/components/ProductCard";
+import ProductCard from "@/components/products/ProductCard";
 
 export default async function ProductsPage() {
   await connectDB();

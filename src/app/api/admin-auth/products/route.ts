@@ -11,20 +11,22 @@ function createSlug(text: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-/* ================= GET PRODUCTS ================= */
-export async function GET(req: Request) {
+/* ================= GET PRODUCTS (ADMIN LIST) ================= */
+export async function GET() {
   try {
     await connectDB();
 
-    const { searchParams } = new URL(req.url);
-    const category = searchParams.get("category");
-
-    const products = category
-      ? await Product.find({ category }).sort({ createdAt: -1 })
-      : await Product.find().sort({ createdAt: -1 });
+ 
+    const products = await Product.find({
+      $or: [
+        { isDeleted: false },
+        { isDeleted: { $exists: false } }
+      ]
+    }).sort({ createdAt: -1 });
 
     return NextResponse.json(products);
-  } catch (err) {
+  } catch (error) {
+    console.error("ADMIN GET PRODUCTS ERROR:", error);
     return NextResponse.json(
       { message: "Failed to fetch products" },
       { status: 500 }
@@ -37,7 +39,6 @@ export async function POST(req: Request) {
   try {
     await connectDB();
 
-    const body = await req.json();
     const {
       name,
       price,
@@ -46,16 +47,15 @@ export async function POST(req: Request) {
       category,
       sections,
       minOrderQty,
-    } = body;
+    } = await req.json();
 
-    if (!name || !price || !category || !images?.length) {
+    if (!name || !category || !images?.length) {
       return NextResponse.json(
         { message: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    // ✅ Unique slug
     let baseSlug = createSlug(name);
     let slug = baseSlug;
     let count = 1;
@@ -67,12 +67,13 @@ export async function POST(req: Request) {
     const product = await Product.create({
       name,
       slug,
-      price,
+      price: price || "On Request",
       description: description || "",
       category,
       sections: sections || [],
       images,
       minOrderQty: minOrderQty || 50,
+      isDeleted: false,
     });
 
     return NextResponse.json(product, { status: 201 });

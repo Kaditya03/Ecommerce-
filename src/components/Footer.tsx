@@ -12,6 +12,7 @@ import {
   Mail,
   Globe,
   ArrowRight,
+  Linkedin,
 } from "lucide-react";
 
 /* ================= TYPES ================= */
@@ -26,8 +27,11 @@ type FooterGroupProps = {
   links: FooterLink[];
 };
 
+// Fixed: Added link and label to the type definition
 type SocialBtnProps = {
   icon: React.ReactNode;
+  link: string;
+  label: string;
 };
 
 /* ================= MAIN FOOTER ================= */
@@ -134,9 +138,17 @@ const Footer = () => {
               Socials
             </h4>
             <div className="flex gap-6">
-              <SocialBtn icon={<Instagram size={18} />} />
-              <SocialBtn icon={<Facebook size={18} />} />
-              <SocialBtn icon={<Twitter size={18} />} />
+              {/* Fixed: Corrected string syntax for labels */}
+              <SocialBtn 
+                icon={<Instagram size={18} />} 
+                link="https://www.instagram.com/theabhinavanand" 
+                label="Instagram"
+              />
+              <SocialBtn 
+                icon={<Linkedin size={18} />} 
+                link="https://in.linkedin.com/in/abhinavanandofficial" 
+                label="LinkedIn" 
+              />
             </div>
 
             <div className="mt-10 space-y-2 text-[10px] uppercase tracking-[0.2em] text-stone-400">
@@ -186,13 +198,17 @@ const FooterGroup = ({ title, links }: FooterGroupProps) => (
   </div>
 );
 
-const SocialBtn = ({ icon }: SocialBtnProps) => (
-  <motion.div
-    whileHover={{ y: -5, rotateZ: 10 }}
-    className="p-2 border rounded-full cursor-pointer"
-  >
-    {icon}
-  </motion.div>
+// Fixed: Wrapped the motion.div in an anchor tag and passed the href
+const SocialBtn = ({ icon, link, label }: SocialBtnProps) => (
+  <Link href={link} target="_blank" rel="noopener noreferrer">
+    <motion.div
+      whileHover={{ y: -5, rotateZ: 10 }}
+      className="p-2 border rounded-full cursor-pointer hover:bg-stone-900 hover:text-white transition-colors duration-300"
+      aria-label={label}
+    >
+      {icon}
+    </motion.div>
+  </Link>
 );
 
 export default Footer;

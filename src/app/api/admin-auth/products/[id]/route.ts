@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: any } // ✅ FIXED
+  { params }: { params: { id: string } }
 ) {
   try {
     await connectDB();
@@ -21,7 +21,11 @@ export async function DELETE(
       );
     }
 
-    const deleted = await Product.findByIdAndDelete(id);
+    const deleted = await Product.findByIdAndUpdate(
+      id,
+      { isDeleted: true },
+      { new: true }
+    );
 
     if (!deleted) {
       return NextResponse.json(

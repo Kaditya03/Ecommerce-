@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import ProductCard from "@/components/ProductCard";
+import ProductCard from "@/components/products/ProductCard";
 import Filters from "@/components/Filters";
 import { Inter, Playfair_Display } from "next/font/google";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";

@@ -10,7 +10,10 @@ const ProductSchema = new mongoose.Schema(
       unique: true,
     },
 
-    price: { type: Number, required: true },
+     price: {
+      type: String,        
+      default: "On Request",
+    },
 
     description: { type: String, default: "" },
 

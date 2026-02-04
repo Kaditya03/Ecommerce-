@@ -15,7 +15,9 @@ import {
   Settings,
   Package,
   LogOut,
-  ArrowRight
+  ArrowRight,
+  ChevronDown,
+  UserCircle
 } from "lucide-react";
 
 import { useMenu } from "@/context/MenuContext";
@@ -28,6 +30,7 @@ export default function Navbar() {
   const { cartCount } = useCart();
   const { isLoggedIn, user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
+  const [activeMobileSub, setActiveMobileSub] = useState<string | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -35,152 +38,192 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const handleCloseToHome = () => {
-    setMenuOpen(false);
-    router.push("/");
-  };
+  const collectionsData = [
+    { title: "Bathroom Accessories", items: ["Hooks", "Handle", "Laundry Basket", "Soap Dispenser", "Soap Dish"] },
+    { title: "Home Decor", subItems: [
+        { name: "Vases", types: ["Glass Vase", "Ceramic Vase", "Metal Vase"] },
+        { name: "Wall Art" },
+        { name: "Mirrors", types: ["Wall Mirror", "Floor Mirror", "Decorative Mirror", "Sunburst Mirror"] }
+      ] 
+    },
+    { title: "Furniture", items: ["Dining Table", "Console Table", "Center Table", "Side Table", "Bookshelf", "Shoe Rack", "Ottoman"] },
+    { title: "Kitchen Accessories", items: ["Utensil Holders", "Storage Container", "Dish Rack"] },
+    { title: "Garden Accessories", items: ["Water Cans", "Tree Decor", "Bird Table", "Garden Wall Art", "Wind Chimes", "Wind Spinners", "Bird Bath", "Garden Urm"] },
+    { title: "Pots and Planters" },
+    { title: "Lighting & Candle Holders", items: ["Lanterns", "Candelabrum", "T-Light Holder", "Hurricane Holder", "Moroccan Holder", "Pillar Holder"] },
+    { title: "Figurines & Sculptures" }
+  ];
 
   return (
     <>
       <nav className={`top-0 left-0 w-full z-[100] transition-all duration-500 ${
         scrolled 
           ? "fixed bg-white/95 backdrop-blur-xl shadow-sm border-b border-stone-100 py-3" 
-          : "sticky lg:absolute bg-[#FBFBFA] lg:bg-transparent py-4 md:py-10" 
+          : "sticky lg:absolute bg-[#FBFBFA] lg:bg-transparent py-4 md:py-8" 
       }`}>
         <div className="max-w-[1800px] mx-auto px-6 md:px-12 flex items-center justify-between">
           
-          {/* LOGO - Original Colors */}
+          {/* LOGO */}
           <Link href="/" className="flex-shrink-0 z-[110]">
-            <div className={`relative transition-all duration-500 ${
-              scrolled ? "h-6 w-20 md:h-8 md:w-28" : "h-7 w-24 md:h-12 md:w-40"
-            }`}>
-              <Image 
-                src="/images/AurindelLogo.png" 
-                alt="Aurindel" 
-                fill 
-                priority
-                unoptimized
-                className="object-contain object-left" 
-              />
+            <div className={`relative transition-all duration-500 ${scrolled ? "h-8 w-28 md:h-10 md:w-36" : "h-10 w-32 md:h-16 md:w-52"}`}>
+              <Image src="/images/AurindelLogo.png" alt="Aurindel" fill priority unoptimized className="object-contain object-left" />
             </div>
           </Link>
 
-          {/* DESKTOP NAV - Synced Words */}
-          <div className={`hidden lg:flex items-center gap-10 text-[10px] uppercase tracking-[0.4em] font-bold transition-colors duration-500 ${
-            scrolled ? "text-stone-500" : "text-black"
-          }`}>
+          {/* DESKTOP NAV */}
+          <div className={`hidden lg:flex items-center gap-10 text-[10px] uppercase tracking-[0.4em] font-bold transition-colors duration-500 ${scrolled ? "text-stone-500" : "text-black"}`}>
+            <div className="relative group/nav">
+              <button className="flex items-center gap-2 hover:opacity-100 opacity-80 transition-all py-4">
+                Collections <ChevronDown size={10} className="group-hover/nav:rotate-180 transition-transform"/>
+              </button>
+              <div className="absolute top-full left-1/2 -translate-x-1/2 w-[90vw] max-w-[1200px] bg-white border border-stone-100 shadow-2xl rounded-3xl p-10 grid grid-cols-4 gap-x-8 gap-y-12 opacity-0 invisible group-hover/nav:opacity-100 group-hover/nav:visible transition-all duration-300 transform group-hover/nav:translate-y-2">
+                {collectionsData.map((cat, idx) => (
+                  <div key={idx} className="flex flex-col space-y-4">
+                    <h4 className="text-black border-b border-stone-100 pb-2 text-[11px] font-black tracking-widest">{cat.title}</h4>
+                    <div className="flex flex-col space-y-2 text-stone-400 font-sans text-[13px] font-light">
+                      {cat.items?.map(item => <Link key={item} href="#" className="hover:text-black transition-colors">{item}</Link>)}
+                      {cat.subItems?.map(sub => (
+                        <div key={sub.name} className="space-y-1">
+                          <p className="text-stone-800 font-medium">{sub.name}</p>
+                          <div className="pl-3 border-l border-stone-100 flex flex-col space-y-1">
+                            {sub.types?.map(t => <Link key={t} href="#" className="text-[12px] hover:text-black">{t}</Link>)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
             <NavLink href="/about" label="About Us" />
-            <NavLink href="/contact" label="Contact" />
+            <NavLink href="/contact" label="Contact Us" />
             <NavLink href="/archives" label="Archives" />
           </div>
 
-          {/* RIGHT ACTIONS */}
-          <div className="flex items-center gap-3 md:gap-7 z-[110] text-black">
-            <button className="p-2 hover:bg-stone-200/20 rounded-full transition-colors">
-              <Search size={18} strokeWidth={1.5} />
-            </button>
+          {/* ACTIONS (Desktop & Mobile Profile Included) */}
+          <div className="flex items-center gap-2 md:gap-7 z-[110] text-black">
+            <button className="p-2 hover:bg-stone-200/20 rounded-full"><Search size={19} strokeWidth={1.5} /></button>
             
-            <Link href="/cart" className="relative p-2 hover:bg-stone-200/20 rounded-full group transition-colors">
-              <ShoppingBag size={18} strokeWidth={1.5} />
+            <Link href="/cart" className="relative p-2 hover:bg-stone-200/20 rounded-full group">
+              <ShoppingBag size={19} strokeWidth={1.5} />
               {cartCount > 0 && (
-                <span className="absolute top-1 right-1 text-[7px] w-3.5 h-3.5 flex items-center justify-center rounded-full font-bold bg-black text-white">
-                  {cartCount}
-                </span>
+                <span className="absolute top-1 right-1 text-[7px] w-3.5 h-3.5 flex items-center justify-center rounded-full font-bold bg-black text-white">{cartCount}</span>
               )}
             </Link>
 
-            {/* PROFILE DROPDOWN - RESTORED FEATURES */}
-            <div className="hidden md:block relative group">
-              <div className="flex items-center gap-2 cursor-pointer p-2 hover:bg-stone-100 rounded-full transition-colors">
-                <User size={18} strokeWidth={1.5} />
-                {isLoggedIn && (
-                  <span className="text-[9px] uppercase tracking-widest font-bold">
-                    {user?.name?.split(' ')[0]}
-                  </span>
-                )}
-              </div>
+            {/* PROFILE ICON - FIXED FOR BOTH MOBILE AND DESKTOP */}
+            <div className="relative group">
+              <Link href={isLoggedIn ? "/account" : "/login"} className="p-2 hover:bg-stone-200/20 rounded-full flex items-center gap-2">
+                <User size={19} strokeWidth={1.5} />
+                {isLoggedIn && <span className="hidden lg:block text-[9px] uppercase tracking-widest font-bold">{user?.name?.split(' ')[0]}</span>}
+              </Link>
               
-              <div className="absolute right-0 mt-4 w-60 bg-white border border-stone-100 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 rounded-2xl overflow-hidden p-2 text-black font-sans">
+              {/* Desktop Dropdown Only */}
+              <div className="hidden lg:block absolute right-0 mt-4 w-60 bg-white border border-stone-100 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 rounded-2xl p-2">
                 {!isLoggedIn ? (
                   <div className="p-5 flex flex-col gap-4">
                     <p className="text-[9px] uppercase tracking-[0.2em] text-stone-400 font-bold">Member Access</p>
-                    <Link href="/login" className="bg-black text-white text-center py-3 rounded-xl text-[10px] uppercase tracking-widest font-bold hover:bg-stone-800 transition-all">Sign In</Link>
-                    <Link href="/register" className="text-center text-[10px] uppercase tracking-widest font-bold text-stone-600 hover:text-black transition-all">Join Aurindel</Link>
+                    <Link href="/login" className="bg-black text-white text-center py-3 rounded-xl text-[10px] uppercase tracking-widest font-bold hover:opacity-90">Sign In</Link>
+                    <Link href="/register" className="text-center text-[10px] uppercase tracking-widest font-bold text-stone-600 hover:text-black">Join Aurindel</Link>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-1">
                     <div className="p-4 border-b border-stone-50 mb-1">
-                       <p className="text-[10px] font-bold uppercase tracking-tight">{user?.name}</p>
+                       <p className="text-[10px] font-bold uppercase">{user?.name}</p>
                        <p className="text-[9px] text-stone-400 lowercase">{user?.email}</p>
                     </div>
                     <ProfileItem icon={<Package size={14}/>} label="Orders" href="/account/orders" />
                     <ProfileItem icon={<Heart size={14}/>} label="Wishlist" href="/wishlist" />
                     <ProfileItem icon={<Settings size={14}/>} label="Settings" href="/account/settings" />
-                    <button onClick={logout} className="flex items-center gap-3 w-full p-3 text-red-500 hover:bg-red-50 transition-all rounded-lg text-[10px] uppercase font-bold mt-1 border-t border-stone-50">
-                      <LogOut size={14} /> Logout
-                    </button>
+                    <button onClick={logout} className="flex items-center gap-3 w-full p-3 text-red-500 hover:bg-red-50 rounded-lg text-[10px] uppercase font-bold mt-1 border-t border-stone-50"><LogOut size={14} /> Logout</button>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* MOBILE TOGGLE */}
-            <button 
-              onClick={() => setMenuOpen(!menuOpen)} 
-              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-full bg-stone-100/50 text-black"
-            >
+            <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden w-10 h-10 flex items-center justify-center rounded-full bg-stone-100/50">
               {menuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
       </nav>
 
-      {/* FULLSCREEN MOBILE MENU */}
+      {/* MOBILE MENU WITH PREMIUM PROFILE SECTION */}
       <AnimatePresence>
         {menuOpen && (
-          <motion.div 
-            initial={{ y: "-100%" }} 
-            animate={{ y: 0 }} 
-            exit={{ y: "-100%" }} 
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 bg-[#FBFBFA] z-[200] flex flex-col"
-          >
+          <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} className="fixed inset-0 bg-[#FBFBFA] z-[200] flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-stone-100">
-              <Image src="/images/AurindelLogo.png" alt="Logo" width={90} height={35} className="object-contain" />
-              <button onClick={handleCloseToHome} className="w-10 h-10 flex items-center justify-center bg-black text-white rounded-full">
-                <X size={20} />
-              </button>
+              <Image src="/images/AurindelLogo.png" alt="Logo" width={110} height={40} className="object-contain" />
+              <button onClick={() => setMenuOpen(false)} className="w-10 h-10 flex items-center justify-center bg-black text-white rounded-full"><X size={20} /></button>
             </div>
 
-            <div className="flex flex-col p-8 space-y-12 overflow-y-auto">
-                {/* Main Links */}
-                <div className="flex flex-col space-y-6">
+            <div className="flex-1 overflow-y-auto">
+              {/* Premium Mobile Profile Card */}
+              <div className="px-6 py-8">
+                {isLoggedIn ? (
+                  <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-stone-100">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-12 h-12 bg-stone-100 rounded-full flex items-center justify-center text-stone-400"><User size={24}/></div>
+                      <div>
+                        <p className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">Welcome back,</p>
+                        <p className="text-lg font-serif italic text-black">{user?.name}</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                       <Link href="/account/orders" className="flex flex-col gap-2 p-4 bg-stone-50 rounded-2xl">
+                          <Package size={18} className="text-stone-400"/>
+                          <span className="text-[9px] uppercase font-bold tracking-widest">Orders</span>
+                       </Link>
+                       <Link href="/wishlist" className="flex flex-col gap-2 p-4 bg-stone-50 rounded-2xl">
+                          <Heart size={18} className="text-stone-400"/>
+                          <span className="text-[9px] uppercase font-bold tracking-widest">Wishlist</span>
+                       </Link>
+                    </div>
+                    <button onClick={logout} className="mt-6 w-full py-3 text-[9px] uppercase font-bold tracking-[0.2em] text-red-400 border border-red-50 rounded-xl">Secure Logout</button>
+                  </div>
+                ) : (
+                  <div className="bg-[#1A1A18] rounded-[2rem] p-8 text-center">
+                    <UserCircle size={40} className="text-stone-600 mx-auto mb-4" />
+                    <h3 className="text-white font-serif italic text-xl mb-2">Artisan Membership</h3>
+                    <p className="text-stone-500 text-xs mb-6">Access your exclusive archives and orders.</p>
+                    <Link href="/login" onClick={() => setMenuOpen(false)} className="block w-full py-4 bg-white text-black rounded-xl text-[10px] uppercase font-bold tracking-[0.2em]">Sign In</Link>
+                  </div>
+                )}
+              </div>
+
+              {/* Collections Navigation */}
+              <div className="px-6 space-y-4 pb-12">
+                <p className="text-[9px] uppercase tracking-[0.4em] text-stone-400 font-bold ml-2 mb-4">Maison Collections</p>
+                {collectionsData.map((cat, idx) => (
+                  <div key={idx} className="bg-white rounded-2xl border border-stone-50 overflow-hidden">
+                    <button onClick={() => setActiveMobileSub(activeMobileSub === cat.title ? null : cat.title)} className="w-full flex items-center justify-between p-5 text-left text-[11px] font-bold uppercase tracking-widest">
+                      {cat.title} <ChevronDown size={14} className={`transition-transform duration-300 ${activeMobileSub === cat.title ? 'rotate-180' : ''}`} />
+                    </button>
+                    <AnimatePresence>
+                      {activeMobileSub === cat.title && (
+                        <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden bg-stone-50/50">
+                          <div className="flex flex-col gap-4 p-6 text-stone-500 text-[11px] uppercase tracking-widest font-medium">
+                            {cat.items?.map(i => <Link key={i} href="#" onClick={() => setMenuOpen(false)} className="hover:text-black transition-colors">{i}</Link>)}
+                            {cat.subItems?.map(sub => (
+                              <div key={sub.name} className="space-y-3">
+                                <p className="text-black font-black text-[10px] pt-2 border-t border-stone-100">{sub.name}</p>
+                                {sub.types?.map(t => <Link key={t} href="#" className="block pl-2 hover:text-black transition-colors">{t}</Link>)}
+                              </div>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ))}
+                
+                {/* Secondary Links */}
+                <div className="pt-8 space-y-4 border-t border-stone-100">
                   <MobileLink href="/about" label="About Us" onClick={() => setMenuOpen(false)} />
-                  <MobileLink href="/contact" label="Contact" onClick={() => setMenuOpen(false)} />
+                  <MobileLink href="/contact" label="Contact Us" onClick={() => setMenuOpen(false)} />
                   <MobileLink href="/archives" label="Archives" onClick={() => setMenuOpen(false)} />
                 </div>
-
-                {/* Profile Section */}
-                <div className="pt-8 border-t border-stone-200">
-                  {isLoggedIn ? (
-                    <div className="space-y-6">
-                      <div className="mb-2">
-                       
-                        <p className="text-xl font-medium">{user?.name}</p>
-                      </div>
-                      <div className="grid grid-cols-1 gap-4">
-                        <MobileProfileItem icon={<Package size={18}/>} label="My Orders" href="/account/orders" />
-                        <MobileProfileItem icon={<Heart size={18}/>} label="Your Wishlist" href="/wishlist" />
-                        <MobileProfileItem icon={<Settings size={18}/>} label="Account Settings" href="/account/settings" />
-                      </div>
-                      <button onClick={logout} className="flex items-center gap-3 py-4 text-red-500 text-[10px] uppercase font-bold border-t border-stone-200 mt-4 w-full">
-                        <LogOut size={16}/> Logout
-                      </button>
-                    </div>
-                  ) : (
-                    <Link href="/login" onClick={() => setMenuOpen(false)} className="block w-full py-5 text-center bg-black text-white rounded-2xl text-[10px] uppercase font-bold tracking-widest shadow-lg">Sign In</Link>
-                  )}
-                </div>
+              </div>
             </div>
           </motion.div>
         )}
@@ -189,8 +232,7 @@ export default function Navbar() {
   );
 }
 
-/* Helper Components */
-
+/* Helpers */
 function NavLink({ href, label }: { href: string, label: string }) {
   return (
     <Link href={href} className="transition-all relative group opacity-80 hover:opacity-100">
@@ -210,16 +252,8 @@ function ProfileItem({ icon, label, href }: { icon: React.ReactNode, label: stri
 
 function MobileLink({ href, label, onClick }: { href: string, label: string, onClick: () => void }) {
   return (
-    <Link href={href} onClick={onClick} className="text-sm font-bold uppercase tracking-[0.4em] flex items-center justify-between py-2 active:opacity-50">
-      {label} <ArrowRight size={16} className="text-stone-300" />
+    <Link href={href} onClick={onClick} className="text-xs font-bold uppercase tracking-[0.4em] flex items-center justify-between py-4 px-2 border-b border-stone-50">
+      {label} <ArrowRight size={14} className="text-stone-300" />
     </Link>
   );
-}
-
-function MobileProfileItem({ icon, label, href }: { icon: React.ReactNode, label: string, href: string }) {
-    return (
-      <Link href={href} className="flex items-center gap-4 py-1 text-[11px] uppercase tracking-widest font-bold text-stone-600">
-        <span className="text-stone-300">{icon}</span> {label}
-      </Link>
-    );
 }

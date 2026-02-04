@@ -10,11 +10,10 @@ export default function FilterSection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="border-b pb-5 mb-5">
-      <h3 className="font-semibold text-gray-900 mb-4 text-sm uppercase tracking-wide">
+    <div className="border-b border-gray-100 pb-5 mb-5 last:border-0">
+      <h3 className="font-semibold text-gray-900 mb-4 text-[11px] uppercase tracking-wider">
         {title}
       </h3>
-
       <motion.div
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}

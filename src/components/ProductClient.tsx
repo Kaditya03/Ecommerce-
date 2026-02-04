@@ -3,153 +3,117 @@
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
 import ProductGallery from "@/components/ProductGallery";
-import { Inter, Playfair_Display } from "next/font/google";
-import { motion } from "framer-motion";
+import { Playfair_Display, Montserrat } from "next/font/google";
+import { motion, AnimatePresence } from "framer-motion";
 import { useWishlist } from "@/context/WishlistContext";
 import BackButton from "@/components/BackButton";
+import { ArrowRight, Info, Layers, Sparkles } from "lucide-react";
+import { Share2, ShoppingBag, Heart } from "lucide-react";
 
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-});
 
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-});
+const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "600"] });
+const montserrat = Montserrat({ subsets: ["latin"], weight: ["400", "700"] });
 
 export default function ProductClient({ product }: any) {
   const { addToCart } = useCart();
   const { toggleWishlist, isWishlisted } = useWishlist();
-
   const MIN_QTY = product.minOrderQty || 50;
-  const STEP = 10;
-
   const [qty, setQty] = useState(MIN_QTY);
   const [added, setAdded] = useState(false);
 
-  const handleAddToCart = () => {
-    addToCart(product, qty);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1200);
-  };
-
   return (
-    <>
-      <BackButton />
+    <div className={`min-h-screen bg-[#FBFBFA] ${montserrat.className}`}>
+      <div className="fixed top-8 left-8 z-50"><BackButton /></div>
 
-      <section className={`${inter.className} bg-gray-50`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-14">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-14">
-            {/* IMAGE GALLERY */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="bg-white rounded-3xl p-6 shadow-md"
-            >
+      <div className="max-w-[1600px] mx-auto px-6 lg:px-16 py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-start">
+          
+          {/* LEFT: GALLERY (LIFTED CARD) */}
+          <motion.div 
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="lg:col-span-7 sticky top-24"
+          >
+            <div className="bg-white rounded-[3rem] p-4 shadow-[0_40px_100px_-30px_rgba(0,0,0,0.1)] border border-stone-100">
               <ProductGallery images={product.images} />
-            </motion.div>
+            </div>
+          </motion.div>
 
-            {/* PRODUCT INFO */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              className="space-y-6"
-            >
-              <h1
-                className={`${playfair.className} text-3xl sm:text-4xl lg:text-5xl`}
+          {/* RIGHT: INFO (STAGGERED ANIMATION) */}
+          <motion.div 
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="lg:col-span-5 space-y-10"
+          >
+            <div className="space-y-4">
+              <motion.div 
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                className="flex items-center gap-2 text-[10px] uppercase tracking-[0.4em] text-stone-400 font-bold"
               >
+                <Sparkles size={12} /> Masterpiece Collection
+              </motion.div>
+              <h1 className={`${playfair.className} text-5xl md:text-7xl leading-tight text-stone-900 italic`}>
                 {product.name}
               </h1>
+            </div>
 
-              <p className="text-indigo-600 text-2xl font-medium">
-                ₹{product.price}
+            {/* SPECS GRID */}
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { icon: <Layers size={14} />, label: "Material", val: product.material || "Artisan Clay" },
+                { icon: <Info size={14} />, label: "MOQ", val: `${MIN_QTY} Units` }
+              ].map((spec, i) => (
+                <div key={i} className="bg-white p-4 rounded-2xl border border-stone-100 shadow-sm">
+                  <div className="flex items-center gap-2 text-stone-400 mb-1">{spec.icon} <span className="text-[9px] uppercase tracking-widest">{spec.label}</span></div>
+                  <div className="text-xs font-bold text-stone-800">{spec.val}</div>
+                </div>
+              ))}
+            </div>
+
+            <div className="space-y-4">
+              <h2 className="text-[10px] uppercase tracking-[0.3em] font-bold text-stone-400">Description</h2>
+              <p className="text-stone-600 leading-relaxed font-serif italic text-lg">
+                {product.description || "A testament to centuries-old craftsmanship, designed for modern elegance."}
               </p>
+            </div>
 
-              {/* DESCRIPTION */}
-              <div className="pt-6 border-t">
-                <h2 className="text-lg font-semibold text-gray-900 mb-2">
-                  Product Description
-                </h2>
+            {/* CALL TO ACTION BOX */}
+            <div className="bg-stone-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden">
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-8">
+                  <span className="text-[10px] uppercase tracking-[0.4em] text-stone-400">Select Quantity</span>
+                  <div className="flex items-center gap-6 bg-white/10 px-4 py-2 rounded-full backdrop-blur-md">
+                    <button onClick={() => qty > MIN_QTY && setQty(qty - 10)} className="text-xl hover:text-stone-400 transition">-</button>
+                    <span className="text-lg font-mono font-bold w-12 text-center">{qty}</span>
+                    <button onClick={() => setQty(qty + 10)} className="text-xl hover:text-stone-400 transition">+</button>
+                  </div>
+                </div>
 
-                <p className="text-gray-600 leading-relaxed text-sm md:text-base">
-                  {product.description || "No description available."}
-                </p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => { addToCart(product, qty); setAdded(true); setTimeout(()=>setAdded(false), 2000); }}
+                    className="flex-1 bg-white text-stone-900 h-16 rounded-full font-bold uppercase tracking-widest text-[11px] flex items-center justify-center gap-3 transition-colors"
+                  >
+                    {added ? <Check size={20} /> : <>Add to Collection <ArrowRight size={16} /></>}
+                  </motion.button>
+
+                  <button 
+                    onClick={() => toggleWishlist(product)}
+                    className={`w-16 h-16 rounded-full border flex items-center justify-center transition-all ${isWishlisted(product._id) ? "bg-red-500 border-red-500" : "border-white/20 hover:bg-white/10"}`}
+                  >
+                    <Heart size={20} fill={isWishlisted(product._id) ? "white" : "none"} />
+                  </button>
+                </div>
               </div>
-
-              {/* BADGES */}
-              <div className="flex flex-wrap gap-3">
-                <span className="px-4 py-1 rounded-full text-sm bg-gray-100">
-                  Handcrafted
-                </span>
-                <span className="px-4 py-1 rounded-full text-sm bg-gray-100">
-                  Export Quality
-                </span>
-                <span className="px-4 py-1 rounded-full text-sm bg-gray-100">
-                  MOQ: {MIN_QTY}
-                </span>
-              </div>
-
-              {/* QUANTITY */}
-              <div className="flex items-center gap-4 pt-4">
-                <button
-                  onClick={() => qty > MIN_QTY && setQty(qty - STEP)}
-                  className="w-11 h-11 border rounded-full text-xl hover:bg-gray-100 transition"
-                >
-                  −
-                </button>
-
-                <span className="min-w-[60px] text-center text-lg font-medium">
-                  {qty}
-                </span>
-
-                <button
-                  onClick={() => setQty(qty + STEP)}
-                  className="w-11 h-11 border rounded-full text-xl hover:bg-gray-100 transition"
-                >
-                  +
-                </button>
-              </div>
-
-              {/* ACTIONS */}
-              <div className="flex flex-col sm:flex-row gap-4 pt-6">
-                {/* ADD TO CART */}
-                <motion.button
-                  whileTap={{ scale: 0.96 }}
-                  onClick={handleAddToCart}
-                  className={`px-8 py-4 rounded-full text-white transition ${
-                    added
-                      ? "bg-green-600"
-                      : "bg-indigo-600 hover:bg-indigo-700"
-                  }`}
-                >
-                  {added ? "Added to Cart ✓" : `Add ${qty} to Cart`}
-                </motion.button>
-
-                {/* WISHLIST */}
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => toggleWishlist(product)}
-                  className={`px-6 py-4 rounded-full border flex items-center gap-2 transition ${
-                    isWishlisted(product._id)
-                      ? "border-red-500 text-red-500"
-                      : "hover:bg-gray-100"
-                  }`}
-                >
-                  <span className="text-xl">
-                    {isWishlisted(product._id) ? "❤️" : "🤍"}
-                  </span>
-                  {isWishlisted(product._id)
-                    ? "Wishlisted"
-                    : "Add to Wishlist"}
-                </motion.button>
-              </div>
-            </motion.div>
-          </div>
+              
+              {/* DECORATIVE GRADIENT */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-3xl" />
+            </div>
+          </motion.div>
         </div>
-      </section>
-    </>
+      </div>
+    </div>
   );
 }

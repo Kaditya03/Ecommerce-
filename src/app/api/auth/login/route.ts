@@ -35,17 +35,17 @@ export async function POST(req: Request) {
       );
     }
 
-    // ✅ CREATE TOKEN
+    // ✅ CREATE JWT
     const token = jwt.sign(
       {
-        id: user._id,
+        id: user._id.toString(),
         role: user.role,
       },
       process.env.JWT_SECRET!,
       { expiresIn: "7d" }
     );
 
-    // ✅ VERY IMPORTANT — SET COOKIE
+    // ✅ RESPONSE
     const response = NextResponse.json({
       message: "Login successful",
       user: {
@@ -56,10 +56,11 @@ export async function POST(req: Request) {
       },
     });
 
+    // ✅ COOKIE (works on localhost + Vercel)
     response.cookies.set("token", token, {
       httpOnly: true,
-      secure: true,          // REQUIRED on Vercel
-      sameSite: "none",      // REQUIRED on Vercel
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 7 days
     });

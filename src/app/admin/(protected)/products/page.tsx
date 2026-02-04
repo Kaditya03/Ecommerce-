@@ -11,7 +11,11 @@ export default function AdminProductsPage() {
 
   const fetchProducts = async () => {
     setLoading(true);
-    const res = await fetch("/api/admin-auth/products", { cache: "no-store" });
+    const res = await fetch("/api/admin-auth/products", {
+  cache: "no-store",
+  credentials: "include",
+});
+
     const data = await res.json();
     setProducts(data);
     setLoading(false);

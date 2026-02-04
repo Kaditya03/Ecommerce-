@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import ProductCard from "@/components/ProductCard";
+import ProductCard from "@/components/products/ProductCard";
 import DesktopFilters from "@/components/filters/DesktopFilters";
 import MobileFilters from "@/components/filters/MobileFilters";
 import { Playfair_Display, Inter } from "next/font/google";

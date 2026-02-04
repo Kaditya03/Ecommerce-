@@ -1,11 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { RotateCcw, Info, ChevronDown, Check } from "lucide-react";
+import { RotateCcw, Info, ChevronDown, Layers, Clock } from "lucide-react";
 
 export default function Filters({
-  price,
-  setPrice,
+  material,
+  setMaterial,
+  availability,
+  setAvailability,
   size,
   setSize,
   sort,
@@ -13,8 +15,15 @@ export default function Filters({
 }: any) {
   
   const sizeOptions = ["Small", "Medium", "Large"];
+  const materialOptions = ["Teak Wood", "Brass", "Ceramic", "Stone"];
+  const availabilityOptions = [
+    { label: "All Items", value: "" },
+    { label: "Ready to Ship", value: "instock" },
+    { label: "Made to Order", value: "bespoke" },
+  ];
+  
   const sortOptions = [
-    { label: "Default", value: "" },
+    { label: "Newest Arrivals", value: "newest" },
     { label: "Price: Low to High", value: "price-asc" },
     { label: "Price: High to Low", value: "price-desc" },
   ];
@@ -26,7 +35,7 @@ export default function Filters({
       className="bg-white/70 backdrop-blur-xl rounded-[2.5rem] border border-stone-200/60 p-8 space-y-10 shadow-[20px_20px_60px_#d9d9d9,-20px_-20px_60px_#ffffff]"
     >
       {/* HEADER */}
-      <div className="flex items-center justify-between pb-2">
+      <div className="flex items-center justify-between pb-2 border-b border-stone-100">
         <h3 className="text-[10px] uppercase tracking-[0.3em] font-black text-stone-900">
           Refinement
         </h3>
@@ -34,9 +43,10 @@ export default function Filters({
           whileHover={{ rotate: -180 }}
           transition={{ duration: 0.5 }}
           onClick={() => {
-            setPrice(6000);
+            setMaterial("");
+            setAvailability("");
             setSize("");
-            setSort("");
+            setSort("newest");
           }}
           className="p-2 rounded-full hover:bg-stone-100 text-stone-400 transition-colors"
         >
@@ -44,40 +54,34 @@ export default function Filters({
         </motion.button>
       </div>
 
-      {/* PRICE FILTER - 3D SLIDER */}
-      <div className="space-y-6">
-        <div className="flex justify-between items-end">
+      {/* 1. MATERIAL CATEGORY */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Layers size={12} className="text-stone-400" />
           <label className="text-[10px] uppercase tracking-widest text-stone-500 font-bold">
-            Budget Limit
+            Artisan Material
           </label>
-          <span className="text-sm font-serif italic text-stone-900">
-            ₹{price.toLocaleString()}
-          </span>
         </div>
-
-        <div className="relative h-6 flex items-center">
-          <input
-            type="range"
-            min="1000"
-            max="6000"
-            step="500"
-            value={price}
-            onChange={(e) => setPrice(Number(e.target.value))}
-            className="absolute w-full h-1.5 bg-stone-100 rounded-full appearance-none cursor-pointer accent-stone-900"
-            style={{
-              background: `linear-gradient(to right, #1c1917 ${(price - 1000) / 50}%, #f5f5f4 0%)`
-            }}
-          />
-        </div>
-        <div className="flex justify-between text-[9px] text-stone-400 font-bold tracking-tighter">
-          <span>₹1,000</span>
-          <span>₹6,000</span>
+        <div className="flex flex-wrap gap-2">
+          {["", ...materialOptions].map((opt) => (
+            <button
+              key={opt}
+              onClick={() => setMaterial(opt)}
+              className={`px-4 py-2 rounded-xl text-[9px] tracking-widest uppercase transition-all duration-300 border ${
+                material === opt 
+                ? "bg-stone-900 text-white border-stone-900 shadow-md" 
+                : "bg-white text-stone-400 border-stone-100 hover:border-stone-300"
+              }`}
+            >
+              {opt === "" ? "Mixed" : opt}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* SIZE FILTER - INTERACTIVE CHIPS */}
+      {/* 2. DIMENSION CATEGORY */}
       <div className="space-y-4">
-        <label className="text-[10px] uppercase tracking-widest text-stone-500 font-bold">
+        <label className="text-[10px] uppercase tracking-widest text-stone-500 font-bold pl-5">
           Dimension
         </label>
         <div className="flex flex-wrap gap-2">
@@ -85,19 +89,45 @@ export default function Filters({
             <button
               key={opt}
               onClick={() => setSize(opt)}
-              className={`px-4 py-2 rounded-full text-[10px] tracking-widest uppercase transition-all duration-300 border ${
+              className={`px-4 py-2 rounded-xl text-[9px] tracking-widest uppercase transition-all duration-300 border ${
                 size === opt 
-                ? "bg-stone-900 text-white border-stone-900 shadow-lg shadow-stone-200" 
+                ? "bg-stone-900 text-white border-stone-900 shadow-md" 
                 : "bg-white text-stone-400 border-stone-100 hover:border-stone-300"
               }`}
             >
-              {opt === "" ? "All" : opt}
+              {opt === "" ? "All Sizes" : opt}
             </button>
           ))}
         </div>
       </div>
 
-      {/* SORT FILTER - LUXURY SELECT */}
+      {/* 3. AVAILABILITY (Made to Order vs Ready) */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Clock size={12} className="text-stone-400" />
+          <label className="text-[10px] uppercase tracking-widest text-stone-500 font-bold">
+            Availability
+          </label>
+        </div>
+        <div className="grid grid-cols-1 gap-2">
+          {availabilityOptions.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => setAvailability(opt.value)}
+              className={`flex items-center justify-between px-5 py-3 rounded-2xl text-[10px] tracking-[0.2em] uppercase transition-all ${
+                availability === opt.value 
+                ? "bg-stone-50 text-stone-900 font-bold border border-stone-200" 
+                : "text-stone-400 hover:text-stone-600"
+              }`}
+            >
+              {opt.label}
+              {availability === opt.value && <div className="w-1.5 h-1.5 rounded-full bg-stone-900" />}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 4. ORDERING */}
       <div className="space-y-4">
         <label className="text-[10px] uppercase tracking-widest text-stone-500 font-bold">
           Ordering
@@ -126,7 +156,7 @@ export default function Filters({
         <div className="flex gap-3 relative z-10">
           <Info size={14} className="text-stone-400 shrink-0" />
           <p className="text-[9px] leading-relaxed text-stone-300 uppercase tracking-widest">
-            Minimum export quantities apply to artisan creations.
+            Bespoke creations may require 4-6 weeks for artisan perfection.
           </p>
         </div>
       </div>
