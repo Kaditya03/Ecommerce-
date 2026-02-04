@@ -11,9 +11,9 @@ export async function GET() {
   try {
     await connectDB();
 
-    // ✅ COMPATIBLE WITH BOTH LOCALHOST + VERCEL
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
+    // ✅ MUST await cookies()
+    const cookieStore: any = await cookies();
+    const token = cookieStore?.get?.("token")?.value;
 
     if (!token) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -22,8 +22,7 @@ export async function GET() {
     let decoded: any;
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    } catch (err) {
-      console.error("JWT VERIFY ERROR:", err);
+    } catch {
       return NextResponse.json({ message: "Invalid token" }, { status: 401 });
     }
 
@@ -31,7 +30,10 @@ export async function GET() {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
-    const products = await Product.countDocuments();
+    const products = await Product.countDocuments({
+      $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
+    });
+
     const orders = await Order.countDocuments();
     const revenue = 0;
 
