@@ -5,14 +5,15 @@ import mongoose from "mongoose";
 
 export const runtime = "nodejs";
 
+/* ================= DELETE PRODUCT ================= */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }   // ✅ FIXED TYPE
 ) {
   try {
     await connectDB();
 
-    const { id } = params;
+    const { id } = await context.params;          // ✅ AWAIT params
 
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -21,11 +22,7 @@ export async function DELETE(
       );
     }
 
-    const deleted = await Product.findByIdAndUpdate(
-      id,
-      { isDeleted: true },
-      { new: true }
-    );
+    const deleted = await Product.findByIdAndDelete(id);
 
     if (!deleted) {
       return NextResponse.json(

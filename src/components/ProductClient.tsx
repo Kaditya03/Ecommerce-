@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useWishlist } from "@/context/WishlistContext";
 import BackButton from "@/components/BackButton";
 import { ArrowRight, Info, Layers, Sparkles } from "lucide-react";
-import { Share2, ShoppingBag, Heart } from "lucide-react";
+import { Share2, ShoppingBag, Heart ,Check} from "lucide-react";
 
 
 const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "600"] });

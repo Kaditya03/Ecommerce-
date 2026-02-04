@@ -153,14 +153,18 @@ export default function ProductDetailView({ product, isOpen, onClose }: any) {
                 </div>
 
                 <div className="flex gap-4">
-                  <motion.button
-                    whileHover={{ y: -5, shadow: "0 30px 60px -15px rgba(0,0,0,0.3)" }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleAdd}
-                    className={`flex-1 h-20 rounded-[2rem] flex items-center justify-center gap-4 font-black uppercase tracking-[0.3em] text-[11px] transition-all duration-700 ${
-                      isAdded ? "bg-stone-100 text-stone-900" : "bg-stone-900 text-white shadow-2xl shadow-stone-200"
-                    }`}
-                  >
+                <motion.button
+  whileHover={{ 
+    y: -5, 
+    boxShadow: "0 30px 60px -15px rgba(0,0,0,0.3)" 
+  }}
+  whileTap={{ scale: 0.98 }}
+  onClick={handleAdd}
+  className={`flex-1 h-20 rounded-[2rem] flex items-center justify-center gap-4 font-black uppercase tracking-[0.3em] text-[11px] transition-all duration-700 ${
+    isAdded ? "bg-stone-900 text-white" : "bg-white text-stone-900"
+  }`}
+>
+
                     {isAdded ? (
                       <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-2">
                         <Check size={20} /> Request Received
