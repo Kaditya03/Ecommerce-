@@ -17,7 +17,10 @@ import {
   LogOut,
   ArrowRight,
   ChevronDown,
-  UserCircle
+  UserCircle,
+  Home,
+  Clock,
+  TrendingUp
 } from "lucide-react";
 
 import { useMenu } from "@/context/MenuContext";
@@ -31,12 +34,24 @@ export default function Navbar() {
   const { isLoggedIn, user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [activeMobileSub, setActiveMobileSub] = useState<string | null>(null);
+  
+  // Search State
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+      setSearchOpen(false);
+    }
+  };
 
   const collectionsData = [
     { title: "Bathroom Accessories", items: ["Hooks", "Handle", "Laundry Basket", "Soap Dispenser", "Soap Dish"] },
@@ -72,6 +87,7 @@ export default function Navbar() {
 
           {/* DESKTOP NAV */}
           <div className={`hidden lg:flex items-center gap-10 text-[10px] uppercase tracking-[0.4em] font-bold transition-colors duration-500 ${scrolled ? "text-stone-500" : "text-black"}`}>
+            <NavLink href="/" label="Home" />
             <div className="relative group/nav">
               <button className="flex items-center gap-2 hover:opacity-100 opacity-80 transition-all py-4">
                 Collections <ChevronDown size={10} className="group-hover/nav:rotate-180 transition-transform"/>
@@ -100,9 +116,14 @@ export default function Navbar() {
             <NavLink href="/archives" label="Archives" />
           </div>
 
-          {/* ACTIONS (Desktop & Mobile Profile Included) */}
+          {/* ACTIONS */}
           <div className="flex items-center gap-2 md:gap-7 z-[110] text-black">
-            <button className="p-2 hover:bg-stone-200/20 rounded-full"><Search size={19} strokeWidth={1.5} /></button>
+            <button 
+              onClick={() => setSearchOpen(true)}
+              className="p-2 hover:bg-stone-200/20 rounded-full"
+            >
+              <Search size={19} strokeWidth={1.5} />
+            </button>
             
             <Link href="/cart" className="relative p-2 hover:bg-stone-200/20 rounded-full group">
               <ShoppingBag size={19} strokeWidth={1.5} />
@@ -111,14 +132,12 @@ export default function Navbar() {
               )}
             </Link>
 
-            {/* PROFILE ICON - FIXED FOR BOTH MOBILE AND DESKTOP */}
             <div className="relative group">
               <Link href={isLoggedIn ? "/account" : "/login"} className="p-2 hover:bg-stone-200/20 rounded-full flex items-center gap-2">
                 <User size={19} strokeWidth={1.5} />
                 {isLoggedIn && <span className="hidden lg:block text-[9px] uppercase tracking-widest font-bold">{user?.name?.split(' ')[0]}</span>}
               </Link>
               
-              {/* Desktop Dropdown Only */}
               <div className="hidden lg:block absolute right-0 mt-4 w-60 bg-white border border-stone-100 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 rounded-2xl p-2">
                 {!isLoggedIn ? (
                   <div className="p-5 flex flex-col gap-4">
@@ -148,7 +167,54 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* MOBILE MENU WITH PREMIUM PROFILE SECTION */}
+      {/* SEARCH OVERLAY */}
+      <AnimatePresence>
+        {searchOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-[#FBFBFA] z-[300] flex flex-col items-center pt-32 px-6"
+          >
+            <button onClick={() => setSearchOpen(false)} className="absolute top-10 right-10 p-4 hover:bg-stone-100 rounded-full transition-all">
+              <X size={24} />
+            </button>
+            <div className="w-full max-w-3xl">
+              <p className="text-[10px] uppercase tracking-[0.5em] text-stone-400 font-bold mb-8 text-center">Search our Collections</p>
+              <form onSubmit={handleSearch} className="relative">
+                <input 
+                  autoFocus
+                  type="text" 
+                  placeholder="WHAT ARE YOU LOOKING FOR?"
+                  className="w-full bg-transparent border-b-2 border-stone-200 pb-6 text-2xl md:text-4xl font-serif italic focus:outline-none focus:border-black transition-all text-center"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <button type="submit" className="absolute right-0 bottom-8">
+                  <ArrowRight size={24} />
+                </button>
+              </form>
+              <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div className="space-y-4">
+                  <h5 className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-stone-400 border-b border-stone-100 pb-2"><TrendingUp size={12}/> Trending Now</h5>
+                  <div className="flex flex-wrap gap-2">
+                    {["Metal Vases", "Bird Baths", "Dining Tables", "Mirrors"].map(tag => (
+                      <button key={tag} onClick={() => {setSearchQuery(tag)}} className="px-4 py-2 bg-stone-100 rounded-full text-[10px] uppercase font-bold hover:bg-black hover:text-white transition-all">{tag}</button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <h5 className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-stone-400 border-b border-stone-100 pb-2"><Clock size={12}/> Recent Collections</h5>
+                  <div className="space-y-2">
+                    <p className="text-xs text-stone-500 hover:text-black cursor-pointer">Artisan Lanterns 2026</p>
+                    <p className="text-xs text-stone-500 hover:text-black cursor-pointer">Spring Garden Series</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* MOBILE MENU */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} className="fixed inset-0 bg-[#FBFBFA] z-[200] flex flex-col">
@@ -158,7 +224,6 @@ export default function Navbar() {
             </div>
 
             <div className="flex-1 overflow-y-auto">
-              {/* Premium Mobile Profile Card */}
               <div className="px-6 py-8">
                 {isLoggedIn ? (
                   <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-stone-100">
@@ -170,11 +235,11 @@ export default function Navbar() {
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                       <Link href="/account/orders" className="flex flex-col gap-2 p-4 bg-stone-50 rounded-2xl">
+                       <Link href="/account/orders" onClick={() => setMenuOpen(false)} className="flex flex-col gap-2 p-4 bg-stone-50 rounded-2xl">
                           <Package size={18} className="text-stone-400"/>
                           <span className="text-[9px] uppercase font-bold tracking-widest">Orders</span>
                        </Link>
-                       <Link href="/wishlist" className="flex flex-col gap-2 p-4 bg-stone-50 rounded-2xl">
+                       <Link href="/wishlist" onClick={() => setMenuOpen(false)} className="flex flex-col gap-2 p-4 bg-stone-50 rounded-2xl">
                           <Heart size={18} className="text-stone-400"/>
                           <span className="text-[9px] uppercase font-bold tracking-widest">Wishlist</span>
                        </Link>
@@ -191,7 +256,14 @@ export default function Navbar() {
                 )}
               </div>
 
-              {/* Collections Navigation */}
+              {/* HOME FEATURES CARD (NEW FEATURE) */}
+              <div className="px-6 pb-6">
+                <div className="bg-stone-100/50 rounded-3xl p-6 grid grid-cols-2 gap-4">
+                  <Link href="/" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest"><Home size={16}/> Home</Link>
+                  <Link href="/account/orders" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest"><Package size={16}/> Track Order</Link>
+                </div>
+              </div>
+
               <div className="px-6 space-y-4 pb-12">
                 <p className="text-[9px] uppercase tracking-[0.4em] text-stone-400 font-bold ml-2 mb-4">Maison Collections</p>
                 {collectionsData.map((cat, idx) => (
@@ -217,7 +289,6 @@ export default function Navbar() {
                   </div>
                 ))}
                 
-                {/* Secondary Links */}
                 <div className="pt-8 space-y-4 border-t border-stone-100">
                   <MobileLink href="/about" label="About Us" onClick={() => setMenuOpen(false)} />
                   <MobileLink href="/contact" label="Contact Us" onClick={() => setMenuOpen(false)} />

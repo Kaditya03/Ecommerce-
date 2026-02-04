@@ -11,29 +11,36 @@ export async function POST(req: Request) {
     const { email, password } = await req.json();
 
     if (!email || !password) {
-      return NextResponse.json({ message: "Email and password required" }, { status: 400 });
+      return NextResponse.json(
+        { message: "Email and password required" },
+        { status: 400 }
+      );
     }
 
     const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
-      return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
+      return NextResponse.json(
+        { message: "Invalid credentials" },
+        { status: 401 }
+      );
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
-    }
-
-    if (!process.env.JWT_SECRET) {
-      console.error("JWT_SECRET missing");
-      return NextResponse.json({ message: "Server config error" }, { status: 500 });
+      return NextResponse.json(
+        { message: "Invalid credentials" },
+        { status: 401 }
+      );
     }
 
     const token = jwt.sign(
-      { id: user._id.toString(), role: user.role },
-      process.env.JWT_SECRET,
+      {
+        id: user._id.toString(),
+        role: user.role,
+      },
+      process.env.JWT_SECRET!,
       { expiresIn: "7d" }
     );
 
@@ -47,6 +54,7 @@ export async function POST(req: Request) {
       },
     });
 
+    // ✅ COOKIE (works on localhost + Vercel)
     response.cookies.set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -58,6 +66,9 @@ export async function POST(req: Request) {
     return response;
   } catch (error) {
     console.error("LOGIN ERROR:", error);
-    return NextResponse.json({ message: "Login failed" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Login failed" },
+      { status: 500 }
+    );
   }
 }
