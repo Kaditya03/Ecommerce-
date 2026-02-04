@@ -43,13 +43,13 @@ export async function POST(req: Request) {
     });
 
     // ✅ COOKIE CONFIG THAT WORKS ON VERCEL
-    response.cookies.set("token", token, {
-      httpOnly: true,
-      secure: true,        // must be true on https (Vercel)
-      sameSite: "lax",     // ⚠️ DO NOT use "none" unless cross-domain
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7,
-    });
+   response.cookies.set("token", token, {
+  httpOnly: true,
+  secure: true,            
+  sameSite: "none",        
+  path: "/",
+  maxAge: 60 * 60 * 24 * 7,
+});
 
     return response;
   } catch (err) {

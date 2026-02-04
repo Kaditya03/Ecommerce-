@@ -9,44 +9,28 @@ export async function GET() {
   try {
     await connectDB();
 
-    // ✅ cookies() is async in Next.js 15+
-    const cookieStore = await cookies();
+    const cookieStore = await cookies(); // ✅ must await
     const token = cookieStore.get("token")?.value;
+
+    console.log("TOKEN RECEIVED:", token); // 👈 TEMP DEBUG
 
     if (!token) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    let decoded: any;
-    try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    } catch (e) {
-      console.error("JWT VERIFY ERROR:", e);
-      return NextResponse.json({ message: "Invalid token" }, { status: 401 });
-    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
 
-    if (decoded.role !== "admin") {
+    if ((decoded as any).role !== "admin") {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
-    const products = await Product.countDocuments({
-      $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
-    });
-
+    const products = await Product.countDocuments();
     const orders = await Order.countDocuments();
     const revenue = 0;
 
-    return NextResponse.json({
-      products,
-      orders,
-      revenue,
-      chart: [],
-    });
+    return NextResponse.json({ products, orders, revenue, chart: [] });
   } catch (error) {
     console.error("DASHBOARD API ERROR:", error);
-    return NextResponse.json(
-      { message: "Failed to load dashboard" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Invalid token" }, { status: 401 });
   }
 }
