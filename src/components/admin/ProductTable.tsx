@@ -13,8 +13,9 @@ export default function ProductTable({
   const deleteProduct = async (id: string) => {
     if (!confirm("Delete this product?")) return;
 
-    await fetch(`/api/admin/products/${id}`, {
+    await fetch(`/api/admin-auth/products/${id}`, {
       method: "DELETE",
+      credentials:"include",
     });
 
     refresh(); // 🔥 real-time update

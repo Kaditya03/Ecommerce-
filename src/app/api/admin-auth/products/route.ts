@@ -2,26 +2,13 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Product from "@/models/Product";
 
-/* ================= SLUG HELPER ================= */
-function createSlug(text: string) {
-  return text
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-}
-
 /* ================= GET PRODUCTS (ADMIN LIST) ================= */
 export async function GET() {
   try {
     await connectDB();
 
- 
     const products = await Product.find({
-      $or: [
-        { isDeleted: false },
-        { isDeleted: { $exists: false } }
-      ]
+      $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
     }).sort({ createdAt: -1 });
 
     return NextResponse.json(products);
@@ -35,6 +22,14 @@ export async function GET() {
 }
 
 /* ================= ADD PRODUCT ================= */
+function createSlug(text: string) {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
 export async function POST(req: Request) {
   try {
     await connectDB();

@@ -19,7 +19,11 @@ export default function EditProduct({
     const fetchProduct = async () => {
       try {
         const res = await fetch(
-          `/api/admin-auth/products/${params.id}`
+          `/api/admin-auth/products/${params.id}`,
+          {
+            credentials: "include",   // ✅ FIX
+            cache: "no-store",
+          }
         );
 
         if (!res.ok) throw new Error("Failed to fetch");
@@ -43,13 +47,15 @@ export default function EditProduct({
       `/api/admin-auth/products/${params.id}`,
       {
         method: "PUT",
+        credentials: "include",  // ✅ FIX
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(product),
       }
     );
 
     if (!res.ok) {
-      alert("Failed to update product");
+      const err = await res.json();
+      alert(err.message || "Failed to update product");
       return;
     }
 
@@ -57,30 +63,28 @@ export default function EditProduct({
     router.push("/admin/products");
   };
 
-  //  DELETE PRODUCT
- const deleteProduct = async () => {
-  const confirmDelete = confirm(
-    "Are you sure you want to delete this product?"
-  );
-  if (!confirmDelete) return;
+  // 🔹 DELETE PRODUCT
+  const deleteProduct = async () => {
+    const confirmDelete = confirm("Are you sure you want to delete this product?");
+    if (!confirmDelete) return;
 
-  const res = await fetch(
-    `/api/admin-auth/products/${params.id}`,
-    {
-      method: "DELETE",
-      credentials: "include", // ✅ THIS FIXES IT
+    const res = await fetch(
+      `/api/admin-auth/products/${params.id}`,
+      {
+        method: "DELETE",
+        credentials: "include", // ✅ already correct
+      }
+    );
+
+    if (!res.ok) {
+      const data = await res.json();
+      alert(data.message || "Delete failed");
+      return;
     }
-  );
 
-  if (!res.ok) {
-    const data = await res.json();
-    alert(data.message || "Delete failed");
-    return;
-  }
-
-  alert("Product deleted successfully");
-  router.push("/admin/products");
-};
+    alert("Product deleted successfully");
+    router.push("/admin/products");
+  };
 
   if (loading) return <p>Loading...</p>;
   if (!product) return <p>Product not found</p>;
@@ -93,7 +97,6 @@ export default function EditProduct({
     >
       <h1 className="text-3xl font-semibold">Edit Product</h1>
 
-      {/* Images */}
       <ImageUploader
         onUpload={(urls) =>
           setProduct((prev: any) => ({
@@ -103,7 +106,6 @@ export default function EditProduct({
         }
       />
 
-      {/* Name + Price */}
       <div className="grid grid-cols-2 gap-6">
         <input
           value={product.name}
@@ -128,7 +130,6 @@ export default function EditProduct({
         />
       </div>
 
-      {/* Description */}
       <textarea
         value={product.description}
         onChange={(e) =>
@@ -141,7 +142,6 @@ export default function EditProduct({
         placeholder="Description"
       />
 
-      {/* ACTION BUTTONS */}
       <div className="flex gap-4">
         <button
           onClick={saveChanges}

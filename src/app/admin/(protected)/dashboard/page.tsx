@@ -1,21 +1,29 @@
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
 import StatCard from "@/components/admin/StatCard";
 import Charts from "@/components/admin/Charts";
 import { Package, ShoppingCart, IndianRupee } from "lucide-react";
 
 export default async function Dashboard() {
   const headersList = await headers();
+  const cookieStore = await cookies();
+
   const host = headersList.get("host");
 
-  const baseUrl = process.env.NODE_ENV === "development"
-    ? "http://localhost:3000"
-    : `https://${host}`;
+  const baseUrl =
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:3000"
+      : `https://${host}`;
 
   const res = await fetch(`${baseUrl}/api/admin-auth/dashboard`, {
     cache: "no-store",
+    headers: {
+      cookie: cookieStore.toString(), // ✅ SEND COOKIE TO API
+    },
   });
 
   if (!res.ok) {
+    const err = await res.json();
+    console.error("DASHBOARD API ERROR:", err);
     throw new Error("Failed to load dashboard data");
   }
 
@@ -26,7 +34,11 @@ export default async function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard title="Products" value={data.products} icon={<Package />} />
         <StatCard title="Orders" value={data.orders} icon={<ShoppingCart />} />
-        <StatCard title="Revenue" value={`₹${data.revenue}`} icon={<IndianRupee />} />
+        <StatCard
+          title="Revenue"
+          value={`₹${data.revenue}`}
+          icon={<IndianRupee />}
+        />
       </div>
 
       <Charts data={data.chart} />
