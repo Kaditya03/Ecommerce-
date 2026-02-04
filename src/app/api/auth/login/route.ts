@@ -7,21 +7,14 @@ import User from "@/models/User";
 export async function POST(req: Request) {
   try {
     await connectDB();
-
     const { email, password } = await req.json();
 
-    if (!email || !password) {
-      return NextResponse.json({ message: "Email and password required" }, { status: 400 });
-    }
-
     const user = await User.findOne({ email }).select("+password");
-
     if (!user) {
       return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-
     if (!isMatch) {
       return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
     }
@@ -42,11 +35,10 @@ export async function POST(req: Request) {
       },
     });
 
-    // ✅ COOKIE CONFIG THAT WORKS ON VERCEL
-   response.cookies.set("token", token, {
+ response.cookies.set("token", token, {
   httpOnly: true,
-  secure: true,            
-  sameSite: "none",        
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   path: "/",
   maxAge: 60 * 60 * 24 * 7,
 });

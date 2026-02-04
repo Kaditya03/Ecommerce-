@@ -14,10 +14,16 @@ export default async function Dashboard() {
       ? "http://localhost:3000"
       : `https://${host}`;
 
+  // ✅ FIX: Properly forward cookies
+  const cookieHeader = cookieStore
+    .getAll()
+    .map((c) => `${c.name}=${c.value}`)
+    .join("; ");
+
   const res = await fetch(`${baseUrl}/api/admin-auth/dashboard`, {
     cache: "no-store",
     headers: {
-      cookie: cookieStore.toString(), // ✅ SEND COOKIE TO API
+      cookie: cookieHeader, // ✅ real cookie string
     },
   });
 

@@ -5,32 +5,50 @@ import connectDB from "@/lib/db";
 import Product from "@/models/Product";
 import Order from "@/models/Order";
 
+export const runtime = "nodejs";
+
 export async function GET() {
   try {
     await connectDB();
 
-    const cookieStore = await cookies(); // ✅ must await
+    
+    const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
-
-    console.log("TOKEN RECEIVED:", token); // 👈 TEMP DEBUG
 
     if (!token) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+    let decoded: any;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET!);
+    } catch (err) {
+      console.error("JWT VERIFY ERROR:", err);
+      return NextResponse.json({ message: "Invalid token" }, { status: 401 });
+    }
 
-    if ((decoded as any).role !== "admin") {
+    if (decoded.role !== "admin") {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
-    const products = await Product.countDocuments();
+    const products = await Product.countDocuments({
+      $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
+    });
+
     const orders = await Order.countDocuments();
     const revenue = 0;
 
-    return NextResponse.json({ products, orders, revenue, chart: [] });
+    return NextResponse.json({
+      products,
+      orders,
+      revenue,
+      chart: [],
+    });
   } catch (error) {
     console.error("DASHBOARD API ERROR:", error);
-    return NextResponse.json({ message: "Invalid token" }, { status: 401 });
+    return NextResponse.json(
+      { message: "Failed to load dashboard" },
+      { status: 500 }
+    );
   }
 }
