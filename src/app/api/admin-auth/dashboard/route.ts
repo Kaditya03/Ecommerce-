@@ -11,7 +11,7 @@ export async function GET() {
   try {
     await connectDB();
 
-    
+    // ✅ COMPATIBLE WITH BOTH LOCALHOST + VERCEL
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
 
@@ -31,10 +31,7 @@ export async function GET() {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
-    const products = await Product.countDocuments({
-      $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
-    });
-
+    const products = await Product.countDocuments();
     const orders = await Order.countDocuments();
     const revenue = 0;
 

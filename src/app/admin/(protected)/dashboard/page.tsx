@@ -14,16 +14,10 @@ export default async function Dashboard() {
       ? "http://localhost:3000"
       : `https://${host}`;
 
-  // ✅ FIX: Properly forward cookies
-  const cookieHeader = cookieStore
-    .getAll()
-    .map((c) => `${c.name}=${c.value}`)
-    .join("; ");
-
   const res = await fetch(`${baseUrl}/api/admin-auth/dashboard`, {
     cache: "no-store",
     headers: {
-      cookie: cookieHeader, // ✅ real cookie string
+      cookie: cookieStore.toString(), // ✅ forward auth cookie
     },
   });
 
@@ -40,11 +34,7 @@ export default async function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard title="Products" value={data.products} icon={<Package />} />
         <StatCard title="Orders" value={data.orders} icon={<ShoppingCart />} />
-        <StatCard
-          title="Revenue"
-          value={`₹${data.revenue}`}
-          icon={<IndianRupee />}
-        />
+        <StatCard title="Revenue" value={`₹${data.revenue}`} icon={<IndianRupee />} />
       </div>
 
       <Charts data={data.chart} />
