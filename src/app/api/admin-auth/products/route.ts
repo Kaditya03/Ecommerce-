@@ -3,6 +3,8 @@ import connectDB from "@/lib/db";
 import Product from "@/models/Product";
 
 /* ================= GET PRODUCTS (ADMIN LIST) ================= */
+export const runtime = "nodejs";
+
 export async function GET() {
   try {
     await connectDB();
