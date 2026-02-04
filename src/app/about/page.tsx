@@ -22,7 +22,7 @@ export default function AboutPage() {
   const { scrollY } = useScroll();
   const [showBack, setShowBack] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
-  const [isPlaying, setIsPlaying] = useState(false); // New state to track play/pause
+  const [isPlaying, setIsPlaying] = useState(false); 
   const containerRef = useRef(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -62,7 +62,7 @@ export default function AboutPage() {
   return (
     <main ref={containerRef} className="bg-[#0A0A0A] text-white min-h-screen selection:bg-white selection:text-black overflow-x-hidden">
       
-      {/* 1. TOP NAVIGATION */}
+      {/* NAVIGATION */}
       <div className="fixed top-0 left-0 w-full z-[150] px-6 py-6 md:px-10 md:py-10 pointer-events-none">
         <div className="max-w-[1800px] mx-auto flex justify-between items-center w-full">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 1 }} className="pointer-events-auto">
@@ -83,7 +83,7 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* 2. HERO SECTION */}
+      {/* HERO SECTION */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <motion.div style={{ scale: heroScale, opacity: heroOpacity }} className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0A0A0A]/60 to-[#0A0A0A] z-10" />
@@ -102,7 +102,7 @@ export default function AboutPage() {
         </motion.div>
       </section>
 
-      {/* 3. BRAND ETHOS */}
+      {/*  BRAND */}
       <section className="py-32 px-8 flex justify-center bg-[#0D0D0D]">
         <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="max-w-4xl text-center space-y-12">
           <div className="space-y-4">
@@ -122,7 +122,7 @@ export default function AboutPage() {
         </motion.div>
       </section>
 
-      {/* 4. STRATEGIC PILLARS */}
+     
       <section className="max-w-[1400px] mx-auto px-8 py-32 grid grid-cols-1 md:grid-cols-3 gap-8">
           <VisionCard 
             index={0} 
@@ -144,7 +144,7 @@ export default function AboutPage() {
           />
       </section>
 
-      {/* 5. 3D VIDEO MESSAGE SECTION */}
+      {/*  VIDEO MESSAGE SECTION */}
       <section className="py-40 px-8">
         <div className="max-w-[1400px] mx-auto">
           <div className="relative group">
@@ -160,11 +160,11 @@ export default function AboutPage() {
                 muted={isMuted} 
                 loop 
                 playsInline 
-                controls={isPlaying} // Only show slider when playing
+                controls={isPlaying} 
                 className={`absolute inset-0 w-full h-full object-cover transition-all duration-[2s] ${isPlaying ? 'opacity-100' : 'opacity-60 group-hover:scale-105'}`}
               />
               
-              {/* Conditional Overlay: Hides when isPlaying is true */}
+             
               {!isPlaying && (
                 <div 
                   className="absolute inset-0 flex flex-col items-center justify-center space-y-8 cursor-pointer z-20"
@@ -183,7 +183,7 @@ export default function AboutPage() {
                 </div>
               )}
 
-              {/* Mute toggle button - always visible for user control */}
+              {/* Mute toggle button  */}
               <button 
                 onClick={toggleMute}
                 className="absolute bottom-10 left-10 z-30 p-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white hover:bg-white hover:text-black transition-all duration-500 flex items-center gap-3"
@@ -194,7 +194,7 @@ export default function AboutPage() {
                 </span>
               </button>
 
-              {/* Pause Button - visible only when playing and hovering */}
+              {/* Pause Button */}
               {isPlaying && (
                 <button 
                   onClick={handlePlayToggle}
@@ -211,7 +211,8 @@ export default function AboutPage() {
         </div>
       </section>
 
-   {/* 6. FOUNDER SECTION */}
+   {/*  FOUNDER SECTION */}
+{/* FOUNDER SECTION */}
 <section className="py-40 bg-stone-100 text-stone-900 rounded-[4rem] md:rounded-[6rem] mx-4 md:mx-12 overflow-hidden shadow-2xl">
   <div className="max-w-[1200px] mx-auto px-8 grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
     <motion.div initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 1 }} viewport={{ once: true }} className="space-y-12">
@@ -231,8 +232,11 @@ export default function AboutPage() {
       </div>
     </motion.div>
     
-    {/* Updated Image component below: removed 'grayscale' and 'group-hover:grayscale-0' */}
-    <motion.div whileHover={{ scale: 1.02 }} className="relative h-[600px] md:h-[800px] w-full rounded-[3.5rem] overflow-hidden shadow-2xl group">
+    <motion.div 
+      whileHover={{ scale: 1.02 }} 
+      className="relative h-[600px] md:h-[800px] w-full rounded-[3.5rem] overflow-hidden shadow-2xl group"
+    >
+     
       <Image 
         src="/images/founder.jpeg" 
         alt="Abhinav Anand" 
@@ -243,7 +247,7 @@ export default function AboutPage() {
   </div>
 </section>
 
-      {/* 7. THE COLLECTIVE GALLERY */}
+      {/* THE COLLECTIVE GALLERY */}
       <section className="py-40 px-8 max-w-[1500px] mx-auto text-center">
         <Globe size={32} strokeWidth={1} className="text-stone-700 mb-8 mx-auto animate-pulse" />
         <h2 className="text-5xl md:text-7xl font-serif italic mb-24">The Collective</h2>
@@ -256,7 +260,7 @@ export default function AboutPage() {
         </motion.div>
       </section>
 
-      {/* 8. FOOTER */}
+      {/*  FOOTER */}
       <footer className="bg-white text-black pt-24 pb-12 rounded-t-[4rem] md:rounded-t-[6rem]">
         <div className="max-w-[1400px] mx-auto px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 pb-20 border-b border-stone-100">
