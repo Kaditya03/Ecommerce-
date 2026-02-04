@@ -4,8 +4,6 @@ import jwt from "jsonwebtoken";
 import connectDB from "@/lib/db";
 import User from "@/models/User";
 
-export const runtime = "nodejs"; // REQUIRED
-
 export async function POST(req: Request) {
   try {
     await connectDB();
@@ -34,7 +32,7 @@ export async function POST(req: Request) {
       { expiresIn: "7d" }
     );
 
-    const res = NextResponse.json({
+    const response = NextResponse.json({
       message: "Login successful",
       user: {
         id: user._id,
@@ -44,18 +42,18 @@ export async function POST(req: Request) {
       },
     });
 
-    //  COOKIE FIX FOR VERCEL
-    res.cookies.set("token", token, {
+    // ✅ COOKIE CONFIG THAT WORKS ON VERCEL
+    response.cookies.set("token", token, {
       httpOnly: true,
-      secure: true,       
-      sameSite: "none",    
+      secure: true,        // must be true on https (Vercel)
+      sameSite: "lax",     // ⚠️ DO NOT use "none" unless cross-domain
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
     });
 
-    return res;
-  } catch (error) {
-    console.error("LOGIN ERROR:", error);
+    return response;
+  } catch (err) {
+    console.error("LOGIN ERROR:", err);
     return NextResponse.json({ message: "Login failed" }, { status: 500 });
   }
 }
