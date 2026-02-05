@@ -3,10 +3,15 @@ import Charts from "@/components/admin/Charts";
 import { Package, ShoppingCart, IndianRupee } from "lucide-react";
 
 export default async function Dashboard() {
-  // ✅ Call API with RELATIVE URL (works on localhost + Vercel)
-  const res = await fetch("/api/admin-auth/dashboard", {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.NODE_ENV === "development"
+      ? "http://localhost:3000"
+      : "");
+
+  const res = await fetch(`${baseUrl}/api/admin-auth/dashboard`, {
     cache: "no-store",
-    credentials: "include", // ✅ ensures cookies are sent
+    credentials: "include", // ✅ IMPORTANT
   });
 
   if (!res.ok) {
@@ -22,11 +27,7 @@ export default async function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard title="Products" value={data.products} icon={<Package />} />
         <StatCard title="Orders" value={data.orders} icon={<ShoppingCart />} />
-        <StatCard
-          title="Revenue"
-          value={`₹${data.revenue}`}
-          icon={<IndianRupee />}
-        />
+        <StatCard title="Revenue" value={`₹${data.revenue}`} icon={<IndianRupee />} />
       </div>
 
       <Charts data={data.chart} />
