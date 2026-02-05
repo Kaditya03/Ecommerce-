@@ -11,9 +11,9 @@ export async function GET() {
   try {
     await connectDB();
 
-    // ✅ MUST await on Vercel
-    const cookieStore: any = await cookies();
-    const token = cookieStore?.get?.("token")?.value;
+    // ✅ cookies() returns Promise in your Next version
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
 
     if (!token) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -22,8 +22,7 @@ export async function GET() {
     let decoded: any;
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    } catch (err) {
-      console.error("JWT VERIFY ERROR:", err);
+    } catch {
       return NextResponse.json({ message: "Invalid token" }, { status: 401 });
     }
 
@@ -38,11 +37,14 @@ export async function GET() {
     const orders = await Order.countDocuments();
     const revenue = 0;
 
-    return NextResponse.json({ products, orders, revenue, chart: [] });
+    return NextResponse.json({
+      products,
+      orders,
+      revenue,
+      chart: [],
+    });
   } catch (error) {
     console.error("DASHBOARD API ERROR:", error);
-    console.log("JWT SECRET (dashboard):", process.env.JWT_SECRET);
-
     return NextResponse.json(
       { message: "Failed to load dashboard" },
       { status: 500 }

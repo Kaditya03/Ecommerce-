@@ -11,7 +11,10 @@ export async function POST(req: Request) {
     const { email, password } = await req.json();
 
     if (!email || !password) {
-      return NextResponse.json({ message: "Email and password required" }, { status: 400 });
+      return NextResponse.json(
+        { message: "Email and password required" },
+        { status: 400 }
+      );
     }
 
     const user = await User.findOne({ email }).select("+password");
@@ -41,18 +44,17 @@ export async function POST(req: Request) {
       },
     });
 
+    // ✅ Vercel-safe cookie
     response.cookies.set("token", token, {
       httpOnly: true,
-      secure: true,        // ✅ REQUIRED on Vercel
-      sameSite: "none",    //  REQUIRED on Vercel
+      secure: true,
+      sameSite: "none",
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
     });
 
     return response;
   } catch (error) {
-    console.log("JWT SECRET (login):", process.env.JWT_SECRET);
-
     console.error("LOGIN ERROR:", error);
     return NextResponse.json({ message: "Login failed" }, { status: 500 });
   }
