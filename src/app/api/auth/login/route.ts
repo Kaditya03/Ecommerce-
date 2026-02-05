@@ -44,13 +44,15 @@ export async function POST(req: Request) {
     response.cookies.set("token", token, {
       httpOnly: true,
       secure: true,        // ✅ REQUIRED on Vercel
-      sameSite: "none",    // ✅ REQUIRED on Vercel
+      sameSite: "none",    //  REQUIRED on Vercel
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
     });
 
     return response;
   } catch (error) {
+    console.log("JWT SECRET (login):", process.env.JWT_SECRET);
+
     console.error("LOGIN ERROR:", error);
     return NextResponse.json({ message: "Login failed" }, { status: 500 });
   }

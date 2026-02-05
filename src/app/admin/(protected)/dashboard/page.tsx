@@ -6,20 +6,16 @@ import { Package, ShoppingCart, IndianRupee } from "lucide-react";
 export default async function Dashboard() {
   const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL ||
-    (process.env.NODE_ENV === "development"
-      ? "http://localhost:3000"
-      : "");
+    (process.env.NODE_ENV === "development" ? "http://localhost:3000" : "");
 
-  // ✅ FIX: cookies() must be awaited
+  // ✅ MUST await cookies()
   const cookieStore: any = await cookies();
   const token = cookieStore?.get?.("token")?.value;
-
-  const cookieHeader = token ? `token=${token}` : "";
 
   const res = await fetch(`${baseUrl}/api/admin-auth/dashboard`, {
     cache: "no-store",
     headers: {
-      cookie: cookieHeader, // forward JWT to API
+      cookie: token ? `token=${token}` : "",
     },
   });
 
@@ -36,13 +32,8 @@ export default async function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard title="Products" value={data.products} icon={<Package />} />
         <StatCard title="Orders" value={data.orders} icon={<ShoppingCart />} />
-        <StatCard
-          title="Revenue"
-          value={`₹${data.revenue}`}
-          icon={<IndianRupee />}
-        />
+        <StatCard title="Revenue" value={`₹${data.revenue}`} icon={<IndianRupee />} />
       </div>
-
       <Charts data={data.chart} />
     </div>
   );
