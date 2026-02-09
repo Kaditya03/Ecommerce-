@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/lib/dbConnect";
+import connectDB from "@/lib/db";
 import Product from "@/models/Product"; 
 
 export async function GET(req: NextRequest) {
   try {
-    await dbConnect();
+    await connectDB();
     
     const { searchParams } = new URL(req.url);
     const query = searchParams.get("q");
@@ -13,25 +13,34 @@ export async function GET(req: NextRequest) {
       return NextResponse.json([]);
     }
 
-    // Creating a case-insensitive regular expression for partial matching
     const searchRegex = new RegExp(query, "i");
 
     const products = await Product.find({
-      $or: [
-        { name: searchRegex },
-        { category: searchRegex },
-        { tags: searchRegex } // If you have a tags array in your schema
+      $and: [
+        {
+          $or: [
+            { name: searchRegex },
+            { category: searchRegex },
+          ],
+        },
+        {
+          $or: [
+            { isDeleted: false },
+            { isDeleted: { $exists: false } },
+          ],
+        },
       ],
-      // Optional: only show active products
-      isAvailable: true 
     })
-    .select("name price category image id") // Only fetch what the Navbar needs
-    .limit(8)
-    .lean(); // Converts to plain JS objects for faster performance
+      .select("name price category images _id slug")
+      .limit(8)
+      .lean();
 
     return NextResponse.json(products);
   } catch (error) {
     console.error("MongoDB Search Error:", error);
-    return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch products" },
+      { status: 500 }
+    );
   }
 }
