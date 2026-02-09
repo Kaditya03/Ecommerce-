@@ -8,25 +8,33 @@ export default async function CategoryPage({
 }) {
   const { category } = await params;
 
-  // ✅ headers() must be awaited
+  // Setup base URL for internal API call
   const headersList = await headers();
   const host = headersList.get("host");
+  const protocol = host?.includes("localhost") ? "http" : "https";
+  const baseUrl = `${protocol}://${host}`;
 
-  const baseUrl = host?.includes("localhost")
-    ? `http://${host}`
-    : `https://${host}`;
+  try {
+    const res = await fetch(
+      `${baseUrl}/api/products?category=${category}`,
+      { cache: "no-store" }
+    );
 
-  const res = await fetch(
-    `${baseUrl}/api/products?category=${category}`,
-    { cache: "no-store" }
-  );
+    if (!res.ok) throw new Error("Failed to fetch");
+    
+    const products = await res.json();
 
-  const products = await res.json();
-
-  return (
-    <CategoryLayout
-      category={category}
-      products={products}
-    />
-  );
+    return (
+      <CategoryLayout
+        category={category}
+        products={Array.isArray(products) ? products : []}
+      />
+    );
+  } catch (error) {
+    return (
+      <div className="h-screen flex items-center justify-center italic text-stone-400">
+        Error loading collection. Please try again later.
+      </div>
+    );
+  }
 }

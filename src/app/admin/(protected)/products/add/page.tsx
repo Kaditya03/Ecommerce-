@@ -1,11 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import ImageUploader from "@/components/admin/ImageUploader";
 import { motion } from "framer-motion";
 import { Save, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+
+// 1. Define the dynamic options data
+const CATEGORY_MAP: any = {
+  "bathroom-accessories": ["Hooks", "Handle", "Laundry Basket", "Soap Dispenser", "Soap Dish"],
+  "home-decor": ["Vases", "Wall Art", "Mirrors"],
+  "furniture": ["Dining Table", "Console Table", "Center Table", "Side Table", "Bookshelf", "Shoe Rack", "Ottoman"],
+  "kitchen-accessories": ["Utensil Holders", "Storage Container", "Dish Rack"],
+  "garden-accessories": ["Water Cans", "Tree Decor", "Bird Table", "Garden Wall Art", "Wind Chimes", "Wind Spinners", "Bird Bath", "Garden Urm"],
+  "lighting-candles": ["Lanterns", "Candelabrum", "T-Light Holder", "Hurricane Holder", "Moroccan Holder", "Pillar Holder"],
+};
 
 export default function AddProductPage() {
   const router = useRouter();
@@ -15,8 +25,14 @@ export default function AddProductPage() {
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
+  const [subCategory, setSubCategory] = useState(""); // New State for Sub-items
   const [sections, setSections] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // 2. Memoized sub-options based on category selection
+  const subOptions = useMemo(() => {
+    return CATEGORY_MAP[category] || [];
+  }, [category]);
 
   const saveProduct = async () => {
     if (!name || !category || images.length === 0) {
@@ -29,7 +45,7 @@ export default function AddProductPage() {
 
       const res = await fetch("/api/admin-auth/products", {
         method: "POST",
-        credentials: "include", // ✅ REQUIRED (DO NOT REMOVE)
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -39,6 +55,7 @@ export default function AddProductPage() {
           description,
           images,
           category,
+          subCategory, // Sending subCategory to your API
           sections,
           minOrderQty: 50,
         }),
@@ -46,14 +63,12 @@ export default function AddProductPage() {
 
       if (!res.ok) {
         const err = await res.json();
-        console.error("SAVE PRODUCT ERROR:", err);
         alert(err.message || "Failed to save product");
         return;
       }
 
       router.push("/admin/products");
     } catch (error) {
-      console.error("SAVE PRODUCT FAILED:", error);
       alert("Something went wrong while saving product");
     } finally {
       setLoading(false);
@@ -135,7 +150,7 @@ export default function AddProductPage() {
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full h-11 rounded-xl border px-4"
+              className="mt-1 w-full h-11 rounded-xl border px-4 focus:ring-2 focus:ring-indigo-500 outline-none"
               placeholder="Brass Diya Lamp"
             />
           </div>
@@ -145,26 +160,49 @@ export default function AddProductPage() {
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="mt-1 w-full min-h-[120px] rounded-xl border px-4 py-3 resize-none"
+              className="mt-1 w-full min-h-[120px] rounded-xl border px-4 py-3 resize-none focus:ring-2 focus:ring-indigo-500 outline-none"
               placeholder="Handcrafted brass diya ideal for gifting..."
             />
           </div>
 
-          <div>
-            <label className="text-sm font-medium">Category</label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="mt-1 w-full h-11 rounded-xl border px-4"
-            >
-              <option value="">Select Category</option>
-              <option value="pottery">Pottery</option>
-              <option value="handlooms">Handlooms</option>
-              <option value="brass-art">Brass Art</option>
-              <option value="wood-craft">Wood Craft</option>
-              <option value="paintings">Paintings</option>
-              <option value="home-decor">Home Decor</option>
-            </select>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium">Category</label>
+              <select
+                value={category}
+                onChange={(e) => {
+                  setCategory(e.target.value);
+                  setSubCategory(""); // Reset sub-item when category changes
+                }}
+                className="mt-1 w-full h-11 rounded-xl border px-4 outline-none"
+              >
+                <option value="">Select Category</option>
+                <option value="bathroom-accessories">Bathroom Accessories</option>
+                <option value="home-decor">Home Decor</option>
+                <option value="furniture">Furniture</option>
+                <option value="kitchen-accessories">Kitchen Accessories</option>
+                <option value="garden-accessories">Garden Accessories</option>
+                <option value="pots-and-planters">Pots and Planters</option>
+                <option value="lighting-candles">Lighting & Candle Holders</option>
+                <option value="figurines-sculptures">Figurines & Sculptures</option>
+              </select>
+            </div>
+
+            {/* DYNAMIC SUB-CATEGORY SECTION */}
+            <div>
+              <label className="text-sm font-medium">Sub-Item / Type</label>
+              <select
+                value={subCategory}
+                disabled={subOptions.length === 0}
+                onChange={(e) => setSubCategory(e.target.value)}
+                className="mt-1 w-full h-11 rounded-xl border px-4 outline-none disabled:bg-gray-50 disabled:text-gray-400 transition"
+              >
+                <option value="">Select Type</option>
+                {subOptions.map((opt: string) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div>

@@ -16,13 +16,48 @@ const poppins = Poppins({
 });
 
 const Categories = () => {
-  const items = [
-    { name: "Pottery", slug: "pottery", img: "/images/categories/pottery.webp" },
-    { name: "Handlooms", slug: "handlooms", img: "/images/categories/handloom.jpg" },
-    { name: "Brass Art", slug: "brass-art", img: "/images/categories/brass.jpg" },
-    { name: "Wood Craft", slug: "wood-craft", img: "/images/categories/wood.webp" },
-    { name: "Paintings", slug: "paintings", img: "/images/categories/paintings.jpg" },
-    { name: "Home Decor", slug: "home-decor", img: "/images/categories/decor.webp" },
+  // UPDATED DATA SOURCE
+  const collectionsData = [
+    { 
+      name: "Bathroom Accessories", 
+      slug: "bathroom-accessories", 
+      img: "/images/categories/BathroomAccessories.avif" 
+    },
+    { 
+      name: "Home Decor", 
+      slug: "home-decor", 
+      img: "/images/categories/HomeDecor.webp" 
+    },
+    { 
+      name: "Furniture", 
+      slug: "furniture", 
+      img: "/images/categories/Furniture.webp" 
+    },
+    { 
+      name: "Kitchen Accessories", 
+      slug: "kitchen-accessories", 
+      img: "/images/categories/kitchen-accessories.avif" 
+    },
+    { 
+      name: "Garden Accessories", 
+      slug: "garden-accessories", 
+      img: "/images/categories/GardenAccessories.webp" 
+    },
+    { 
+      name: "Pots and Planters", 
+      slug: "pots-and-planters", 
+      img: "/images/categories/pots-plants.jpg" 
+    },
+    { 
+      name: "Lighting & Candles", 
+      slug: "lighting-candles", 
+      img: "/images/categories/lighting-candles.avif" 
+    },
+    { 
+      name: "Sculptures", 
+      slug: "figurines-sculptures", 
+      img: "/images/categories/sclupures.jpg" 
+    },
   ];
 
   return (
@@ -63,15 +98,15 @@ const Categories = () => {
           </motion.div>
         </div>
 
-        {/* GRID */}
-        <div className="flex overflow-x-auto md:grid md:grid-cols-3 lg:grid-cols-6 gap-8 lg:gap-6 pb-4 scrollbar-hide snap-x snap-mandatory px-2 md:px-0">
-          {items.map((item, index) => (
+        {/* GRID - Supports 8 items now */}
+        <div className="flex overflow-x-auto md:grid md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 pb-4 scrollbar-hide snap-x snap-mandatory px-2 md:px-0">
+          {collectionsData.map((item, index) => (
             <motion.div
               key={item.slug}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{
-                delay: index * 0.1,
+                delay: (index % 4) * 0.1,
                 duration: 1,
                 ease: [0.22, 1, 0.36, 1],
               }}
