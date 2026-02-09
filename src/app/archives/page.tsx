@@ -22,11 +22,13 @@ import {
 } from "lucide-react";
 import { Cormorant_Garamond, Poppins } from "next/font/google";
 
+// Integrated Navbar
+import Navbar from "@/components/Navbar";
+
 const cormorant = Cormorant_Garamond({ subsets: ["latin"], weight: ["300", "400", "600"] });
 const poppins = Poppins({ subsets: ["latin"], weight: ["300", "400", "600"] });
 
 // --- DATA ---
-
 const archiveItems = [
   { year: "2023", title: "The Silk Road", category: "Textiles", image: "/images/hero1.jpg", desc: "A journey through ancient weaving techniques and natural dyes." },
   { year: "2024", title: "Ceramic Echoes", category: "Pottery", image: "/images/hero2.jpg", desc: "Exploring the resonance of clay and fire in the heart of the desert." },
@@ -45,43 +47,15 @@ export default function ArchivesPage() {
   const containerRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: containerRef });
   const scaleProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
-  const [backHovered, setBackHovered] = useState(false);
 
   return (
     <div ref={containerRef} className={`bg-[#FBFBFA] min-h-screen ${poppins.className} overflow-x-hidden text-[#1A1A18]`}>
       
-      {/* 1. NON-STICKY NAVBAR */}
-      <nav className="absolute top-0 left-0 w-full z-[100] px-6 py-10 flex justify-between items-center">
-        <Link href="/">
-          <Image src="/images/AurindelLogo.png" alt="Logo" width={100} height={35} className="object-contain" />
-        </Link>
-        
-        {/* ENHANCED BACK BUTTON */}
-        <Link 
-          href="/" 
-          onMouseEnter={() => setBackHovered(true)}
-          onMouseLeave={() => setBackHovered(false)}
-          className="group relative flex items-center justify-center bg-white px-7 py-3 rounded-full border border-stone-200 shadow-sm transition-all overflow-hidden"
-        >
-          <div className="flex items-center gap-2 relative z-10 transition-colors">
-            <ArrowLeft size={14} />
-            <span className="text-[10px] uppercase tracking-[0.3em] font-bold">Back</span>
-          </div>
-          <AnimatePresence>
-            {backHovered && (
-              <motion.div 
-                initial={{ y: "100%" }} 
-                animate={{ y: 0 }} 
-                exit={{ y: "-100%" }}
-                className="absolute inset-0 bg-stone-50 z-0" 
-              />
-            )}
-          </AnimatePresence>
-        </Link>
-      </nav>
+      {/* 1. NAVBAR INTEGRATION */}
+      <Navbar />
 
-      {/* 2. CINEMATIC HERO */}
-      <section className="relative h-[80vh] flex flex-col items-center justify-center text-center px-6">
+      {/* 2. CINEMATIC HERO - Adjusted padding for Navbar clearance */}
+      <section className="relative h-[90vh] flex flex-col items-center justify-center text-center px-6 pt-20">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.5 }} className="z-10">
           <span className="text-[10px] uppercase tracking-[1em] text-stone-400 mb-6 block underline underline-offset-8">Legacy & Lore</span>
           <h1 className={`${cormorant.className} text-7xl md:text-[10rem] font-light leading-none`}>
@@ -188,8 +162,6 @@ export default function ArchivesPage() {
 
       {/* 9. GRAND FOOTER */}
       <footer className="bg-[#0D0D0C] text-white pt-32 pb-12 px-6 md:px-20 relative overflow-hidden">
-        
-        {/* CORRECTED WATERMARK: Fully centered and visible */}
         <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-full opacity-[0.04] pointer-events-none select-none flex justify-center">
           <h2 className="text-[20vw] leading-none font-black tracking-tight uppercase whitespace-nowrap">
             AURINDEL
@@ -198,7 +170,6 @@ export default function ArchivesPage() {
 
         <div className="max-w-[1800px] mx-auto relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 border-b border-stone-800 pb-28">
-            {/* Brand */}
             <div className="lg:col-span-6 space-y-10">
               <Image src="/images/AurindelLogo.png" alt="Logo" width={160} height={50} className="brightness-0 invert" />
               <p className={`${cormorant.className} text-3xl text-stone-400 italic max-w-sm`}>
@@ -210,8 +181,6 @@ export default function ArchivesPage() {
                  <SocialIcon icon={<Facebook size={18}/>} />
               </div>
             </div>
-
-            {/* Assets */}
             <div className="lg:col-span-3 space-y-8">
               <h5 className="text-stone-600 text-[9px] uppercase tracking-[0.5em] font-bold">Archives & Media</h5>
               <ul className="flex flex-col gap-4 text-xs font-light text-stone-400">
@@ -220,15 +189,12 @@ export default function ArchivesPage() {
                 <li className="hover:text-white cursor-pointer transition-all flex items-center gap-2"><BarChart3 size={12}/> Milestone Report</li>
               </ul>
             </div>
-
-            {/* Inquiries */}
             <div className="lg:col-span-3 space-y-8">
               <h5 className="text-stone-600 text-[9px] uppercase tracking-[0.5em] font-bold">Atelier Contact</h5>
               <p className="text-xs text-stone-500 leading-relaxed font-mono">archives@aurindel.house</p>
               <p className="text-[10px] uppercase tracking-widest text-stone-600">London — Paris — Kyoto</p>
             </div>
           </div>
-          
           <div className="mt-16 text-center text-[9px] text-stone-600 tracking-[0.4em] uppercase">
             <p>© 2026 Aurindel House. All Rights Reserved.</p>
           </div>
@@ -239,7 +205,6 @@ export default function ArchivesPage() {
 }
 
 /* SUB-COMPONENTS */
-
 function MaterialItem({ label, origin }: { label: string, origin: string }) {
     return (
         <div className="group border-l border-stone-800 pl-6 py-4 hover:border-stone-500 transition-colors">

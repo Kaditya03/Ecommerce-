@@ -4,20 +4,22 @@ import React, { useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import emailjs from "@emailjs/browser"; // Make sure to: npm install @emailjs/browser
+import emailjs from "@emailjs/browser"; 
 import { 
-  Mail, Phone, MapPin, Send, ArrowLeft, 
+  Mail, Phone, MapPin, Send, 
   Instagram, Twitter, Facebook, MessageCircle, 
   Linkedin, Globe, X, CheckCircle2, Loader2,
   ExternalLink
 } from "lucide-react";
 import { Cormorant_Garamond, Poppins } from "next/font/google";
 
+// Integrated Navbar
+import Navbar from "@/components/Navbar";
+
 const cormorant = Cormorant_Garamond({ subsets: ["latin"], weight: ["300", "400", "600"] });
 const poppins = Poppins({ subsets: ["latin"], weight: ["300", "400", "600"] });
 
 export default function ContactPage() {
-  const [backHovered, setBackHovered] = useState(false);
   const [selectedInquiry, setSelectedInquiry] = useState("General");
   const [showCalendar, setShowCalendar] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,57 +31,42 @@ export default function ContactPage() {
   const mapUrl = "https://maps.google.com";
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
+    if (selectedInquiry === "Trade Partnership" || selectedInquiry === "Bespoke Commission") {
+      setShowCalendar(true);
+      return;
+    }
+    setIsSubmitting(true);
 
-  if (selectedInquiry === "Trade Partnership" || selectedInquiry === "Bespoke Commission") {
-    setShowCalendar(true);
-    return;
-  }
+    const SERVICE_ID = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!;
+    const INQUIRY_TEMPLATE = process.env.NEXT_PUBLIC_EMAILJS_INQUIRY_TEMPLATE_ID!;
+    const AUTOREPLY_TEMPLATE = process.env.NEXT_PUBLIC_EMAILJS_AUTOREPLY_TEMPLATE_ID!;
+    const PUBLIC_KEY = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!;
 
-  setIsSubmitting(true);
+    if (!formRef.current) return;
 
-  const SERVICE_ID = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!;
-  const INQUIRY_TEMPLATE = process.env.NEXT_PUBLIC_EMAILJS_INQUIRY_TEMPLATE_ID!;
-  const AUTOREPLY_TEMPLATE = process.env.NEXT_PUBLIC_EMAILJS_AUTOREPLY_TEMPLATE_ID!;
-  const PUBLIC_KEY = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!;
-
-  if (!formRef.current) return;
-
-  try {
-    // 📩 Admin email
-    await emailjs.sendForm(SERVICE_ID, INQUIRY_TEMPLATE, formRef.current, PUBLIC_KEY);
-
-    // 🤍 User auto-reply
-    await emailjs.sendForm(SERVICE_ID, AUTOREPLY_TEMPLATE, formRef.current, PUBLIC_KEY);
-
-    setIsSuccess(true);
-    formRef.current.reset();
-    setTimeout(() => setIsSuccess(false), 5000);
-  } catch (error) {
-    console.error("EmailJS Error:", error);
-    alert("Failed to send inquiry. Please try again or email us directly.");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
-
+    try {
+      await emailjs.sendForm(SERVICE_ID, INQUIRY_TEMPLATE, formRef.current, PUBLIC_KEY);
+      await emailjs.sendForm(SERVICE_ID, AUTOREPLY_TEMPLATE, formRef.current, PUBLIC_KEY);
+      setIsSuccess(true);
+      formRef.current.reset();
+      setTimeout(() => setIsSuccess(false), 5000);
+    } catch (error) {
+      console.error("EmailJS Error:", error);
+      alert("Failed to send inquiry. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className={`min-h-screen bg-[#FBFBFA] ${poppins.className} text-[#1A1A18] selection:bg-stone-200 overflow-x-hidden`}>
       
-      {/* 1. NAVBAR */}
-      <nav className="absolute top-0 left-0 w-full z-[100] px-6 py-10 flex justify-between items-center">
-        <Link href="/">
-          <Image src="/images/AurindelLogo.png" alt="Logo" width={120} height={45} className="object-contain" />
-        </Link>
-        <Link href="/" onMouseEnter={() => setBackHovered(true)} onMouseLeave={() => setBackHovered(false)} className="group relative flex items-center justify-center bg-white px-7 py-3 rounded-full border border-stone-200 shadow-sm overflow-hidden">
-          <div className="flex items-center gap-2 relative z-10"><ArrowLeft size={14} /><span className="text-[10px] uppercase tracking-[0.3em] font-bold">Back</span></div>
-          <AnimatePresence>{backHovered && <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "-100%" }} className="absolute inset-0 bg-stone-50 z-0" />}</AnimatePresence>
-        </Link>
-      </nav>
+      {/* 1. NAVBAR  */}
+      <Navbar />
 
       {/* 2. HEADER */}
-      <section className="pt-44 pb-20 px-6 max-w-4xl mx-auto text-center">
+      <section className="pt-52 pb-20 px-6 max-w-4xl mx-auto text-center">
         <h2 className="text-[10px] uppercase tracking-[0.5em] text-stone-400 font-bold mb-8">Aurindel — Contact Us</h2>
         <h1 className={`${cormorant.className} text-6xl md:text-8xl font-light italic leading-tight mb-8`}>The Start of a Story</h1>
         <p className="text-stone-500 text-sm md:text-base leading-relaxed max-w-2xl mx-auto font-light">
@@ -113,8 +100,8 @@ export default function ContactPage() {
           </div>
 
           <div className="grid grid-cols-3 gap-4">
-            <SocialTile icon={<Instagram size={20}/>} label="Insta" href="https://instagram.com" />
-            <SocialTile icon={<Linkedin size={20}/>} label="LinkedIn" href="https://linkedin.com" />
+            <SocialTile icon={<Instagram size={20}/>} label="Insta" href="https://www.instagram.com/theabhinavanand" />
+            <SocialTile icon={<Linkedin size={20}/>} label="LinkedIn" href="https://in.linkedin.com/in/abhinavanandofficial" />
             <SocialTile icon={<Twitter size={20}/>} label="Twitter" href="https://twitter.com" />
           </div>
         </div>
@@ -129,10 +116,7 @@ export default function ContactPage() {
                     <FormInput name="from_name" label="Your Name" placeholder="Ex: Julian Thorne" required />
                     <FormInput name="reply_to" label="Email Address" placeholder="Ex: julian@house.com" type="email" required />
                 </div>
-
-                {/* Hidden input to pass Inquiry Type to EmailJS template */}
                 <input type="hidden" name="inquiry_type" value={selectedInquiry} />
-
                 <div className="space-y-4">
                     <label className="text-[9px] uppercase tracking-[0.4em] text-stone-500 font-bold">Nature of Inquiry</label>
                     <div className="flex flex-wrap gap-3">
@@ -148,7 +132,6 @@ export default function ContactPage() {
                       ))}
                     </div>
                 </div>
-
                 <div className="relative">
                   <label className="text-[9px] uppercase tracking-[0.4em] text-stone-500 font-bold">Message</label>
                   <textarea name="message" rows={4} className="w-full bg-transparent border-b border-stone-800 py-3 outline-none focus:border-white transition-colors placeholder:text-stone-800 resize-none" placeholder="How can we assist your legacy?" required />
@@ -168,9 +151,7 @@ export default function ContactPage() {
                     type="submit"
                     className="w-full h-16 bg-white text-stone-900 rounded-2xl font-black uppercase text-[10px] tracking-[0.3em] flex items-center justify-center gap-3 hover:gap-6 transition-all group disabled:opacity-50"
                   >
-                    {isSubmitting ? (
-                      <Loader2 className="animate-spin" size={18} />
-                    ) : (
+                    {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : (
                       <>
                         {selectedInquiry === "Trade Partnership" || selectedInquiry === "Bespoke Commission" ? "Schedule Consultation" : "Dispatch Inquiry"}
                         <Send size={14} />

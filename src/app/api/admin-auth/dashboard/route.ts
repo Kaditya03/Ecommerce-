@@ -11,21 +11,14 @@ export async function GET() {
   try {
     await connectDB();
 
-    // ✅ MUST await on Vercel
-    const cookieStore = await cookies();
+    const cookieStore = await cookies();  // ✅ MUST await
     const token = cookieStore.get("token")?.value;
 
     if (!token) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    let decoded: any;
-    try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    } catch (err) {
-      console.error("JWT VERIFY ERROR:", err);
-      return NextResponse.json({ message: "Invalid token" }, { status: 401 });
-    }
+    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
 
     if (decoded.role !== "admin") {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
@@ -36,14 +29,15 @@ export async function GET() {
     });
 
     const orders = await Order.countDocuments();
-    const revenue = 0;
 
-    return NextResponse.json({ products, orders, revenue, chart: [] });
+    return NextResponse.json({
+      products,
+      orders,
+      revenue: 0,
+      chart: [],
+    });
   } catch (error) {
     console.error("DASHBOARD API ERROR:", error);
-    return NextResponse.json(
-      { message: "Failed to load dashboard" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Failed to load dashboard" }, { status: 500 });
   }
 }

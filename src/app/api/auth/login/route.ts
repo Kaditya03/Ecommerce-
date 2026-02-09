@@ -44,11 +44,11 @@ export async function POST(req: Request) {
       },
     });
 
-    // ✅ Vercel-safe cookie
+    // ✅ CORRECT COOKIE CONFIG (works on localhost + Vercel)
     response.cookies.set("token", token, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",   // ❌ DO NOT use "none" unless you have cross-domain frontend
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
     });

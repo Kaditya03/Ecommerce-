@@ -1,13 +1,12 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { 
   Instagram, 
   Linkedin, 
-  ArrowLeft, 
   Globe,
   Quote,
   Play,
@@ -20,17 +19,15 @@ import {
   ArrowRight
 } from "lucide-react";
 
+
+import Navbar from "@/components/Navbar"; 
+
 export default function AboutPage() {
   const { scrollY } = useScroll();
-  const [showBack, setShowBack] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false); 
   const containerRef = useRef(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    setShowBack(latest < 80);
-  });
 
   const handlePlayToggle = () => {
     if (videoRef.current) {
@@ -55,32 +52,14 @@ export default function AboutPage() {
   return (
     <main ref={containerRef} className="bg-[#FBFBF9] text-stone-900 min-h-screen selection:bg-black selection:text-white overflow-x-hidden">
       
-      {/* NAVIGATION */}
-      <div className="fixed top-0 left-0 w-full z-[150] px-6 py-6 md:px-10 md:py-10 pointer-events-none">
-        <div className="max-w-[1800px] mx-auto flex justify-between items-center w-full">
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 1 }} className="pointer-events-auto">
-            <Link href="/" className="block relative w-[120px] h-[40px] md:w-[160px] md:h-[50px]">
-              <Image src="/images/AurindelLogo.png" alt="Aurindel" fill className="object-contain object-left contrast-125" />
-            </Link>
-          </motion.div>
-          <AnimatePresence>
-            {showBack && (
-              <motion.nav initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="pointer-events-auto">
-                <Link href="/" className="group flex items-center gap-4 bg-black/5 backdrop-blur-2xl border border-black/10 px-8 py-4 rounded-full hover:bg-black hover:text-white transition-all duration-700">
-                  <ArrowLeft size={16} />
-                  <span className="text-[9px] uppercase tracking-[0.5em] font-bold">Back</span>
-                </Link>
-              </motion.nav>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
+      {/* INTEGRATED NAVBAR */}
+      <Navbar />
 
       {/* HERO SECTION */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <motion.div style={{ scale: heroScale, opacity: heroOpacity }} className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#FBFBF9]/20 to-[#FBFBF9] z-10" />
-          <Image src="/images/company-main.jpg" alt="Aurindel" fill className="object-cover" priority />
+          {/* <Image src="/images/company-main.jpg" alt="Aurindel" fill className="object-cover" priority /> */}
         </motion.div>
         
         <motion.div style={{ y: textY }} className="relative z-20 text-center px-4 max-w-5xl">
@@ -191,7 +170,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* FOUNDER SECTION - UPDATED TO LIGHT COLOR */}
+      {/* FOUNDER SECTION */}
       <section className="py-40 bg-[#F5F5F2] text-stone-900 rounded-[4rem] md:rounded-[6rem] mx-4 md:mx-12 overflow-hidden border border-black/5">
         <div className="max-w-[1200px] mx-auto px-8 grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
           <motion.div initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 1 }} viewport={{ once: true }} className="space-y-12">
@@ -238,12 +217,10 @@ export default function AboutPage() {
         </motion.div>
       </section>
 
-      {/* ENHANCED FOOTER */}
+      {/* FOOTER */}
       <footer className="bg-stone-900 text-stone-400 pt-32 pb-12 rounded-t-[4rem] md:rounded-t-[6rem]">
         <div className="max-w-[1400px] mx-auto px-8">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-16 pb-24 border-b border-white/5">
-            
-            {/* Brand Column */}
             <div className="lg:col-span-1 space-y-8">
               <Link href="/" className="block relative w-[180px] h-[50px]">
                 <Image src="/images/AurindelLogo.png" alt="Aurindel" fill className="object-contain object-left brightness-0 invert" />
@@ -252,8 +229,6 @@ export default function AboutPage() {
                 A legacy of Indian craftsmanship, exported with contemporary elegance to the world's most discerning spaces.
               </p>
             </div>
-
-            {/* Quick Links */}
             <div className="space-y-8">
               <h4 className="text-white text-[10px] uppercase tracking-[0.4em] font-bold">Navigation</h4>
               <ul className="space-y-4 text-sm">
@@ -262,8 +237,6 @@ export default function AboutPage() {
                 <li><Link href="/artisans" className="hover:text-white transition-colors flex items-center gap-2 group"><ArrowRight size={12} className="opacity-0 group-hover:opacity-100 -ml-4 group-hover:ml-0 transition-all"/> Master Artisans</Link></li>
               </ul>
             </div>
-
-            {/* Contact Info */}
             <div className="space-y-8">
               <h4 className="text-white text-[10px] uppercase tracking-[0.4em] font-bold">Inquiries</h4>
               <ul className="space-y-4 text-sm">
@@ -272,8 +245,6 @@ export default function AboutPage() {
                 <li className="flex items-center gap-3"><Globe size={16} /> www.aurindel.com</li>
               </ul>
             </div>
-
-            {/* Location */}
             <div className="space-y-8">
               <h4 className="text-white text-[10px] uppercase tracking-[0.4em] font-bold">Studio</h4>
               <ul className="space-y-4 text-sm">
@@ -284,7 +255,6 @@ export default function AboutPage() {
               </ul>
             </div>
           </div>
-
           <div className="flex flex-col md:flex-row justify-between items-center pt-12 gap-8">
             <p className="text-[9px] uppercase tracking-[0.6em] text-stone-600">© 2026 Aurindel Studio by Puriva Industries Pvt. Ltd.</p>
             <div className="flex gap-8 text-[9px] uppercase tracking-[0.3em]">
@@ -298,6 +268,7 @@ export default function AboutPage() {
   );
 }
 
+// RESTORED HELPER COMPONENTS
 function VisionCard({ icon, title, desc, index }: { icon: React.ReactNode, title: string, desc: string, index: number }) {
   return (
     <motion.div 

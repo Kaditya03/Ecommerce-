@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -20,7 +20,8 @@ import {
   UserCircle,
   Home,
   Clock,
-  TrendingUp
+  TrendingUp,
+  ArrowUpRight
 } from "lucide-react";
 
 import { useMenu } from "@/context/MenuContext";
@@ -38,12 +39,36 @@ export default function Navbar() {
   // Search State
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Backend Search Fetching with Debounce
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      if (searchQuery.trim().length > 2) {
+        setIsSearching(true);
+        try {
+          const response = await fetch(`/api/products/search?q=${encodeURIComponent(searchQuery)}`);
+          const data = await response.json();
+          setSearchResults(data);
+        } catch (error) {
+          console.error("Search fetch error:", error);
+        } finally {
+          setIsSearching(false);
+        }
+      } else {
+        setSearchResults([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,10 +143,7 @@ export default function Navbar() {
 
           {/* ACTIONS */}
           <div className="flex items-center gap-2 md:gap-7 z-[110] text-black">
-            <button 
-              onClick={() => setSearchOpen(true)}
-              className="p-2 hover:bg-stone-200/20 rounded-full"
-            >
+            <button onClick={() => setSearchOpen(true)} className="p-2 hover:bg-stone-200/20 rounded-full">
               <Search size={19} strokeWidth={1.5} />
             </button>
             
@@ -172,42 +194,77 @@ export default function Navbar() {
         {searchOpen && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-[#FBFBFA] z-[300] flex flex-col items-center pt-32 px-6"
+            className="fixed inset-0 bg-[#FBFBFA] z-[300] flex flex-col pt-10 px-6 md:px-20 overflow-y-auto"
           >
-            <button onClick={() => setSearchOpen(false)} className="absolute top-10 right-10 p-4 hover:bg-stone-100 rounded-full transition-all">
-              <X size={24} />
-            </button>
-            <div className="w-full max-w-3xl">
-              <p className="text-[10px] uppercase tracking-[0.5em] text-stone-400 font-bold mb-8 text-center">Search our Collections</p>
-              <form onSubmit={handleSearch} className="relative">
-                <input 
-                  autoFocus
-                  type="text" 
-                  placeholder="WHAT ARE YOU LOOKING FOR?"
-                  className="w-full bg-transparent border-b-2 border-stone-200 pb-6 text-2xl md:text-4xl font-serif italic focus:outline-none focus:border-black transition-all text-center"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <button type="submit" className="absolute right-0 bottom-8">
-                  <ArrowRight size={24} />
+            <div className="max-w-[1400px] mx-auto w-full flex flex-col min-h-full">
+              <div className="flex justify-between items-center mb-12">
+                <Image src="/images/AurindelLogo.png" alt="Logo" width={110} height={40} className="object-contain" />
+                <button onClick={() => setSearchOpen(false)} className="p-4 bg-stone-100 rounded-full hover:bg-black hover:text-white transition-all">
+                  <X size={20} />
                 </button>
-              </form>
-              <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-12">
-                <div className="space-y-4">
-                  <h5 className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-stone-400 border-b border-stone-100 pb-2"><TrendingUp size={12}/> Trending Now</h5>
-                  <div className="flex flex-wrap gap-2">
-                    {["Metal Vases", "Bird Baths", "Dining Tables", "Mirrors"].map(tag => (
-                      <button key={tag} onClick={() => {setSearchQuery(tag)}} className="px-4 py-2 bg-stone-100 rounded-full text-[10px] uppercase font-bold hover:bg-black hover:text-white transition-all">{tag}</button>
-                    ))}
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <h5 className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-stone-400 border-b border-stone-100 pb-2"><Clock size={12}/> Recent Collections</h5>
-                  <div className="space-y-2">
-                    <p className="text-xs text-stone-500 hover:text-black cursor-pointer">Artisan Lanterns 2026</p>
-                    <p className="text-xs text-stone-500 hover:text-black cursor-pointer">Spring Garden Series</p>
-                  </div>
-                </div>
+              </div>
+
+              <div className="w-full max-w-4xl mx-auto mb-16 text-center">
+                <p className="text-[10px] uppercase tracking-[0.5em] text-stone-400 font-bold mb-6">Search our Collections</p>
+                <form onSubmit={handleSearch} className="relative">
+                  <input 
+                    autoFocus
+                    type="text" 
+                    placeholder="WHAT ARE YOU LOOKING FOR?"
+                    className="w-full bg-transparent border-b border-stone-200 pb-6 text-3xl md:text-5xl font-serif italic focus:outline-none focus:border-stone-400 transition-all text-center uppercase tracking-tighter"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </form>
+              </div>
+
+              <div className="flex-1 pb-20">
+                <AnimatePresence mode="wait">
+                  {searchQuery ? (
+                    <motion.div key="results" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
+                      <h3 className="text-[11px] uppercase tracking-[0.4em] font-bold border-b border-stone-100 pb-6 mb-10 text-stone-900">
+                        {isSearching ? "Seeking Artistry..." : `Matches Found (${searchResults.length})`}
+                      </h3>
+                      
+                      {searchResults.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                          {searchResults.map((product) => (
+                            <Link key={product.id} href={`/product/${product.id}`} onClick={() => setSearchOpen(false)} className="group space-y-4">
+                              <div className="relative aspect-[4/5] bg-stone-100 rounded-2xl overflow-hidden shadow-sm">
+                                <Image src={product.image} alt={product.name} fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
+                              </div>
+                              <div className="space-y-1">
+                                <p className="text-[9px] uppercase tracking-widest text-stone-400 font-bold">{product.category}</p>
+                                <h4 className="text-sm font-serif italic text-stone-800 flex justify-between items-center">{product.name} <ArrowUpRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity"/></h4>
+                                <p className="text-xs font-bold text-stone-900">{product.price}</p>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      ) : !isSearching && (
+                        <div className="py-20 text-center text-stone-400 font-serif italic text-xl">No products found matching "{searchQuery}"</div>
+                      )}
+                    </motion.div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
+                      <div className="space-y-8">
+                        <h5 className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-stone-400 border-b border-stone-100 pb-2"><TrendingUp size={12}/> Trending Now</h5>
+                        <div className="flex flex-wrap gap-2">
+                          {["Metal Vases", "Bird Baths", "Dining Tables", "Mirrors"].map(tag => (
+                            <button key={tag} onClick={() => setSearchQuery(tag)} className="px-5 py-2.5 border border-stone-200 rounded-full text-[10px] uppercase font-bold hover:bg-black hover:text-white transition-all">{tag}</button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="space-y-8">
+                        <h5 className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-stone-400 border-b border-stone-100 pb-2"><Clock size={12}/> Quick Links</h5>
+                        <div className="grid grid-cols-2 gap-4">
+                          <Link href="/account/orders" onClick={() => setSearchOpen(false)} className="p-4 bg-stone-50 rounded-xl hover:bg-stone-100 transition-all flex items-center gap-3 text-[9px] uppercase font-bold tracking-widest"><Package size={14}/> Track Order</Link>
+                          <Link href="/wishlist" onClick={() => setSearchOpen(false)} className="p-4 bg-stone-50 rounded-xl hover:bg-stone-100 transition-all flex items-center gap-3 text-[9px] uppercase font-bold tracking-widest"><Heart size={14}/> Wishlist</Link>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
           </motion.div>
@@ -256,7 +313,6 @@ export default function Navbar() {
                 )}
               </div>
 
-              {/* HOME FEATURES CARD (NEW FEATURE) */}
               <div className="px-6 pb-6">
                 <div className="bg-stone-100/50 rounded-3xl p-6 grid grid-cols-2 gap-4">
                   <Link href="/" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest"><Home size={16}/> Home</Link>
