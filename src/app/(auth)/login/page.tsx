@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { Eye, EyeOff, Mail, Lock, ArrowRight, Github } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import Link from "next/link";
 
 export default function Login() {
@@ -23,12 +23,15 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, password }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_APP_URL || ""}/api/auth/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include", // ✅ IMPORTANT for cookie
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
       const data = await res.json();
 
@@ -37,10 +40,8 @@ export default function Login() {
         return;
       }
 
-      // ✅ Save user to context
       login(data.user);
 
-      // ✅ Redirect by role
       if (data.user.role === "admin") {
         router.push("/admin/dashboard");
       } else {
@@ -56,8 +57,6 @@ export default function Login() {
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center bg-[#FAF9F6] overflow-hidden">
       <div className="relative z-10 flex w-full max-w-[1100px] h-[700px] bg-white/40 backdrop-blur-2xl rounded-[3rem] border border-white/50 shadow-xl overflow-hidden m-4">
-
-        {/* LEFT IMAGE */}
         <div className="w-1/2 hidden md:block relative overflow-hidden">
           <img
             src="/images/login-left_img1.png"
@@ -66,13 +65,10 @@ export default function Login() {
           />
         </div>
 
-        {/* FORM */}
         <div className="flex-1 flex items-center justify-center p-10">
           <form onSubmit={handleLogin} className="w-full max-w-sm space-y-6">
-
             <h2 className="text-3xl font-serif text-center">Welcome Back</h2>
 
-            {/* EMAIL */}
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
@@ -85,7 +81,6 @@ export default function Login() {
               />
             </div>
 
-            {/* PASSWORD */}
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
@@ -105,7 +100,6 @@ export default function Login() {
               </button>
             </div>
 
-            {/* ERROR */}
             <AnimatePresence>
               {error && (
                 <motion.p
@@ -119,7 +113,6 @@ export default function Login() {
               )}
             </AnimatePresence>
 
-            {/* BUTTON */}
             <button
               type="submit"
               disabled={loading}

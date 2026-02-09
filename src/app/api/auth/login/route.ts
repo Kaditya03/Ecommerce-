@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import connectDB from "@/lib/db";
 import User from "@/models/User";
+
+export const runtime = "nodejs"; // ✅ Important for Vercel
 
 export async function POST(req: Request) {
   try {
@@ -20,13 +23,19 @@ export async function POST(req: Request) {
     const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
-      return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
+      return NextResponse.json(
+        { message: "Invalid credentials" },
+        { status: 401 }
+      );
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
+      return NextResponse.json(
+        { message: "Invalid credentials" },
+        { status: 401 }
+      );
     }
 
     const token = jwt.sign(
@@ -37,18 +46,18 @@ export async function POST(req: Request) {
 
     const response = NextResponse.json({
       user: {
-        id: user._id,
+        id: user._id.toString(),
         name: user.name,
         email: user.email,
         role: user.role,
       },
     });
 
-    // ✅ CORRECT COOKIE CONFIG (works on localhost + Vercel)
+    // ✅ Attach cookie to the RESPONSE (this was your bug)
     response.cookies.set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",   // ❌ DO NOT use "none" unless you have cross-domain frontend
+      sameSite: "strict",
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
     });

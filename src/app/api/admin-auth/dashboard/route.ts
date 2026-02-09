@@ -11,7 +11,7 @@ export async function GET() {
   try {
     await connectDB();
 
-    const cookieStore = await cookies();  // ✅ MUST await
+    const cookieStore = await cookies(); 
     const token = cookieStore.get("token")?.value;
 
     if (!token) {
