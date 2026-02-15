@@ -191,8 +191,8 @@ export default function ArchivesPage() {
             </div>
             <div className="lg:col-span-3 space-y-8">
               <h5 className="text-stone-600 text-[9px] uppercase tracking-[0.5em] font-bold">Atelier Contact</h5>
-              <p className="text-xs text-stone-500 leading-relaxed font-mono">archives@aurindel.house</p>
-              <p className="text-[10px] uppercase tracking-widest text-stone-600">London — Paris — Kyoto</p>
+              <p className="text-xs text-stone-500 leading-relaxed font-mono">abhinav.purivaindustries@gmail.com</p>
+              <p className="text-[10px] uppercase tracking-widest text-stone-600">Noida</p>
             </div>
           </div>
           <div className="mt-16 text-center text-[9px] text-stone-600 tracking-[0.4em] uppercase">

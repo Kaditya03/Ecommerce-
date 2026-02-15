@@ -1,18 +1,17 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import {
   Instagram,
-  Facebook,
-  Twitter,
   ArrowUpRight,
   Mail,
   Globe,
   ArrowRight,
   Linkedin,
+  Check
 } from "lucide-react";
 
 /* ================= TYPES ================= */
@@ -27,7 +26,6 @@ type FooterGroupProps = {
   links: FooterLink[];
 };
 
-// Fixed: Added link and label to the type definition
 type SocialBtnProps = {
   icon: React.ReactNode;
   link: string;
@@ -39,6 +37,10 @@ type SocialBtnProps = {
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const containerRef = useRef<HTMLDivElement | null>(null);
+  
+  // Newsletter State
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -49,6 +51,22 @@ const Footer = () => {
   const scale = useTransform(scrollYProgress, [0, 1], [0.95, 1]);
   const animatedRotateX = useSpring(rotateX, { stiffness: 100, damping: 30 });
   const animatedScale = useSpring(scale, { stiffness: 100, damping: 30 });
+
+  // Handle Newsletter Submit
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setStatus("sending");
+    
+    // Simulating sending to abhinav.purivaindustries@gmail.com
+    // In a real app, you'd fetch your /api/contact route here
+    setTimeout(() => {
+      setStatus("sent");
+      setEmail("");
+      setTimeout(() => setStatus("idle"), 5000); // Reset after 5s
+    }, 1000);
+  };
 
   return (
     <footer
@@ -90,14 +108,28 @@ const Footer = () => {
               Join for exclusive access to heritage drops and artisan stories.
             </p>
 
-            <div className="flex items-center border-b border-stone-200 pb-3">
+            <form onSubmit={handleNewsletterSubmit} className="flex items-center border-b border-stone-200 pb-3">
               <input
                 type="email"
-                placeholder="YOUR EMAIL"
-                className="w-full bg-transparent outline-none text-[11px] tracking-[0.2em]"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={status === "sent" ? "THANK YOU" : "YOUR EMAIL"}
+                disabled={status !== "idle"}
+                className="w-full bg-transparent outline-none text-[11px] tracking-[0.2em] disabled:text-stone-400"
               />
-              <ArrowRight size={18} />
-            </div>
+              <button type="submit" disabled={status !== "idle"} className="transition-all">
+                {status === "sent" ? (
+                  <span className="text-green-600 text-[10px] font-bold tracking-widest flex items-center gap-1">
+                    SENT <Check size={14} />
+                  </span>
+                ) : status === "sending" ? (
+                  <div className="animate-pulse text-stone-400">...</div>
+                ) : (
+                  <ArrowRight size={18} />
+                )}
+              </button>
+            </form>
           </motion.div>
         </div>
 
@@ -106,10 +138,10 @@ const Footer = () => {
           <FooterGroup
             title="Curation"
             links={[
-              { n: "Pottery", h: "/collections/pottery" },
-              { n: "Handlooms", h: "/collections/handlooms" },
-              { n: "Brass Art", h: "/collections/brass" },
-              { n: "Woodcraft", h: "/collections/wood" },
+              { n: "Pots and Planters", h: "/categories/pots-and-planters" },
+              { n: "Furniture", h: "/categories/furniture" },
+              { n: "Kitchen Accessories", h: "/categories/kitchen-accessories" },
+              { n: "Lighting and Candle Holders", h: "/categories/lighting-candles" },
             ]}
           />
 
@@ -138,25 +170,24 @@ const Footer = () => {
               Socials
             </h4>
             <div className="flex gap-6">
-              {/* Fixed: Corrected string syntax for labels */}
               <SocialBtn 
                 icon={<Instagram size={18} />} 
-                link="https://www.instagram.com/theabhinavanand" 
+                link="https://www.instagram.com/aurindelexports" 
                 label="Instagram"
               />
               <SocialBtn 
                 icon={<Linkedin size={18} />} 
-                link="https://in.linkedin.com/in/abhinavanandofficial" 
+                link="https://www.linkedin.com/company/purivaindustries/" 
                 label="LinkedIn" 
               />
             </div>
 
             <div className="mt-10 space-y-2 text-[10px] uppercase tracking-[0.2em] text-stone-400">
               <p className="flex items-center gap-2">
-                <Mail size={12} /> support@aurindel.com
+                <Mail size={12} /> abhinav.purivaindustries@gmail.com
               </p>
               <p className="flex items-center gap-2">
-                <Globe size={12} /> New Delhi, India
+                <Globe size={12} /> Noida, India
               </p>
             </div>
           </div>
@@ -198,7 +229,6 @@ const FooterGroup = ({ title, links }: FooterGroupProps) => (
   </div>
 );
 
-// Fixed: Wrapped the motion.div in an anchor tag and passed the href
 const SocialBtn = ({ icon, link, label }: SocialBtnProps) => (
   <Link href={link} target="_blank" rel="noopener noreferrer">
     <motion.div

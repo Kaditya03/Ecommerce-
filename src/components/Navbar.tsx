@@ -48,12 +48,13 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Backend Search Fetching with Debounce
+  // ✅ Enhanced Search Fetching with Category/Sub-category support
   useEffect(() => {
     const delayDebounceFn = setTimeout(async () => {
       if (searchQuery.trim().length > 2) {
         setIsSearching(true);
         try {
+          // We pass the query which the backend should check against name, category, and subCategory fields
           const response = await fetch(`/api/products/search?q=${encodeURIComponent(searchQuery)}`);
           const data = await response.json();
           setSearchResults(data);
@@ -79,19 +80,19 @@ export default function Navbar() {
   };
 
   const collectionsData = [
-    { title: "Bathroom Accessories", items: ["Hooks", "Handle", "Laundry Basket", "Soap Dispenser", "Soap Dish"] },
-    { title: "Home Decor", subItems: [
+    { title: "Bathroom Accessories", slug: "bathroom-accessories", items: ["Hooks", "Handle", "Laundry Basket", "Soap Dispenser", "Soap Dish"] },
+    { title: "Home Decor", slug: "home-decor", subItems: [
         { name: "Vases", types: ["Glass Vase", "Ceramic Vase", "Metal Vase"] },
         { name: "Wall Art" },
         { name: "Mirrors", types: ["Wall Mirror", "Floor Mirror", "Decorative Mirror", "Sunburst Mirror"] }
       ] 
     },
-    { title: "Furniture", items: ["Dining Table", "Console Table", "Center Table", "Side Table", "Bookshelf", "Shoe Rack", "Ottoman"] },
-    { title: "Kitchen Accessories", items: ["Utensil Holders", "Storage Container", "Dish Rack"] },
-    { title: "Garden Accessories", items: ["Water Cans", "Tree Decor", "Bird Table", "Garden Wall Art", "Wind Chimes", "Wind Spinners", "Bird Bath", "Garden Urm"] },
-    { title: "Pots and Planters" },
-    { title: "Lighting & Candle Holders", items: ["Lanterns", "Candelabrum", "T-Light Holder", "Hurricane Holder", "Moroccan Holder", "Pillar Holder"] },
-    { title: "Figurines & Sculptures" }
+    { title: "Furniture", slug: "furniture", items: ["Dining Table", "Console Table", "Center Table", "Side Table", "Bookshelf", "Shoe Rack", "Ottoman"] },
+    { title: "Kitchen Accessories", slug: "kitchen-accessories", items: ["Utensil Holders", "Storage Container", "Dish Rack"] },
+    { title: "Garden Accessories", slug: "garden-accessories", items: ["Water Cans", "Tree Decor", "Bird Table", "Garden Wall Art", "Wind Chimes", "Wind Spinners", "Bird Bath", "Garden Urm"] },
+    { title: "Pots and Planters", slug: "pots-and-planters" },
+    { title: "Lighting & Candle Holders", slug: "lighting-candles", items: ["Lanterns", "Candelabrum", "T-Light Holder", "Hurricane Holder", "Moroccan Holder", "Pillar Holder"] },
+    { title: "Figurines & Sculptures", slug: "figurines-sculptures" }
   ];
 
   return (
@@ -120,14 +121,16 @@ export default function Navbar() {
               <div className="absolute top-full left-1/2 -translate-x-1/2 w-[90vw] max-w-[1200px] bg-white border border-stone-100 shadow-2xl rounded-3xl p-10 grid grid-cols-4 gap-x-8 gap-y-12 opacity-0 invisible group-hover/nav:opacity-100 group-hover/nav:visible transition-all duration-300 transform group-hover/nav:translate-y-2">
                 {collectionsData.map((cat, idx) => (
                   <div key={idx} className="flex flex-col space-y-4">
-                    <h4 className="text-black border-b border-stone-100 pb-2 text-[11px] font-black tracking-widest">{cat.title}</h4>
+                    <Link href={`/categories/${cat.slug}`}>
+                      <h4 className="text-black border-b border-stone-100 pb-2 text-[11px] font-black tracking-widest hover:text-stone-500 transition-colors uppercase">{cat.title}</h4>
+                    </Link>
                     <div className="flex flex-col space-y-2 text-stone-400 font-sans text-[13px] font-light">
-                      {cat.items?.map(item => <Link key={item} href="#" className="hover:text-black transition-colors">{item}</Link>)}
+                      {cat.items?.map(item => <Link key={item} href={`/categories/${cat.slug}`} className="hover:text-black transition-colors">{item}</Link>)}
                       {cat.subItems?.map(sub => (
                         <div key={sub.name} className="space-y-1">
-                          <p className="text-stone-800 font-medium">{sub.name}</p>
+                          <Link href={`/categories/${cat.slug}`} className="text-stone-800 font-medium hover:text-black">{sub.name}</Link>
                           <div className="pl-3 border-l border-stone-100 flex flex-col space-y-1">
-                            {sub.types?.map(t => <Link key={t} href="#" className="text-[12px] hover:text-black">{t}</Link>)}
+                            {sub.types?.map(t => <Link key={t} href={`/categories/${cat.slug}`} className="text-[12px] hover:text-black">{t}</Link>)}
                           </div>
                         </div>
                       ))}
@@ -231,10 +234,12 @@ export default function Navbar() {
                           {searchResults.map((product) => (
                             <Link key={product.id} href={`/product/${product.id}`} onClick={() => setSearchOpen(false)} className="group space-y-4">
                               <div className="relative aspect-[4/5] bg-stone-100 rounded-2xl overflow-hidden shadow-sm">
-                                <Image src={product.image} alt={product.name} fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
+                                <Image src={product.images[0]} alt={product.name} fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
                               </div>
                               <div className="space-y-1">
-                                <p className="text-[9px] uppercase tracking-widest text-stone-400 font-bold">{product.category}</p>
+                                <p className="text-[9px] uppercase tracking-widest text-stone-400 font-bold">
+                                  {product.subCategory || product.category}
+                                </p>
                                 <h4 className="text-sm font-serif italic text-stone-800 flex justify-between items-center">{product.name} <ArrowUpRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity"/></h4>
                                 <p className="text-xs font-bold text-stone-900">{product.price}</p>
                               </div>
@@ -331,11 +336,12 @@ export default function Navbar() {
                       {activeMobileSub === cat.title && (
                         <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden bg-stone-50/50">
                           <div className="flex flex-col gap-4 p-6 text-stone-500 text-[11px] uppercase tracking-widest font-medium">
-                            {cat.items?.map(i => <Link key={i} href="#" onClick={() => setMenuOpen(false)} className="hover:text-black transition-colors">{i}</Link>)}
+                            <Link href={`/categories/${cat.slug}`} onClick={() => setMenuOpen(false)}>All {cat.title}</Link>
+                            {cat.items?.map(i => <Link key={i} href={`/categories/${cat.slug}`} onClick={() => setMenuOpen(false)} className="hover:text-black transition-colors">{i}</Link>)}
                             {cat.subItems?.map(sub => (
                               <div key={sub.name} className="space-y-3">
-                                <p className="text-black font-black text-[10px] pt-2 border-t border-stone-100">{sub.name}</p>
-                                {sub.types?.map(t => <Link key={t} href="#" className="block pl-2 hover:text-black transition-colors">{t}</Link>)}
+                                <Link href={`/categories/${cat.slug}`} onClick={() => setMenuOpen(false)} className="text-black font-black text-[10px] pt-2 border-t border-stone-100">{sub.name}</Link>
+                                {sub.types?.map(t => <Link key={t} href={`/categories/${cat.slug}`} onClick={() => setMenuOpen(false)} className="block pl-2 hover:text-black transition-colors">{t}</Link>)}
                               </div>
                             ))}
                           </div>

@@ -3,6 +3,7 @@
 import React from "react";
 import { Cormorant_Garamond, Poppins } from "next/font/google";
 import { ArrowRight, Mail } from "lucide-react";
+import Link from "next/link"; // ✅ Import Link
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -56,15 +57,18 @@ const Bulking = () => {
 
             {/* ACTION BUTTONS */}
             <div className="mt-12 flex flex-col sm:flex-row gap-5">
-              <button className={`${poppins.className} group flex items-center justify-center gap-3 px-8 py-4 bg-[#1a1a14] text-white text-xs font-bold uppercase tracking-widest hover:bg-stone-800 transition-all duration-300 shadow-xl shadow-stone-200`}>
-                Get in Touch
-                <Mail size={16} className="transition-transform group-hover:translate-y-[-2px]" />
-              </button>
+              {/* ✅ Wrapped Button in Link component */}
+              <Link href="/contact" className="w-full sm:w-auto">
+                <button className={`${poppins.className} w-full group flex items-center justify-center gap-3 px-8 py-4 bg-[#1a1a14] text-white text-xs font-bold uppercase tracking-widest hover:bg-stone-800 transition-all duration-300 shadow-xl shadow-stone-200`}>
+                  Get in Touch
+                  <Mail size={16} className="transition-transform group-hover:translate-y-[-2px]" />
+                </button>
+              </Link>
 
-              <button className={`${poppins.className} group flex items-center justify-center gap-3 px-8 py-4 border border-stone-300 text-stone-800 text-xs font-bold uppercase tracking-widest hover:bg-stone-50 transition-all duration-300`}>
+              {/* <button className={`${poppins.className} group flex items-center justify-center gap-3 px-8 py-4 border border-stone-300 text-stone-800 text-xs font-bold uppercase tracking-widest hover:bg-stone-50 transition-all duration-300`}>
                 Wholesale Deck
                 <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-              </button>
+              </button> */}
             </div>
 
             {/* Subtle Trust Indicator */}
