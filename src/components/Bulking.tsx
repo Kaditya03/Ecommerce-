@@ -29,7 +29,7 @@ const Bulking = () => {
           <div className="relative group order-2 lg:order-1">
             <div className="absolute inset-0 bg-stone-200 rounded-full blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-700" />
             <img
-              src="/images/bulking.png"
+              src="/images/bulking.jpeg"
               alt="Bespoke Bulk Orders"
               className="relative w-full h-auto object-contain drop-shadow-2xl transition-transform duration-700 group-hover:scale-105"
             />

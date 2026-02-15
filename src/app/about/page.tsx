@@ -205,7 +205,7 @@ export default function AboutPage() {
       </section>
 
       {/* THE COLLECTIVE GALLERY */}
-      <section className="py-40 px-8 max-w-[1500px] mx-auto text-center">
+      {/* <section className="py-40 px-8 max-w-[1500px] mx-auto text-center">
         <Globe size={32} strokeWidth={1} className="text-stone-300 mb-8 mx-auto animate-pulse" />
         <h2 className="text-5xl md:text-7xl font-serif italic mb-24 text-stone-900">The Collective</h2>
         <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} transition={{ duration: 1.5 }} className="relative h-[600px] md:h-[850px] group overflow-hidden rounded-[5rem]">
@@ -215,7 +215,7 @@ export default function AboutPage() {
               <p className="text-3xl md:text-5xl font-serif italic text-stone-900">200+ Master Artisans</p>
           </div>
         </motion.div>
-      </section>
+      </section> */}
 
       {/* FOOTER */}
       <footer className="bg-stone-900 text-stone-400 pt-32 pb-12 rounded-t-[4rem] md:rounded-t-[6rem]">

@@ -11,7 +11,8 @@ import {
   Globe,
   ArrowRight,
   Linkedin,
-  Check
+  Check,
+  FileText
 } from "lucide-react";
 
 /* ================= TYPES ================= */
@@ -38,7 +39,6 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
   const containerRef = useRef<HTMLDivElement | null>(null);
   
-  // Newsletter State
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
 
@@ -52,19 +52,14 @@ const Footer = () => {
   const animatedRotateX = useSpring(rotateX, { stiffness: 100, damping: 30 });
   const animatedScale = useSpring(scale, { stiffness: 100, damping: 30 });
 
-  // Handle Newsletter Submit
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-
     setStatus("sending");
-    
-    // Simulating sending to abhinav.purivaindustries@gmail.com
-    // In a real app, you'd fetch your /api/contact route here
     setTimeout(() => {
       setStatus("sent");
       setEmail("");
-      setTimeout(() => setStatus("idle"), 5000); // Reset after 5s
+      setTimeout(() => setStatus("idle"), 5000);
     }, 1000);
   };
 
@@ -182,13 +177,44 @@ const Footer = () => {
               />
             </div>
 
-            <div className="mt-10 space-y-2 text-[10px] uppercase tracking-[0.2em] text-stone-400">
-              <p className="flex items-center gap-2">
-                <Mail size={12} /> abhinav.purivaindustries@gmail.com
-              </p>
-              <p className="flex items-center gap-2">
-                <Globe size={12} /> Noida, India
-              </p>
+            <div className="mt-10 space-y-4 text-[10px] uppercase tracking-[0.2em] text-stone-400">
+              <div className="flex items-start gap-2">
+                <Mail size={12} className="mt-0.5 flex-shrink-0" /> 
+                <span className="break-all whitespace-normal">abhinav.purivaindustries@gmail.com</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Globe size={12} className="mt-0.5 flex-shrink-0" /> 
+                <span className="leading-relaxed">8th Floor 8125, Gaur City Mall Office Space, Greater Noida (201318) UP, INDIA</span>
+              </div>
+              
+              {/* PREMIUM DOWNLOAD SECTION */}
+              <div className="pt-4 flex flex-col gap-3">
+                <a 
+                  href="/images/Company Profile- Puriva Industries.pdf" 
+                  download 
+                  className="group relative inline-block w-20 h-28 bg-white border border-stone-100 rounded-sm overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-700 hover:-translate-y-1"
+                >
+                  <Image 
+                    src="/images/Company Profile- Puriva Industries.png" 
+                    alt="Company Profile"
+                    fill
+                    className="object-cover opacity-90 group-hover:opacity-100 transition-opacity"
+                  />
+                  <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors" />
+                  <div className="absolute top-2 right-2 p-1 bg-white/80 backdrop-blur-md rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                    <FileText size={10} className="text-black" />
+                  </div>
+                </a>
+                
+                <a 
+                  href="/images/Company Profile- Puriva Industries.pdf" 
+                  download="Company Profile- Puriva Industries.pdf"
+                  className="flex items-center gap-2 text-stone-800 font-bold hover:text-black transition-colors group"
+                >
+                  Download Profile
+                  <ArrowUpRight size={10} className="opacity-0 group-hover:opacity-100 transition-all -translate-x-1 group-hover:translate-x-0" />
+                </a>
+              </div>
             </div>
           </div>
         </div>
