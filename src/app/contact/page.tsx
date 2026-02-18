@@ -26,7 +26,7 @@ export default function ContactPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
-  const whatsappNumber = "8340220161"; 
+  const whatsappNumber = "+918340220161"; 
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hello%20Aurindel...`;
   const mapUrl = "https://maps.google.com";
 
@@ -100,9 +100,9 @@ export default function ContactPage() {
           </div>
 
           <div className="grid grid-cols-3 gap-4">
-            <SocialTile icon={<Instagram size={20}/>} label="Insta" href="https://www.instagram.com/theabhinavanand" />
-            <SocialTile icon={<Linkedin size={20}/>} label="LinkedIn" href="https://in.linkedin.com/in/abhinavanandofficial" />
-            <SocialTile icon={<Twitter size={20}/>} label="Twitter" href="https://twitter.com" />
+            <SocialTile icon={<Instagram size={20}/>} label="Insta" href="https://www.instagram.com/aurindelexports" />
+            <SocialTile icon={<Linkedin size={20}/>} label="LinkedIn" href="https://www.linkedin.com/company/purivaindustries/" />
+            {/* <SocialTile icon={<Twitter size={20}/>} label="Twitter" href="https://twitter.com" /> */}
           </div>
         </div>
 
