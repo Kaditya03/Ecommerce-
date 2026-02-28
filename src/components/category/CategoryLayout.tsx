@@ -36,20 +36,45 @@ export default function CategoryLayout({
     const safeProducts = Array.isArray(products) ? products : [];
 
     let result = safeProducts.filter((p) => {
-      const matchAvailability = availability ? p.availability === availability : true;
+      // 1. Availability Logic
+      // Currently, your data structure doesn't have an availability field.
+      // We return true so that selecting 'Availability' doesn't hide everything.
+      const matchAvailability = true;
+
+      // 2. Sub-Item Check (Matching Filter String against Product Name/Category)
       const matchSubItem = selectedSubItems.length > 0 
-        ? (p.subCategory && selectedSubItems.includes(p.subCategory)) || 
-          (p.type && selectedSubItems.includes(p.type))
+        ? selectedSubItems.some(filterValue => {
+            const val = filterValue.toLowerCase();
+            const productName = (p.name || "").toLowerCase();
+            const productCat = (p.category || "").toLowerCase();
+            return productName.includes(val) || productCat === val;
+          })
         : true;
 
       return matchAvailability && matchSubItem;
     });
 
-    if (sort === "price-asc") result.sort((a, b) => (a.price || 0) - (b.price || 0));
-    if (sort === "price-desc") result.sort((a, b) => (b.price || 0) - (a.price || 0));
+    // 3. Handle Sorting
+    if (sort === "price-asc") {
+      result.sort((a, b) => {
+        const priceA = parseFloat(a.price?.toString().replace(/[^0-9.]/g, '')) || 0;
+        const priceB = parseFloat(b.price?.toString().replace(/[^0-9.]/g, '')) || 0;
+        return priceA - priceB;
+      });
+    }
+    if (sort === "price-desc") {
+      result.sort((a, b) => {
+        const priceA = parseFloat(a.price?.toString().replace(/[^0-9.]/g, '')) || 0;
+        const priceB = parseFloat(b.price?.toString().replace(/[^0-9.]/g, '')) || 0;
+        return priceB - priceA;
+      });
+    }
+    if (sort === "latest") {
+      result.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+    }
     
     return result;
-  }, [products, availability, selectedSubItems, sort]);
+  }, [products, selectedSubItems, sort]);
 
   return (
     <div className="min-h-screen bg-[#FBFBFA] text-stone-900 selection:bg-stone-900 selection:text-white">
@@ -60,7 +85,7 @@ export default function CategoryLayout({
       <header className="relative h-[40vh] flex items-center justify-center overflow-hidden border-b border-stone-100 bg-white">
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03]">
            <h1 className="text-[20vw] font-bold uppercase tracking-tighter">
-             {category ? category.split('-')[0] : "Collection"}
+             {category ? category.split('-')[0] : "Artisan"}
            </h1>
         </div>
 
@@ -104,23 +129,32 @@ export default function CategoryLayout({
           <div className="flex-1">
             <div className="flex justify-between items-end mb-10 border-b border-stone-100 pb-4">
               <p className="text-[10px] uppercase tracking-widest text-stone-400">
-                {filtered.length} results
+                {filtered.length} masterpieces found
               </p>
             </div>
 
             <AnimatePresence mode="wait">
               <motion.div
-                key={`${availability}-${selectedSubItems.join('-')}-${sort}`}
+                key={`${selectedSubItems.join('-')}-${sort}`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.4 }}
               >
-                <ProductGrid products={filtered} />
-                {filtered.length === 0 && (
-                   <div className="py-20 text-center text-stone-400 italic font-serif">
-                     No masterpieces found matching these criteria.
-                   </div>
+                {filtered.length > 0 ? (
+                  <ProductGrid products={filtered} />
+                ) : (
+                  <div className="py-40 text-center flex flex-col items-center justify-center">
+                    <p className="text-stone-400 italic font-serif text-2xl mb-4">
+                      No masterpieces found matching these criteria.
+                    </p>
+                    <button 
+                      onClick={() => { setSelectedSubItems([]); setAvailability(""); setSort("latest"); }}
+                      className="text-[10px] uppercase tracking-[0.2em] font-bold border-b border-stone-900 pb-1 hover:text-stone-500 transition-colors"
+                    >
+                      Clear All Refinements
+                    </button>
+                  </div>
                 )}
               </motion.div>
             </AnimatePresence>

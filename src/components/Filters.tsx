@@ -14,8 +14,8 @@ export default function Filters({
   setSort,
 }: any) {
   
-  const sizeOptions = ["Small", "Medium", "Large"];
-  const materialOptions = ["Teak Wood", "Brass", "Ceramic", "Stone"];
+  // const sizeOptions = ["Small", "Medium", "Large"];
+  // const materialOptions = ["Teak Wood", "Brass", "Ceramic", "Stone"];
   const availabilityOptions = [
     { label: "All Items", value: "" },
     { label: "Ready to Ship", value: "instock" },
@@ -101,7 +101,7 @@ export default function Filters({
         </div>
       </div>
 
-      {/* 3. AVAILABILITY (Made to Order vs Ready) */}
+      {/* 3. AVAILABILITY */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <Clock size={12} className="text-stone-400" />

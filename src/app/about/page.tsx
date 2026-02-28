@@ -393,7 +393,7 @@ export default function AboutPage() {
                 <li className="flex items-center gap-3"><Globe size={16} /> www.aurindel.com</li>
               </ul>
             </div>
-            <div className="space-y-8"><h4 className="text-white text-[10px] uppercase tracking-[0.4em] font-bold">Studio</h4><ul className="space-y-4 text-sm"><li className="flex items-start gap-3"><MapPin size={16} className="mt-1 flex-shrink-0" /><span>102, Executive Block,<br/>Puriva Industries HQ,<br/>Noida, India</span></li></ul></div>
+            <div className="space-y-8"><h4 className="text-white text-[10px] uppercase tracking-[0.4em] font-bold">Studio</h4><ul className="space-y-4 text-sm"><li className="flex items-start gap-3"><MapPin size={16} className="mt-1 flex-shrink-0" /><span>8th Floor 8125, Gaur City Mall Office Space, <br/>Greater Noida (201318) UP, INDIA</span></li></ul></div>
           </div>
           <div className="flex flex-col md:flex-row justify-between items-center pt-12 gap-8 text-[9px] uppercase tracking-[0.6em]"><p>© 2026 Aurindel Studio by Puriva Industries Pvt. Ltd.</p><div className="flex gap-8"><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></div></div>
         </div>

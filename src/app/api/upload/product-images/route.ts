@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import cloudinary from "@/lib/cloudinary";
+import path from "path";
+import fs from "fs/promises";
 
 export async function POST(req: Request) {
   try {
@@ -14,29 +15,24 @@ export async function POST(req: Request) {
     }
 
     const uploadedUrls: string[] = [];
+    const uploadDir = "/var/www/uploads/products";
 
     for (const file of files) {
-      const buffer = Buffer.from(await file.arrayBuffer());
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
 
-      const result: any = await new Promise((resolve, reject) => {
-        cloudinary.uploader
-          .upload_stream(
-            {
-              folder: "products",
-            },
-            (err, res) => {
-              if (err) reject(err);
-              else resolve(res);
-            }
-          )
-          .end(buffer);
-      });
+      const fileName = `${Date.now()}-${file.name}`;
+      const filePath = path.join(uploadDir, fileName);
 
-      uploadedUrls.push(result.secure_url);
+      await fs.writeFile(filePath, buffer);
+
+      const imageUrl = `https://yourdomain.com/uploads/products/${fileName}`;
+      uploadedUrls.push(imageUrl);
     }
 
     return NextResponse.json({ urls: uploadedUrls });
   } catch (error) {
+    console.error(error);
     return NextResponse.json(
       { message: "Upload failed" },
       { status: 500 }

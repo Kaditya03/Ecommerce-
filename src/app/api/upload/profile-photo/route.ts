@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import cloudinary from "@/lib/cloudinary";
 import connectDB from "@/lib/db";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
+import path from "path";
+import fs from "fs/promises";
 
 export async function POST(req: Request) {
   try {
@@ -12,32 +13,54 @@ export async function POST(req: Request) {
       req.headers.get("authorization")?.replace("Bearer ", "");
 
     if (!token) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+    const decoded: any = jwt.verify(
+      token,
+      process.env.JWT_SECRET!
+    );
 
     const formData = await req.formData();
     const file = formData.get("file") as File;
 
-    const buffer = Buffer.from(await file.arrayBuffer());
+    if (!file) {
+      return NextResponse.json(
+        { message: "No file uploaded" },
+        { status: 400 }
+      );
+    }
 
-    const result: any = await new Promise((resolve, reject) => {
-      cloudinary.uploader
-        .upload_stream({ folder: "profiles" }, (err, res) => {
-          if (err) reject(err);
-          else resolve(res);
-        })
-        .end(buffer);
-    });
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
 
-    // ✅ SAVE URL IN DATABASE
+    const uploadDir = "/var/www/uploads/profiles";
+    const fileName = `${Date.now()}-${file.name}`;
+    const filePath = path.join(uploadDir, fileName);
+
+    await fs.writeFile(filePath, buffer);
+
+    const imageUrl = `https://yourdomain.com/uploads/profiles/${fileName}`;
+
+    // Save in DB
     const user = await User.findById(decoded.id);
-    user.photo = result.secure_url;
+    if (!user) {
+      return NextResponse.json(
+        { message: "User not found" },
+        { status: 404 }
+      );
+    }
+
+    user.photo = imageUrl;
     await user.save();
 
-    return NextResponse.json({ url: result.secure_url });
+    return NextResponse.json({ url: imageUrl });
+
   } catch (err) {
+    console.error(err);
     return NextResponse.json(
       { message: "Upload failed" },
       { status: 500 }
