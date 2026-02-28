@@ -46,7 +46,7 @@ export default function DesktopFilters({
       )}
 
       {/* AVAILABILITY SECTION */}
-      <FilterSection title="Availability">
+      {/* <FilterSection title="Availability">
         <div className="space-y-3">
           {["in-stock", "custom"].map((val) => (
             <label key={val} className="flex items-center gap-3 cursor-pointer text-sm text-stone-600 capitalize">
@@ -61,10 +61,10 @@ export default function DesktopFilters({
             </label>
           ))}
         </div>
-      </FilterSection>
+      </FilterSection> */}
 
       {/* SORT SECTION */}
-      <FilterSection title="Sort By">
+      {/* <FilterSection title="Sort By">
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value)}
@@ -74,7 +74,7 @@ export default function DesktopFilters({
           <option value="price-asc">Price: Low to High</option>
           <option value="price-desc">Price: High to Low</option>
         </select>
-      </FilterSection>
+      </FilterSection> */}
 
       {/* RESET BUTTON */}
       {(selectedSubItems.length > 0 || availability || sort !== "latest") && (
@@ -86,7 +86,7 @@ export default function DesktopFilters({
           }}
           className="w-full py-3 mt-6 text-[10px] uppercase font-bold tracking-widest border border-stone-200 hover:bg-black hover:text-white transition-all rounded-xl"
         >
-          Reset All Filters
+          Reset Filters
         </button>
       )}
     </div>

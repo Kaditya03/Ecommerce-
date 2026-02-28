@@ -6,7 +6,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Plus, ArrowRight, Heart } from "lucide-react";
 import "swiper/css";
 
-/* ================= TYPES ================= */
+/* TYPES  */
 
 type Product = {
   id: string;
@@ -22,7 +22,7 @@ type ProductCardProps = {
   p: Product;
 };
 
-/* ================= DATA ================= */
+/* DATA  */
 
 const products: Product[] = [
   { id: "01", name: "Forest Canopy Ceramic Plates", sub: "Hand Glazed Dinnerware", img: "/images/n1.jpg", price: "Rs. 999", old: "Rs. 1,749", off: "43% Off" },
@@ -32,7 +32,7 @@ const products: Product[] = [
   { id: "05", name: "Dancing Couple Candle Holder", sub: "Exclusive Brass Art", img: "/images/n5.webp", price: "Rs. 949", old: "Rs. 1,750", off: "46% Off" },
 ];
 
-/* ================= PRODUCT CARD ================= */
+/*  PRODUCT CARD  */
 
 const ProductCard = ({ p }: ProductCardProps) => {
   const [isTouched, setIsTouched] = useState(false);
@@ -101,7 +101,7 @@ const ProductCard = ({ p }: ProductCardProps) => {
   );
 };
 
-/* ================= MAIN COMPONENT ================= */
+/* MAIN COMPONENT =*/
 
 const NewArrivals = () => {
   return (
@@ -110,9 +110,9 @@ const NewArrivals = () => {
 
         {/* HEADER */}
         <div className="relative mb-28 flex flex-col items-center text-center">
-          <span className="absolute top-[-20px] left-1/2 -translate-x-1/2 text-[70px] md:text-[130px] font-black text-gray-100/50 select-none uppercase">
+          {/* <span className="absolute top-[-20px] left-1/2 -translate-x-1/2 text-[70px] md:text-[130px] font-black text-gray-100/50 select-none uppercase">
             Fresh
-          </span>
+          </span> */}
 
           <h2 className="text-5xl md:text-8xl font-serif tracking-tighter text-gray-900">
             New <span className="italic text-gray-400">Arrivals</span>

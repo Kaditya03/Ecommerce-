@@ -4,57 +4,68 @@ import { motion, AnimatePresence } from "framer-motion";
 import DesktopFilters from "@/components/filters/DesktopFilters";
 import MobileFilters from "@/components/filters/MobileFilters";
 import ProductGrid from "@/components/products/ProductGrid";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import BackButton from "@/components/ui/BackButton";
 
 const collectionsData: any = {
-  "bathroom-accessories": { title: "Bathroom Accessories", items: ["Hooks", "Handle", "Laundry Basket", "Soap Dispenser", "Soap Dish"] },
+  "bathroom-accessories": { title: "Bathroom Accessories", items: ["Hooks & Handle", "Bath Caddy", "Laundry Basket", "Tooth Brush", "Soap Dispenser", "Soap Dish"] },
   "home-decor": { title: "Home Decor", subItems: [{ name: "Vases" }, { name: "Wall Art" }, { name: "Mirrors" }] },
-  "furniture": { title: "Furniture", items: ["Dining Table", "Console Table", "Center Table", "Side Table", "Bookshelf", "Shoe Rack", "Ottoman"] },
-  "kitchen-accessories": { title: "Kitchen Accessories", items: ["Utensil Holders", "Storage Container", "Dish Rack"] },
+  "furniture": { title: "Furniture", items: ["Dining Table", "Console Table", "Coffee & Center Table", "Side Table", "Bookshelf", "Shoe Rack", "Ottoman"] },
+  "kitchen-accessories": { title: "Kitchen Accessories", items: ["Utensil Holders", "Storage Container", "Dish Rack & Storage"] },
   "garden-accessories": { title: "Garden Accessories", items: ["Water Cans", "Tree Decor", "Bird Table", "Garden Wall Art", "Wind Chimes", "Wind Spinners", "Bird Bath", "Garden Urm"] },
   "pots-and-planters": { title: "Pots and Planters" },
-  "lighting-candles": { title: "Lighting & Candle Holders", items: ["Lanterns", "Candelabrum", "T-Light Holder", "Hurricane Holder", "Moroccan Holder", "Pillar Holder"] },
+  "lighting-candles": { title: "Lighting & Candle Holders", items: ["Candelabrum", "Christmas", "T-Light", "Hurricane", "Moroccan Holder", "Pillar Holder"] },
   "figurines-sculptures": { title: "Figurines & Sculptures" }
 };
 
-export default function CategoryLayout({
-  category = "",
-  products = [],
-}: {
-  category: string;
-  products: any[];
-}) {
+function CategoryContent({ category, products }: { category: string, products: any[] }) {
+  const searchParams = useSearchParams();
+  const initialType = searchParams.get("type");
+
   const [availability, setAvailability] = useState("");
   const [selectedSubItems, setSelectedSubItems] = useState<string[]>([]);
   const [sort, setSort] = useState("latest");
 
   const activeCollection = collectionsData[category] || { title: category.replace(/-/g, " ") };
 
-  // --- REFINED FILTERING LOGIC ---
+  useEffect(() => {
+    if (initialType) {
+      setSelectedSubItems([initialType]);
+    } else {
+      setSelectedSubItems([]);
+    }
+  }, [initialType]);
+
   const filtered = useMemo(() => {
     const safeProducts = Array.isArray(products) ? products : [];
 
     let result = safeProducts.filter((p) => {
-      // 1. Availability Logic
-      // Currently, your data structure doesn't have an availability field.
-      // We return true so that selecting 'Availability' doesn't hide everything.
-      const matchAvailability = true;
+      // 1. Availability Logic (Matches 'in-stock' or 'custom' against DB status if exists)
+      const pStatus = (p.availability || p.availabilityStatus || p.status || "").toLowerCase();
+      const normalizedTarget = availability.replace("-", "").toLowerCase();
+      const matchAvailability = availability ? pStatus.includes(normalizedTarget) : true;
 
-      // 2. Sub-Item Check (Matching Filter String against Product Name/Category)
+      // 2. Fuzzy Sub-Item Check (Handles Plurals like Vases vs Vase)
       const matchSubItem = selectedSubItems.length > 0 
         ? selectedSubItems.some(filterValue => {
-            const val = filterValue.toLowerCase();
-            const productName = (p.name || "").toLowerCase();
+            const productTitle = (p.name || "").toLowerCase();
             const productCat = (p.category || "").toLowerCase();
-            return productName.includes(val) || productCat === val;
+            
+            // Normalize: remove trailing 's' to match singular/plural (e.g., Vases -> vase)
+            const normalizedFilter = filterValue.toLowerCase().replace(/s$/, "");
+            
+            return (
+              productTitle.includes(normalizedFilter) || 
+              productCat.includes(normalizedFilter)
+            );
           })
         : true;
 
       return matchAvailability && matchSubItem;
     });
 
-    // 3. Handle Sorting
+    // 3. Sorting Logic
     if (sort === "price-asc") {
       result.sort((a, b) => {
         const priceA = parseFloat(a.price?.toString().replace(/[^0-9.]/g, '')) || 0;
@@ -74,8 +85,78 @@ export default function CategoryLayout({
     }
     
     return result;
-  }, [products, selectedSubItems, sort]);
+  }, [products, selectedSubItems, availability, sort]);
 
+  return (
+    <div className="flex flex-col lg:flex-row gap-16">
+      <aside className="hidden lg:block w-80">
+        <div className="sticky top-32">
+          <DesktopFilters
+            activeCollection={activeCollection}
+            selectedSubItems={selectedSubItems}
+            setSelectedSubItems={setSelectedSubItems}
+            availability={availability}
+            setAvailability={setAvailability}
+            sort={sort}
+            setSort={setSort}
+          />
+        </div>
+      </aside>
+
+      <MobileFilters
+        activeCollection={activeCollection}
+        selectedSubItems={selectedSubItems}
+        setSelectedSubItems={setSelectedSubItems}
+        availability={availability}
+        setAvailability={setAvailability}
+        sort={sort}
+        setSort={setSort}
+      />
+
+      <div className="flex-1">
+        <div className="flex justify-between items-end mb-10 border-b border-stone-100 pb-4">
+          <p className="text-[10px] uppercase tracking-widest text-stone-400">
+            {filtered.length} masterpieces found
+          </p>
+        </div>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`${selectedSubItems.join('-')}-${sort}-${availability}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            {filtered.length > 0 ? (
+              <ProductGrid products={filtered} />
+            ) : (
+              <div className="py-40 text-center flex flex-col items-center justify-center">
+                <p className="text-stone-400 italic font-serif text-2xl mb-4">
+                  No masterpieces found matching these criteria.
+                </p>
+                <button 
+                  onClick={() => { setSelectedSubItems([]); setAvailability(""); setSort("latest"); }}
+                  className="text-[10px] uppercase tracking-[0.2em] font-bold border-b border-stone-900 pb-1 hover:text-stone-500 transition-colors"
+                >
+                  Clear All Refinements
+                </button>
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+export default function CategoryLayout({
+  category = "",
+  products = [],
+}: {
+  category: string;
+  products: any[];
+}) {
   return (
     <div className="min-h-screen bg-[#FBFBFA] text-stone-900 selection:bg-stone-900 selection:text-white">
       <div className="fixed top-6 left-6 z-50">
@@ -101,65 +182,9 @@ export default function CategoryLayout({
       </header>
 
       <main className="max-w-[1800px] mx-auto px-6 lg:px-12 py-16">
-        <div className="flex flex-col lg:flex-row gap-16">
-          <aside className="hidden lg:block w-80">
-            <div className="sticky top-32">
-              <DesktopFilters
-                activeCollection={activeCollection}
-                selectedSubItems={selectedSubItems}
-                setSelectedSubItems={setSelectedSubItems}
-                availability={availability}
-                setAvailability={setAvailability}
-                sort={sort}
-                setSort={setSort}
-              />
-            </div>
-          </aside>
-
-          <MobileFilters
-            activeCollection={activeCollection}
-            selectedSubItems={selectedSubItems}
-            setSelectedSubItems={setSelectedSubItems}
-            availability={availability}
-            setAvailability={setAvailability}
-            sort={sort}
-            setSort={setSort}
-          />
-
-          <div className="flex-1">
-            <div className="flex justify-between items-end mb-10 border-b border-stone-100 pb-4">
-              <p className="text-[10px] uppercase tracking-widest text-stone-400">
-                {filtered.length} masterpieces found
-              </p>
-            </div>
-
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={`${selectedSubItems.join('-')}-${sort}`}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.4 }}
-              >
-                {filtered.length > 0 ? (
-                  <ProductGrid products={filtered} />
-                ) : (
-                  <div className="py-40 text-center flex flex-col items-center justify-center">
-                    <p className="text-stone-400 italic font-serif text-2xl mb-4">
-                      No masterpieces found matching these criteria.
-                    </p>
-                    <button 
-                      onClick={() => { setSelectedSubItems([]); setAvailability(""); setSort("latest"); }}
-                      className="text-[10px] uppercase tracking-[0.2em] font-bold border-b border-stone-900 pb-1 hover:text-stone-500 transition-colors"
-                    >
-                      Clear All Refinements
-                    </button>
-                  </div>
-                )}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-        </div>
+        <Suspense fallback={<div className="text-center py-20 italic text-stone-400">Loading collection...</div>}>
+          <CategoryContent category={category} products={products} />
+        </Suspense>
       </main>
     </div>
   );

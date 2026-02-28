@@ -186,28 +186,8 @@ export default function AboutPage() {
         </motion.div>
       </section>
 
-      {/* BRAND SECTION */}
-      <section className="py-20 md:py-32 px-8 flex justify-center bg-[#F5F5F2]">
-        <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="max-w-4xl text-center space-y-12">
-          <div className="space-y-4">
-            <span className="text-[10px] uppercase tracking-[0.5em] text-stone-400 font-bold">The Aurindel Narrative</span>
-            <h2 className="text-3xl md:text-6xl font-serif leading-tight text-stone-800 italic">Where Golden Heritage Meets Indian Elegance</h2>
-          </div>
-          <p className="text-lg md:text-xl text-stone-600 font-light leading-relaxed">At Puriva Industries Pvt. Ltd., we believe every handicraft creation tells a story. Rooted in India’s rich legacy of craftsmanship, we bring timeless artistry into the modern world. Aurindel collections blend traditional techniques with contemporary designs, celebrating the beauty of heritage while embracing global elegance.</p>
-          <div className="inline-block p-8 border border-black/5 rounded-2xl bg-black/[0.02]">
-            <p className="text-stone-500 italic font-serif text-lg">"As a dedicated handicraft company for Indian handicraft exports, we connect traditional artisans with global markets, ensuring that our rich heritage reaches homes across the world."</p>
-          </div>
-        </motion.div>
-      </section>
 
-      {/* VISION CARDS */}
-      <section className="max-w-[1400px] mx-auto px-8 py-20 md:py-32 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <VisionCard index={0} icon={<Users size={28} />} title="01. Who We Are" desc="We work with skilled artisans across India to curate and export authentic handicrafts that blend heritage and artistry." />
-          <VisionCard index={1} icon={<Target size={28} />} title="02. Our Mission" desc="To be a trusted partner for global buyers by offering high-quality handicrafts with competitive pricing and timely delivery." />
-          <VisionCard index={2} icon={<Globe size={28} />} title="03. Our Vision" desc="To be a global name in exports, ensuring Indian craftsmanship earns the recognition it deserves worldwide." />
-      </section>
-
-      {/* VIDEO MESSAGE SECTION */}
+{/* VIDEO MESSAGE SECTION */}
       <section id="founder-video" className="py-20 md:py-40 px-4 md:px-8">
         <div className="max-w-[1400px] mx-auto">
           <div className="relative group">
@@ -346,6 +326,30 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+
+      
+      {/* BRAND SECTION */}
+      <section className="py-20 md:py-32 px-8 flex justify-center bg-[#F5F5F2]">
+        <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="max-w-4xl text-center space-y-12">
+          <div className="space-y-4">
+            <span className="text-[10px] uppercase tracking-[0.5em] text-stone-400 font-bold">The Aurindel Narrative</span>
+            <h2 className="text-3xl md:text-6xl font-serif leading-tight text-stone-800 italic">Where Golden Heritage Meets Indian Elegance</h2>
+          </div>
+          <p className="text-lg md:text-xl text-stone-600 font-light leading-relaxed">At Puriva Industries Pvt. Ltd., we believe every handicraft creation tells a story. Rooted in India’s rich legacy of craftsmanship, we bring timeless artistry into the modern world. Aurindel collections blend traditional techniques with contemporary designs, celebrating the beauty of heritage while embracing global elegance.</p>
+          <div className="inline-block p-8 border border-black/5 rounded-2xl bg-black/[0.02]">
+            <p className="text-stone-500 italic font-serif text-lg">"As a dedicated handicraft company for Indian handicraft exports, we connect traditional artisans with global markets, ensuring that our rich heritage reaches homes across the world."</p>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* VISION CARDS */}
+      <section className="max-w-[1400px] mx-auto px-8 py-20 md:py-32 grid grid-cols-1 md:grid-cols-3 gap-8">
+          <VisionCard index={0} icon={<Users size={28} />} title="01. Who We Are" desc="We work with skilled artisans across India to curate and export authentic handicrafts that blend heritage and artistry." />
+          <VisionCard index={1} icon={<Target size={28} />} title="02. Our Mission" desc="To be a trusted partner for global buyers by offering high-quality handicrafts with competitive pricing and timely delivery." />
+          <VisionCard index={2} icon={<Globe size={28} />} title="03. Our Vision" desc="To be a global name in exports, ensuring Indian craftsmanship earns the recognition it deserves worldwide." />
+      </section>
+
+      
 
       {/* FOUNDER SECTION */}
       <section className="py-20 md:py-40 bg-[#F5F5F2] text-stone-900 rounded-[2.5rem] md:rounded-[6rem] mx-2 md:mx-12 overflow-hidden border border-black/5">

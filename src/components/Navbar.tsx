@@ -79,49 +79,26 @@ export default function Navbar() {
   const collectionsData = [
     { title: "Bathroom Accessories", slug: "bathroom-accessories", items: ["Hooks & Handle", "Bath Caddy", "Laundry Basket","Tooth Brush", "Soap Dispenser", "Soap Dish"] },
     { title: "Home Decor", slug: "home-decor", subItems: [
-        { name: "Vases", types: ["Glass Vase", "Ceramic Vase", "Metal Vase"] },
+        { name: "Vase", types: ["Glass Vase", "Ceramic Vase", "Metal Vase"] },
         { name: "Wall Art" },
         { name: "Mirrors", types: ["Wall Mirror", "Floor Mirror", "Decorative Mirror", "Sunburst Mirror"] }
       ] 
     },
-    { title: "Furniture", slug: "furniture", items: ["Dining Table", "Console Table", "Coffee & Center Table", "Side Table", "Bookshelf", "Shoe Rack", "Ottoman"] },
-    { title: "Kitchen Accessories", slug: "kitchen-accessories", items: ["Utensil Holders", "Storage Container", "Dish Rack & Storage"] },
+    { title: "Furniture", slug: "furniture", items: ["Dining Table", "Console Table", "Center Table", "Side Table", "Bookshelf", "Shoe Rack", "Ottoman"] },
+    { title: "Kitchen Accessories", slug: "kitchen-accessories", items: ["Utensil Holder", "Storage Container", "Dish Rack"] },
     { title: "Garden Accessories", slug: "garden-accessories", items: ["Water Cans", "Tree Decor", "Bird Table", "Garden Wall Art", "Wind Chimes", "Wind Spinners", "Bird Bath", "Garden Urm"] },
     { title: "Pots and Planters", slug: "pots-and-planters" },
     { title: "Lighting & Candle Holders", slug: "lighting-candles", items: ["Candelabrum", "Christmas", "T-Light", "Hurricane", "Moroccan Holder", "Pillar Holder"] },
     { title: "Figurines & Sculptures", slug: "figurines-sculptures" }
   ];
 
- // 1. Update the helper function to accept an optional sub-item
-const handleMobileNav = (slug: string, subItem?: string) => {
-  setMenuOpen(false);
-  const url = subItem 
-    ? `/categories/${slug}?type=${encodeURIComponent(subItem)}` 
-    : `/categories/${slug}`;
-  router.push(url);
-};
+  // Helper to handle navigation with filters
+  const handleNav = (slug: string, type?: string) => {
+    setMenuOpen(false);
+    const query = type ? `?type=${encodeURIComponent(type)}` : "";
+    router.push(`/categories/${slug}${query}`);
+  };
 
-// 2. In your Desktop JSX, update the map for sub-items:
-{cat.items?.map(item => (
-  <Link 
-    key={item} 
-    href={`/categories/${cat.slug}?type=${encodeURIComponent(item)}`} // Adds the filter to URL
-    className="hover:text-black transition-colors"
-  >
-    {item}
-  </Link>
-))}
-
-// 3. In your Mobile JSX, update the sub-item buttons:
-{cat.items?.map(i => (
-  <button 
-    key={i} 
-    onClick={() => handleMobileNav(cat.slug, i)} // Passes the sub-item name
-    className="text-left hover:text-black transition-colors"
-  >
-    {i}
-  </button>
-))}
   return (
     <>
       <nav className={`top-0 left-0 w-full z-[100] transition-all duration-500 ${
@@ -132,16 +109,17 @@ const handleMobileNav = (slug: string, subItem?: string) => {
         <div className="max-w-[1800px] mx-auto px-6 md:px-12 flex items-center justify-between">
           
           <Link href="/" className="flex-shrink-0 z-[110]">
-            <div className={`relative transition-all duration-500 ${scrolled ? "h-8 w-28 md:h-10 md:w-36" : "h-10 w-32 md:h-16 md:w-52"}`}>
+            <div className={`relative transition-all duration-500 ${scrolled ? "h-8 w-28 md:h-10 md:w-36" : "h-10 w-32 md:h-20 md:w-52"}`}>
               <Image src="/images/AurindelLogo.png" alt="Aurindel" fill priority unoptimized className="object-contain object-left" />
             </div>
           </Link>
 
+          {/* DESKTOP NAV */}
           <div className={`hidden lg:flex items-center gap-10 text-[10px] uppercase tracking-[0.4em] font-bold transition-colors duration-500 ${scrolled ? "text-stone-500" : "text-black"}`}>
             <NavLink href="/" label="Home" />
             <div className="relative group/nav">
               <button className="flex items-center gap-2 hover:opacity-100 opacity-80 transition-all py-4">
-                Collections <ChevronDown size={10} className="group-hover/nav:rotate-180 transition-transform"/>
+                COLLECTIONS <ChevronDown size={10} className="group-hover/nav:rotate-180 transition-transform"/>
               </button>
               <div className="absolute top-full left-1/2 -translate-x-1/2 w-[90vw] max-w-[1200px] bg-white border border-stone-100 shadow-2xl rounded-3xl p-10 grid grid-cols-4 gap-x-8 gap-y-12 opacity-0 invisible group-hover/nav:opacity-100 group-hover/nav:visible transition-all duration-300 transform group-hover/nav:translate-y-2">
                 {collectionsData.map((cat, idx) => (
@@ -150,12 +128,34 @@ const handleMobileNav = (slug: string, subItem?: string) => {
                       <h4 className="text-black border-b border-stone-100 pb-2 text-[11px] font-black tracking-widest hover:text-stone-500 transition-colors uppercase">{cat.title}</h4>
                     </Link>
                     <div className="flex flex-col space-y-2 text-stone-400 font-sans text-[13px] font-light">
-                      {cat.items?.map(item => <Link key={item} href={`/categories/${cat.slug}`} className="hover:text-black transition-colors">{item}</Link>)}
+                      {/* FIXED: Sub-item links with professional search params */}
+                      {cat.items?.map(item => (
+                        <Link 
+                          key={item} 
+                          href={`/categories/${cat.slug}?type=${encodeURIComponent(item)}`} 
+                          className="hover:text-black transition-colors"
+                        >
+                          {item}
+                        </Link>
+                      ))}
                       {cat.subItems?.map(sub => (
                         <div key={sub.name} className="space-y-1">
-                          <Link href={`/categories/${cat.slug}`} className="text-stone-800 font-medium hover:text-black block">{sub.name}</Link>
+                          <Link 
+                            href={`/categories/${cat.slug}?type=${encodeURIComponent(sub.name)}`} 
+                            className="text-stone-800 font-medium hover:text-black block"
+                          >
+                            {sub.name}
+                          </Link>
                           <div className="pl-3 border-l border-stone-100 flex flex-col space-y-1">
-                            {sub.types?.map(t => <Link key={t} href={`/categories/${cat.slug}`} className="text-[12px] hover:text-black">{t}</Link>)}
+                            {sub.types?.map(t => (
+                              <Link 
+                                key={t} 
+                                href={`/categories/${cat.slug}?type=${encodeURIComponent(t)}`} 
+                                className="text-[12px] hover:text-black"
+                              >
+                                {t}
+                              </Link>
+                            ))}
                           </div>
                         </div>
                       ))}
@@ -252,7 +252,6 @@ const handleMobileNav = (slug: string, subItem?: string) => {
                       <h3 className="text-[11px] uppercase tracking-[0.4em] font-bold border-b border-stone-100 pb-6 mb-10 text-stone-900">
                         {isSearching ? "Seeking Artistry..." : `Matches Found (${searchResults.length})`}
                       </h3>
-                      
                       {searchResults.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                           {searchResults.map((product) => (
@@ -321,10 +320,10 @@ const handleMobileNav = (slug: string, subItem?: string) => {
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                        <Link href="/account/orders" onClick={() => setMenuOpen(false)} className="flex flex-col gap-2 p-4 bg-stone-50 rounded-2xl">
+                        {/* <Link href="/account/orders" onClick={() => setMenuOpen(false)} className="flex flex-col gap-2 p-4 bg-stone-50 rounded-2xl">
                           <Package size={18} className="text-stone-400"/>
                           <span className="text-[9px] uppercase font-bold tracking-widest">Orders</span>
-                        </Link>
+                        </Link> */}
                         <Link href="/wishlist" onClick={() => setMenuOpen(false)} className="flex flex-col gap-2 p-4 bg-stone-50 rounded-2xl">
                           <Heart size={18} className="text-stone-400"/>
                           <span className="text-[9px] uppercase font-bold tracking-widest">Wishlist</span>
@@ -344,13 +343,13 @@ const handleMobileNav = (slug: string, subItem?: string) => {
 
               <div className="px-6 pb-6">
                 <div className="bg-stone-100/50 rounded-3xl p-6 grid grid-cols-2 gap-4">
-                  <Link href="/" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest"><Home size={16}/> Home</Link>
-                  <Link href="/account/orders" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest"><Package size={16}/> Track Order</Link>
+                  <Link href="/" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 text-[13px] font-bold uppercase tracking-widest"><Home size={16}/> Home</Link>
+                  {/* <Link href="/account/orders" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest"><Package size={16}/> Track Order</Link> */}
                 </div>
               </div>
 
               <div className="px-6 space-y-4 pb-12">
-                <p className="text-[9px] uppercase tracking-[0.4em] text-stone-400 font-bold ml-2 mb-4">Maison Collections</p>
+                <p className="text-[9px] uppercase tracking-[0.4em] text-stone-400 font-bold ml-2 mb-4"> COLLECTIONS</p>
                 {collectionsData.map((cat, idx) => (
                   <div key={idx} className="bg-white rounded-2xl border border-stone-50 overflow-hidden">
                     <button 
@@ -367,24 +366,24 @@ const handleMobileNav = (slug: string, subItem?: string) => {
                         <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden bg-stone-50/50">
                           <div className="flex flex-col gap-4 p-6 text-stone-500 text-[11px] uppercase tracking-widest font-medium">
                             <button 
-                              onClick={() => handleMobileNav(cat.slug)} 
+                              onClick={() => handleNav(cat.slug)} 
                               className="text-left font-bold text-black border-b border-stone-100 pb-2"
                             >
                               View All {cat.title}
                             </button>
                             {cat.items?.map(i => (
-                              <button key={i} onClick={() => handleMobileNav(cat.slug)} className="text-left hover:text-black transition-colors">{i}</button>
+                              <button key={i} onClick={() => handleNav(cat.slug, i)} className="text-left hover:text-black transition-colors">{i}</button>
                             ))}
                             {cat.subItems?.map(sub => (
                               <div key={sub.name} className="space-y-3">
                                 <button 
-                                  onClick={() => handleMobileNav(cat.slug)} 
+                                  onClick={() => handleNav(cat.slug, sub.name)} 
                                   className="text-left text-black font-black text-[10px] pt-2 border-t border-stone-100 w-full"
                                 >
                                   {sub.name}
                                 </button>
                                 {sub.types?.map(t => (
-                                  <button key={t} onClick={() => handleMobileNav(cat.slug)} className="block pl-2 text-left hover:text-black transition-colors">{t}</button>
+                                  <button key={t} onClick={() => handleNav(cat.slug, t)} className="block pl-2 text-left hover:text-black transition-colors">{t}</button>
                                 ))}
                               </div>
                             ))}
@@ -398,7 +397,7 @@ const handleMobileNav = (slug: string, subItem?: string) => {
                 <div className="pt-8 space-y-4 border-t border-stone-100">
                   <MobileLink href="/about" label="About Us" onClick={() => setMenuOpen(false)} />
                   <MobileLink href="/contact" label="Contact Us" onClick={() => setMenuOpen(false)} />
-                  <MobileLink href="/archives" label="Archives" onClick={() => setMenuOpen(false)} />
+                  <MobileLink href="/archives" label="Blogs" onClick={() => setMenuOpen(false)} />
                 </div>
               </div>
             </div>

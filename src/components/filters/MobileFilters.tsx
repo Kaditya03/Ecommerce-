@@ -20,7 +20,7 @@ export default function MobileFilters(props: any) {
         "
       >
         <SlidersHorizontal size={16} />
-        Filter & Sort
+        Filter 
       </button>
 
       {/* OVERLAY & DRAWER */}
