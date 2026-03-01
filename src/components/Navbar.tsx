@@ -103,7 +103,7 @@ export default function Navbar() {
       <nav
         className={`top-0 left-0 w-full z-[100] transition-all duration-500 flex items-center ${
           scrolled
-            ? "fixed bg-white/95 backdrop-blur-xl shadow-sm border-b border-stone-100 h-[80px]"
+            ? "fixed bg-white/95 backdrop-blur-xl shadow-sm border-b border-stone-100  h-[80px]"
             : "sticky lg:absolute bg-[#FBFBFA] lg:bg-transparent h-[110px]"
         }`}
       >

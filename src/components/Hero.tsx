@@ -85,7 +85,7 @@ const Hero = () => {
   };
 
   return (
-    <div className="relative w-full h-[80vh] md:h-[90vh] lg:h-[100vh] bg-[#FBFBFA] overflow-hidden">
+    <div className="relative w-full h-[100vh] md:h-[90vh] lg:h-[107vh] bg-[#FBFBFA] overflow-hidden">
       
       {/* BACKGROUND 3D TEXT (WATERMARK) - FIXED OVERFLOW */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden select-none">
@@ -112,7 +112,7 @@ const Hero = () => {
       >
         
         {/* IMAGE SECTION */}
-        <div className="w-full md:w-1/2 h-1/2 md:h-full relative p-6 md:p-12 lg:p-20 pointer-events-none">
+      <div className="w-full md:w-1/2 h-1/2 md:h-full relative pt-0 px-4 md:p-12 lg:p-20 pointer-events-none">
           <AnimatePresence mode="wait">
             <motion.div
               key={slides[index].image}

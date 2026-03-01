@@ -223,7 +223,7 @@ export default function AboutPage() {
         <div className="max-w-[1400px] mx-auto">
           <div className="relative group">
             <motion.div initial={{ rotateX: 10, y: 30, opacity: 0 }} whileInView={{ rotateX: 0, y: 0, opacity: 1 }} transition={{ duration: 1.2 }} className="relative aspect-video w-full rounded-[1.5rem] md:rounded-[4rem] overflow-hidden border border-black/5 shadow-2xl bg-black flex items-center justify-center">
-              <video ref={videoRef} src="https://res.cloudinary.com/dcgmsnhro/video/upload/v1770226463/video-founder_rg01pp.mp4" muted={isMuted} loop playsInline onTimeUpdate={handleTimeUpdate} className={`w-full h-full transition-all duration-[2s] ${isPlaying ? 'opacity-100' : 'opacity-80 group-hover:scale-105'} object-contain md:object-cover`} />
+              <video ref={videoRef} src="https://pub-84f1fc036af747ce8fec64cbbbb8754b.r2.dev/video-founder.mp4" muted={isMuted} loop playsInline onTimeUpdate={handleTimeUpdate} className={`w-full h-full transition-all duration-[2s] ${isPlaying ? 'opacity-100' : 'opacity-80 group-hover:scale-105'} object-contain md:object-cover`} />
               
               <div ref={progressRef} onClick={handleSeek} className="absolute bottom-0 left-0 w-full h-2 md:h-3 bg-white/10 z-50 cursor-pointer group/progress transition-all hover:h-4">
                 <motion.div className="h-full bg-stone-400 origin-left relative shadow-[0_0_15px_rgba(255,255,255,0.3)]" style={{ width: `${videoProgress}%` }}>

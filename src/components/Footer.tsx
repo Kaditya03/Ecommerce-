@@ -12,7 +12,6 @@ import {
   Phone,
   ArrowRight,
   Check,
-  ArrowUpRight,
   Heart
 } from "lucide-react";
 
@@ -101,23 +100,22 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* NEWSLETTER */}
-
+          {/* NEWSLETTER - FIXED MOBILE SPACING */}
           <motion.div
             whileHover={{ translateZ: 20 }}
-            className="w-full lg:w-[450px] bg-white p-8 md:p-12 rounded-3xl border border-stone-100 shadow-[0_40px_80px_-15px_rgba(0,0,0,0.05)]"
+            className="w-full lg:w-[450px] bg-white p-6 md:p-12 rounded-3xl border border-stone-100 shadow-[0_40px_80px_-15px_rgba(0,0,0,0.05)]"
           >
             <h3 className="text-[10px] uppercase tracking-[0.5em] text-stone-400 mb-6 font-bold">
               Join The Aurindel Circle
             </h3>
 
-            <p className="text-stone-500 text-sm mb-8">
+            <p className="text-stone-50 text-sm mb-8 text-stone-500">
               Receive exclusive access to curated launches & export collections.
             </p>
 
             <form
               onSubmit={handleNewsletterSubmit}
-              className="flex items-center border-b border-stone-200 pb-3"
+              className="flex items-center border-b border-stone-200 pb-3 w-full"
             >
               <input
                 type="email"
@@ -126,13 +124,14 @@ const Footer = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={status === "sent" ? "THANK YOU" : "YOUR EMAIL"}
                 disabled={status !== "idle"}
-                className="w-full bg-transparent outline-none text-[11px] tracking-[0.2em]"
+                /* Adjusted tracking and font size for mobile fit */
+                className="w-full bg-transparent outline-none text-[10px] sm:text-[11px] tracking-[0.1em] sm:tracking-[0.2em] uppercase"
               />
 
-              <button type="submit" disabled={status !== "idle"}>
+              <button type="submit" disabled={status !== "idle"} className="ml-2">
                 {status === "sent" ? (
                   <span className="text-green-600 text-[10px] font-bold tracking-widest flex items-center gap-1">
-                    SENT <Check size={14} />
+                    <Check size={14} />
                   </span>
                 ) : status === "sending" ? (
                   <div className="animate-pulse text-stone-400">...</div>
@@ -147,20 +146,15 @@ const Footer = () => {
         {/* ================= MAIN GRID ================= */}
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-14 mb-28">
-
-          {/* COLLECTIONS */}
-
           <FooterGroup
             title="Collections"
             links={[
               { n: "Pots & Planters", h: "/categories/pots-and-planters" },
               { n: "Furniture", h: "/categories/furniture" },
               { n: "Kitchen Accessories", h: "/categories/kitchen-accessories" },
-              { n: "Lighting & Candle Holders", h: "/categories/lighting-candles" },
+              { n: "Lighting & Candles", h: "/categories/lighting-candles" },
             ]}
           />
-
-          {/* BUSINESS */}
 
           <FooterGroup
             title="Business"
@@ -171,13 +165,10 @@ const Footer = () => {
             ]}
           />
 
-          {/* COMPANY */}
-
           <div>
             <h4 className="text-[10px] uppercase tracking-[0.4em] mb-10 font-black">
               Company
             </h4>
-
             <ul className="space-y-5">
               <li>
                 <a
@@ -188,7 +179,6 @@ const Footer = () => {
                   Company Profile
                 </a>
               </li>
-
               <li>
                 <Link
                   href="/contact"
@@ -200,13 +190,10 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* CONNECT */}
-
           <div>
             <h4 className="text-[10px] uppercase tracking-[0.4em] mb-10 font-black">
               Connect
             </h4>
-
             <div className="flex gap-6 mb-8">
               <SocialBtn
                 icon={<Instagram size={18} />}
@@ -219,21 +206,18 @@ const Footer = () => {
                 label="LinkedIn"
               />
             </div>
-
-            <div className="space-y-4 text-sm text-stone-500">
+            <div className="space-y-2 text-sm text-stone-500 break-words">
               <div className="flex items-start gap-2">
-                <Mail size={14} />
-                abhinav.purivaindustries@gmail.com
+                <Mail size={14} className="mt-1 flex-shrink-0" />
+                <span className="break-all">abhinav.purivaindustries@gmail.com</span>
               </div>
-
-              <div className="flex items-start gap-2">
-                <Phone size={14} />
-                +91 8340220161
+              <div className="flex items-center gap-2">
+                <Phone size={14} className="flex-shrink-0" />
+                <span>+91 8340220161</span>
               </div>
-
               <div className="flex items-start gap-2">
-                <MapPin size={14} />
-                8th Floor 8125, Gaur City Mall Office Space, Greater Noida (201318) UP, INDIA
+                <MapPin size={14} className="mt-1 flex-shrink-0" />
+                <span>8th Floor 8125, Gaur City Mall, Greater Noida (201318) India</span>
               </div>
             </div>
           </div>
@@ -242,13 +226,12 @@ const Footer = () => {
         {/* ================= BOTTOM ================= */}
 
         <div className="pt-12 border-t text-[10px] text-stone-400 flex flex-col md:flex-row justify-between items-center gap-6">
-
           <p>
             © {currentYear} Aurindel Studio. Crafted with{" "}
             <Heart size={12} className="inline mb-1" /> in India.
           </p>
 
-          <div className="flex gap-8 uppercase tracking-[0.3em] text-[9px]">
+          <div className="flex gap-4 sm:gap-8 uppercase tracking-[0.3em] text-[9px]">
             <span>Handcrafted</span>
             <span>Export Quality</span>
             <span>Artisan Made</span>
