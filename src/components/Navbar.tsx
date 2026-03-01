@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
+import Link from "next/link"; // FIXED: Correct import for navigation
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -92,7 +92,6 @@ export default function Navbar() {
     { title: "Figurines & Sculptures", slug: "figurines-sculptures" }
   ];
 
-  // Helper to handle navigation with filters
   const handleNav = (slug: string, type?: string) => {
     setMenuOpen(false);
     const query = type ? `?type=${encodeURIComponent(type)}` : "";
@@ -101,21 +100,35 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className={`top-0 left-0 w-full z-[100] transition-all duration-500 ${
-        scrolled 
-          ? "fixed bg-white/95 backdrop-blur-xl shadow-sm border-b border-stone-100 py-3" 
-          : "sticky lg:absolute bg-[#FBFBFA] lg:bg-transparent py-4 md:py-8" 
-      }`}>
-        <div className="max-w-[1800px] mx-auto px-6 md:px-12 flex items-center justify-between">
+      <nav
+        className={`top-0 left-0 w-full z-[100] transition-all duration-500 flex items-center ${
+          scrolled
+            ? "fixed bg-white/95 backdrop-blur-xl shadow-sm border-b border-stone-100 h-[80px]"
+            : "sticky lg:absolute bg-[#FBFBFA] lg:bg-transparent h-[110px]"
+        }`}
+      >
+        <div className="max-w-[1800px] w-full mx-auto px-6 md:px-12 flex items-center justify-between">
           
-          <Link href="/" className="flex-shrink-0 z-[110]">
-            <div className={`relative transition-all duration-500 ${scrolled ? "h-8 w-28 md:h-10 md:w-36" : "h-10 w-32 md:h-20 md:w-52"}`}>
-              <Image src="/images/AurindelLogo.png" alt="Aurindel" fill priority unoptimized className="object-contain object-left" />
+          {/* LEFT: LOGO */}
+          <Link href="/" className="flex-shrink-0 z-[110] lg:min-w-[250px]">
+            <div className={`relative transition-all duration-500 ${
+                scrolled 
+                ? "h-12 w-36 md:h-14 md:w-48" 
+                : "h-14 w-44 md:h-24 md:w-64"
+              }`}>
+              <Image 
+                src="/images/AurindelLogo.png" 
+                alt="Aurindel" 
+                fill 
+                priority 
+                unoptimized 
+                className="object-contain object-left" 
+              />
             </div>
           </Link>
 
-          {/* DESKTOP NAV */}
-          <div className={`hidden lg:flex items-center gap-10 text-[10px] uppercase tracking-[0.4em] font-bold transition-colors duration-500 ${scrolled ? "text-stone-500" : "text-black"}`}>
+          {/* CENTER: DESKTOP NAV LINKS */}
+          <div className={`hidden lg:flex flex-1 justify-center items-center gap-10 text-[10px] uppercase tracking-[0.4em] font-bold transition-colors duration-500 ${scrolled ? "text-stone-500" : "text-black"}`}>
             <NavLink href="/" label="Home" />
             <div className="relative group/nav">
               <button className="flex items-center gap-2 hover:opacity-100 opacity-80 transition-all py-4">
@@ -123,12 +136,11 @@ export default function Navbar() {
               </button>
               <div className="absolute top-full left-1/2 -translate-x-1/2 w-[90vw] max-w-[1200px] bg-white border border-stone-100 shadow-2xl rounded-3xl p-10 grid grid-cols-4 gap-x-8 gap-y-12 opacity-0 invisible group-hover/nav:opacity-100 group-hover/nav:visible transition-all duration-300 transform group-hover/nav:translate-y-2">
                 {collectionsData.map((cat, idx) => (
-                  <div key={idx} className="flex flex-col space-y-4">
+                  <div key={idx} className="flex flex-col space-y-4 text-left">
                     <Link href={`/categories/${cat.slug}`} className="block">
                       <h4 className="text-black border-b border-stone-100 pb-2 text-[11px] font-black tracking-widest hover:text-stone-500 transition-colors uppercase">{cat.title}</h4>
                     </Link>
                     <div className="flex flex-col space-y-2 text-stone-400 font-sans text-[13px] font-light">
-                      {/* FIXED: Sub-item links with professional search params */}
                       {cat.items?.map(item => (
                         <Link 
                           key={item} 
@@ -169,7 +181,8 @@ export default function Navbar() {
             <NavLink href="/archives" label="Archives" />
           </div>
 
-          <div className="flex items-center gap-2 md:gap-7 z-[110] text-black">
+          {/* RIGHT: ICONS */}
+          <div className="flex items-center justify-end gap-2 md:gap-7 z-[110] text-black lg:min-w-[250px]">
             <button onClick={() => setSearchOpen(true)} className="p-2 hover:bg-stone-200/20 rounded-full">
               <Search size={19} strokeWidth={1.5} />
             </button>
@@ -187,9 +200,9 @@ export default function Navbar() {
                 {isLoggedIn && <span className="hidden lg:block text-[9px] uppercase tracking-widest font-bold">{user?.name?.split(' ')[0]}</span>}
               </Link>
               
-              <div className="hidden lg:block absolute right-0 mt-4 w-60 bg-white border border-stone-100 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 rounded-2xl p-2">
+              <div className="hidden lg:block absolute right-0 mt-4 w-60 bg-white border border-stone-100 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 rounded-2xl p-2 text-left">
                 {!isLoggedIn ? (
-                  <div className="p-5 flex flex-col gap-4">
+                  <div className="p-5 flex flex-col gap-4 text-center">
                     <p className="text-[9px] uppercase tracking-[0.2em] text-stone-400 font-bold">Member Access</p>
                     <Link href="/login" className="bg-black text-white text-center py-3 rounded-xl text-[10px] uppercase tracking-widest font-bold hover:opacity-90">Sign In</Link>
                     <Link href="/register" className="text-center text-[10px] uppercase tracking-widest font-bold text-stone-600 hover:text-black">Join Aurindel</Link>
@@ -203,7 +216,7 @@ export default function Navbar() {
                     <ProfileItem icon={<Package size={14}/>} label="Orders" href="/account/orders" />
                     <ProfileItem icon={<Heart size={14}/>} label="Wishlist" href="/wishlist" />
                     <ProfileItem icon={<Settings size={14}/>} label="Settings" href="/account/settings" />
-                    <button onClick={logout} className="flex items-center gap-3 w-full p-3 text-red-500 hover:bg-red-50 rounded-lg text-[10px] uppercase font-bold mt-1 border-t border-stone-50"><LogOut size={14} /> Logout</button>
+                    <button onClick={logout} className="flex items-center gap-3 w-full p-3 text-red-500 hover:bg-red-50 rounded-lg text-[10px] uppercase font-bold mt-1 border-t border-stone-50 text-left"><LogOut size={14} /> Logout</button>
                   </div>
                 )}
               </div>
@@ -259,7 +272,7 @@ export default function Navbar() {
                               <div className="relative aspect-[4/5] bg-stone-100 rounded-2xl overflow-hidden shadow-sm">
                                 <Image src={product.images[0]} alt={product.name} fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
                               </div>
-                              <div className="space-y-1">
+                              <div className="space-y-1 text-left">
                                 <p className="text-[9px] uppercase tracking-widest text-stone-400 font-bold">
                                   {product.subCategory || product.category}
                                 </p>
@@ -275,7 +288,7 @@ export default function Navbar() {
                     </motion.div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
-                      <div className="space-y-8">
+                      <div className="space-y-8 text-left">
                         <h5 className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-stone-400 border-b border-stone-100 pb-2"><TrendingUp size={12}/> Trending Now</h5>
                         <div className="flex flex-wrap gap-2">
                           {["Metal Vases", "Bird Baths", "Dining Tables", "Mirrors"].map(tag => (
@@ -283,10 +296,9 @@ export default function Navbar() {
                           ))}
                         </div>
                       </div>
-                      <div className="space-y-8">
+                      <div className="space-y-8 text-left">
                         <h5 className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-stone-400 border-b border-stone-100 pb-2"><Clock size={12}/> Quick Links</h5>
                         <div className="grid grid-cols-2 gap-4">
-                          <Link href="/account/orders" onClick={() => setSearchOpen(false)} className="p-4 bg-stone-50 rounded-xl hover:bg-stone-100 transition-all flex items-center gap-3 text-[9px] uppercase font-bold tracking-widest"><Package size={14}/> Track Order</Link>
                           <Link href="/wishlist" onClick={() => setSearchOpen(false)} className="p-4 bg-stone-50 rounded-xl hover:bg-stone-100 transition-all flex items-center gap-3 text-[9px] uppercase font-bold tracking-widest"><Heart size={14}/> Wishlist</Link>
                         </div>
                       </div>
@@ -314,17 +326,13 @@ export default function Navbar() {
                   <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-stone-100">
                     <div className="flex items-center gap-4 mb-6">
                       <div className="w-12 h-12 bg-stone-100 rounded-full flex items-center justify-center text-stone-400"><User size={24}/></div>
-                      <div>
+                      <div className="text-left">
                         <p className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">Welcome back,</p>
                         <p className="text-lg font-serif italic text-black">{user?.name}</p>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                        {/* <Link href="/account/orders" onClick={() => setMenuOpen(false)} className="flex flex-col gap-2 p-4 bg-stone-50 rounded-2xl">
-                          <Package size={18} className="text-stone-400"/>
-                          <span className="text-[9px] uppercase font-bold tracking-widest">Orders</span>
-                        </Link> */}
-                        <Link href="/wishlist" onClick={() => setMenuOpen(false)} className="flex flex-col gap-2 p-4 bg-stone-50 rounded-2xl">
+                        <Link href="/wishlist" onClick={() => setMenuOpen(false)} className="flex flex-col gap-2 p-4 bg-stone-50 rounded-2xl text-left">
                           <Heart size={18} className="text-stone-400"/>
                           <span className="text-[9px] uppercase font-bold tracking-widest">Wishlist</span>
                         </Link>
@@ -342,14 +350,13 @@ export default function Navbar() {
               </div>
 
               <div className="px-6 pb-6">
-                <div className="bg-stone-100/50 rounded-3xl p-6 grid grid-cols-2 gap-4">
+                <div className="bg-stone-100/50 rounded-3xl p-6">
                   <Link href="/" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 text-[13px] font-bold uppercase tracking-widest"><Home size={16}/> Home</Link>
-                  {/* <Link href="/account/orders" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest"><Package size={16}/> Track Order</Link> */}
                 </div>
               </div>
 
               <div className="px-6 space-y-4 pb-12">
-                <p className="text-[9px] uppercase tracking-[0.4em] text-stone-400 font-bold ml-2 mb-4"> COLLECTIONS</p>
+                <p className="text-[9px] uppercase tracking-[0.4em] text-stone-400 font-bold ml-2 mb-4 text-left"> COLLECTIONS</p>
                 {collectionsData.map((cat, idx) => (
                   <div key={idx} className="bg-white rounded-2xl border border-stone-50 overflow-hidden">
                     <button 
@@ -364,24 +371,14 @@ export default function Navbar() {
                     <AnimatePresence>
                       {activeMobileSub === cat.title && (
                         <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden bg-stone-50/50">
-                          <div className="flex flex-col gap-4 p-6 text-stone-500 text-[11px] uppercase tracking-widest font-medium">
-                            <button 
-                              onClick={() => handleNav(cat.slug)} 
-                              className="text-left font-bold text-black border-b border-stone-100 pb-2"
-                            >
-                              View All {cat.title}
-                            </button>
+                          <div className="flex flex-col gap-4 p-6 text-stone-500 text-[11px] uppercase tracking-widest font-medium text-left">
+                            <button onClick={() => handleNav(cat.slug)} className="text-left font-bold text-black border-b border-stone-100 pb-2 uppercase">View All {cat.title}</button>
                             {cat.items?.map(i => (
                               <button key={i} onClick={() => handleNav(cat.slug, i)} className="text-left hover:text-black transition-colors">{i}</button>
                             ))}
                             {cat.subItems?.map(sub => (
                               <div key={sub.name} className="space-y-3">
-                                <button 
-                                  onClick={() => handleNav(cat.slug, sub.name)} 
-                                  className="text-left text-black font-black text-[10px] pt-2 border-t border-stone-100 w-full"
-                                >
-                                  {sub.name}
-                                </button>
+                                <button onClick={() => handleNav(cat.slug, sub.name)} className="text-left text-black font-black text-[10px] pt-2 border-t border-stone-100 w-full uppercase">{sub.name}</button>
                                 {sub.types?.map(t => (
                                   <button key={t} onClick={() => handleNav(cat.slug, t)} className="block pl-2 text-left hover:text-black transition-colors">{t}</button>
                                 ))}
@@ -394,7 +391,7 @@ export default function Navbar() {
                   </div>
                 ))}
                 
-                <div className="pt-8 space-y-4 border-t border-stone-100">
+                <div className="pt-8 space-y-4 border-t border-stone-100 text-left">
                   <MobileLink href="/about" label="About Us" onClick={() => setMenuOpen(false)} />
                   <MobileLink href="/contact" label="Contact Us" onClick={() => setMenuOpen(false)} />
                   <MobileLink href="/archives" label="Blogs" onClick={() => setMenuOpen(false)} />
@@ -408,10 +405,9 @@ export default function Navbar() {
   );
 }
 
-/* Helpers */
 function NavLink({ href, label }: { href: string, label: string }) {
   return (
-    <Link href={href} className="transition-all relative group opacity-80 hover:opacity-100">
+    <Link href={href} className="transition-all relative group opacity-80 hover:opacity-100 whitespace-nowrap">
       {label}
       <span className="absolute -bottom-1 left-0 w-0 h-px bg-black transition-all group-hover:w-full" />
     </Link>
@@ -420,7 +416,7 @@ function NavLink({ href, label }: { href: string, label: string }) {
 
 function ProfileItem({ icon, label, href }: { icon: React.ReactNode, label: string, href: string }) {
   return (
-    <Link href={href} className="flex items-center gap-3 p-3 hover:bg-stone-50 rounded-lg transition-all text-[10px] uppercase font-bold text-stone-600 hover:text-black">
+    <Link href={href} className="flex items-center gap-3 p-3 hover:bg-stone-50 rounded-lg transition-all text-[10px] uppercase font-bold text-stone-600 hover:text-black text-left">
       {icon} {label}
     </Link>
   );

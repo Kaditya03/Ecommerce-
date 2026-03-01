@@ -36,7 +36,7 @@ const Categories = () => {
     { 
       name: "Kitchen Accessories", 
       slug: "kitchen-accessories", 
-      img: "/images/categories/kitchen-accessories.avif" 
+      img: "/images/categories/kitchen accessories.png" 
     },
     { 
       name: "Garden Accessories", 
@@ -51,12 +51,12 @@ const Categories = () => {
     { 
       name: "Lighting & Candles", 
       slug: "lighting-candles", 
-      img: "/images/categories/lighting-candles.avif" 
+      img: "/images/categories/Candle Holder.png" 
     },
     { 
       name: "Sculptures", 
       slug: "figurines-sculptures", 
-      img: "/images/categories/sclupures.jpg" 
+      img: "/images/categories/figurines & Sculptures.png" 
     },
   ];
 
