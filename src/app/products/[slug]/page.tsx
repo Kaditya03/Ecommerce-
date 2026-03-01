@@ -10,7 +10,7 @@ export async function generateMetadata({
 }) {
   const { slug } = await params;
 
-  // ✅ headers() IS ASYNC
+ 
   const h = await headers();
   const host = h.get("host");
 

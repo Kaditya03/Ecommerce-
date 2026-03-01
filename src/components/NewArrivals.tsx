@@ -118,14 +118,7 @@ const NewArrivals = () => {
             New <span className="italic text-gray-400">Arrivals</span>
           </h2>
 
-          <div className="mt-14">
-            <Link href="/new-arrivals" className="group flex flex-col items-center gap-4 text-[10px] font-black uppercase tracking-[0.4em]">
-              <span>View Full Gallery</span>
-              <span className="flex h-12 w-12 items-center justify-center rounded-full border">
-                <ArrowRight size={18} />
-              </span>
-            </Link>
-          </div>
+          
         </div>
 
         {/* GRID */}

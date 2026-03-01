@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -34,19 +34,53 @@ import {
 
 import Navbar from "@/components/Navbar"; 
 
+const STORY_BEATS = [
+  {
+    id: 1,
+    image: "https://blog.ipleaders.in/wp-content/uploads/2017/05/iPleaders-12.jpg",
+  },
+  {
+    id: 2,
+    image: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2070&auto=format&fit=crop",
+  },
+  {
+    id: 3,
+    image: "https://tetrainspection.com/product-quality/",
+  },
+  {
+    id: 4,
+    image: "https://etimg.etb2bimg.com/photo/118316548.cms",
+  },
+];
+
 export default function AboutPage() {
   const { scrollY } = useScroll();
   const [isMuted, setIsMuted] = useState(true);
-  const [volume, setVolume] = useState(1); // Track volume level
+  const [volume, setVolume] = useState(1);
   const [isPlaying, setIsPlaying] = useState(false); 
-  const [isCopied, setIsCopied] = useState(false); 
-  const [showMoreMenu, setShowMoreMenu] = useState(false);
-  const [showShareMenu, setShowShareMenu] = useState(false);
   const [videoProgress, setVideoProgress] = useState(0);
+  const [activeStep, setActiveStep] = useState(0);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [copied, setCopied] = useState(false);
   
   const containerRef = useRef(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
+
+  const [mouseX, setMouseX] = useState(50);
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const { left, width } = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    setMouseX(x);
+  };
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveStep((prev) => (prev + 1) % STORY_BEATS.length);
+    }, 5000); 
+    return () => clearInterval(timer);
+  }, []);
 
   const handlePlayToggle = () => {
     if (videoRef.current) {
@@ -71,27 +105,12 @@ export default function AboutPage() {
     }
   };
 
-  // VOLUME HANDLER
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVolume = parseFloat(e.target.value);
-    setVolume(newVolume);
-    if (videoRef.current) {
-      videoRef.current.volume = newVolume;
-      videoRef.current.muted = newVolume === 0;
-      setIsMuted(newVolume === 0);
-    }
-  };
-
   const toggleMute = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (videoRef.current) {
       const newMuteState = !isMuted;
       videoRef.current.muted = newMuteState;
       setIsMuted(newMuteState);
-      if (!newMuteState && volume === 0) {
-        setVolume(0.5);
-        videoRef.current.volume = 0.5;
-      }
     }
   };
 
@@ -137,81 +156,76 @@ export default function AboutPage() {
     setShowMoreMenu(false);
   };
 
-  const PRODUCTION_URL = "https://www.aurindel.com/about";
-
-  const getCleanUrl = () => {
-    if (typeof window !== "undefined") {
-      return window.location.hostname === "localhost"
-        ? PRODUCTION_URL
-        : window.location.href.split("#")[0];
-    }
-    return PRODUCTION_URL;
-  };
-
-  const copyLink = () => {
-    navigator.clipboard.writeText(getCleanUrl());
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
-  };
-
-  const shareOnPlatform = (platform: string) => {
-    const url = encodeURIComponent(getCleanUrl());
-    const text = encodeURIComponent("Check out the artistry of Aurindel by Puriva Industries.");
-    let shareUrl = "";
-    if (platform === "whatsapp") shareUrl = `https://wa.me/?text=${text}%20${url}`;
-    if (platform === "linkedin") shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
-    if (platform === "twitter") shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${text}`;
-    window.open(shareUrl, "_blank", "width=600,height=400");
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end end"] });
-  const heroScale = useTransform(scrollYProgress, [0, 0.2], [1, 1.15]);
+  const heroScale = useTransform(scrollYProgress, [0, 0.2], [1, 1.1]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
   const textY = useTransform(scrollYProgress, [0, 0.2], [0, 100]);
 
   return (
-    <main ref={containerRef} className="bg-[#FBFBF9] text-stone-900 min-h-screen selection:bg-black selection:text-white overflow-x-hidden">
+    <main ref={containerRef} className="relative bg-[#FBFBF9] text-stone-900 min-h-screen selection:bg-black selection:text-white overflow-x-hidden">
       <Navbar />
 
+      {/* BACKGROUND DECORATIVE ANIMATIONS */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <motion.div 
+          animate={{ x: [0, 100, 0], y: [0, 50, 0], scale: [1, 1.2, 1] }} 
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-stone-200/30 rounded-full blur-[120px]" 
+        />
+        <motion.div 
+          animate={{ x: [0, -80, 0], y: [0, 120, 0], scale: [1, 1.1, 1] }} 
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          className="absolute top-[20%] -right-[5%] w-[40%] h-[40%] bg-stone-300/20 rounded-full blur-[100px]" 
+        />
+      </div>
+
       {/* HERO SECTION */}
-      <section className="relative h-[80vh] md:h-screen flex items-center justify-center overflow-hidden">
-        <motion.div style={{ scale: heroScale, opacity: heroOpacity }} className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#FBFBF9]/20 to-[#FBFBF9] z-10" />
-        </motion.div>
-        <motion.div style={{ y: textY }} className="relative z-20 text-center px-4 max-w-5xl">
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-stone-500 uppercase tracking-[0.8em] text-[10px] font-bold mb-6">Puriva Industries Pvt. Ltd. Presents</motion.p>
-          <h1 className="text-5xl md:text-[10rem] font-serif italic leading-none tracking-tighter mb-8 text-stone-900">Aurindel</h1>
+      <section onMouseMove={handleMouseMove} className="relative z-10 h-[80vh] md:h-screen flex items-center justify-center overflow-hidden bg-[#FBFBF9]">
+        <div className="absolute inset-0 z-0">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={STORY_BEATS[activeStep].id}
+              initial={{ opacity: 1, scale: 1.05 }}
+              animate={{ opacity: 2, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 1, ease: "easeInOut" }}
+              className="absolute inset-0"
+            >
+              <Image src={STORY_BEATS[activeStep].image} alt="Aurindel Process" fill className="object-cover opacity-20 grayscale-[0.4] blur-[15px]" priority />
+              <div className="absolute inset-0 hidden md:block transition-all duration-300 ease-out" style={{ backgroundImage: `url(${STORY_BEATS[activeStep].image})`, backgroundSize: 'cover', backgroundPosition: 'center', maskImage: `linear-gradient(to right, transparent ${mouseX - 15}%, black ${mouseX}%, transparent ${mouseX + 15}%)`, WebkitMaskImage: `linear-gradient(to right, transparent ${mouseX - 15}%, black ${mouseX}%, transparent ${mouseX + 15}%)`, opacity: 0.5 }} />
+            </motion.div>
+          </AnimatePresence>
+          <div className="absolute inset-0 bg-gradient-to-b from-[#FBFBF9] via-transparent to-[#FBFBF9] pointer-events-none" />
+        </div>
+
+        <motion.div style={{ scale: heroScale, opacity: heroOpacity, y: textY }} className="relative z-20 text-center px-4 max-w-5xl">
+          <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-stone-500 uppercase tracking-[0.8em] text-[10px] font-bold mb-6">Puriva Industries Pvt. Ltd. Presents</motion.p>
+          <h1 className="text-5xl md:text-[10rem] font-serif italic leading-none tracking-tighter mb-8 text-stone-900 drop-shadow-sm">Aurindel</h1>
           <p className="text-stone-600 text-sm md:text-lg uppercase tracking-[0.4em] font-light max-w-3xl mx-auto leading-relaxed">Connecting Indian Craftsmanship to the World</p>
-          <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 1, duration: 1.5 }} className="mt-12 w-24 h-px bg-black/20 mx-auto" />
+          <div className="flex justify-center gap-3 mt-12">
+            {STORY_BEATS.map((_, i) => (
+              <div key={i} className="w-12 h-[2px] bg-stone-200 overflow-hidden relative rounded-full">
+                {i === activeStep && <motion.div initial={{ x: "-100%" }} animate={{ x: "0%" }} transition={{ duration: 5, ease: "linear" }} className="absolute inset-0 bg-stone-900" />}
+              </div>
+            ))}
+          </div>
         </motion.div>
       </section>
 
-
-{/* VIDEO MESSAGE SECTION */}
-      <section id="founder-video" className="py-20 md:py-40 px-4 md:px-8">
+      {/* VIDEO MESSAGE SECTION */}
+      <section id="founder-video" className="relative z-10 py-20 md:py-40 px-4 md:px-8">
         <div className="max-w-[1400px] mx-auto">
           <div className="relative group">
-            <motion.div 
-              initial={{ rotateX: 10, y: 30, opacity: 0 }}
-              whileInView={{ rotateX: 0, y: 0, opacity: 1 }}
-              transition={{ duration: 1.2 }}
-              className="relative aspect-video w-full rounded-[1.5rem] md:rounded-[4rem] overflow-hidden border border-black/5 shadow-2xl bg-black flex items-center justify-center"
-            >
-              <video 
-                ref={videoRef}
-                src="https://res.cloudinary.com/dcgmsnhro/video/upload/v1770226463/video-founder_rg01pp.mp4" 
-                muted={isMuted} 
-                loop 
-                playsInline 
-                onTimeUpdate={handleTimeUpdate}
-                className={`w-full h-full transition-all duration-[2s] ${isPlaying ? 'opacity-100' : 'opacity-80 group-hover:scale-105'} object-contain md:object-cover`}
-              />
+            <motion.div initial={{ rotateX: 10, y: 30, opacity: 0 }} whileInView={{ rotateX: 0, y: 0, opacity: 1 }} transition={{ duration: 1.2 }} className="relative aspect-video w-full rounded-[1.5rem] md:rounded-[4rem] overflow-hidden border border-black/5 shadow-2xl bg-black flex items-center justify-center">
+              <video ref={videoRef} src="https://res.cloudinary.com/dcgmsnhro/video/upload/v1770226463/video-founder_rg01pp.mp4" muted={isMuted} loop playsInline onTimeUpdate={handleTimeUpdate} className={`w-full h-full transition-all duration-[2s] ${isPlaying ? 'opacity-100' : 'opacity-80 group-hover:scale-105'} object-contain md:object-cover`} />
               
-              <div 
-                ref={progressRef}
-                onClick={handleSeek}
-                className="absolute bottom-0 left-0 w-full h-2 md:h-3 bg-white/10 z-50 cursor-pointer group/progress transition-all hover:h-4"
-              >
+              <div ref={progressRef} onClick={handleSeek} className="absolute bottom-0 left-0 w-full h-2 md:h-3 bg-white/10 z-50 cursor-pointer group/progress transition-all hover:h-4">
                 <motion.div className="h-full bg-stone-400 origin-left relative shadow-[0_0_15px_rgba(255,255,255,0.3)]" style={{ width: `${videoProgress}%` }}>
                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 md:w-4 md:h-4 bg-white rounded-full opacity-0 group-hover/progress:opacity-100 transition-opacity shadow-lg border-2 border-stone-400" />
                 </motion.div>
@@ -229,71 +243,42 @@ export default function AboutPage() {
                 </div>
               )}
 
-              {/* OVERLAY CONTROLS - RE-ADDED VOLUME SLIDER LOGIC */}
-              <div className="absolute bottom-6 right-4 md:bottom-10 md:right-10 z-30 flex items-center gap-1.5 md:gap-4 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-500">
-                
-                {/* DYNAMIC VOLUME SLIDER CONTAINER */}
-                <div className="flex items-center group/volume bg-black/40 backdrop-blur-md border border-white/10 rounded-full px-2">
-                  <button onClick={toggleMute} className="p-2 md:p-4 text-white">
-                    {isMuted ? <VolumeX size={14} className="md:w-[18px]" /> : <Volume2 size={14} className="md:w-[18px]" />}
-                  </button>
-                  <input 
-                    type="range" min="0" max="1" step="0.05"
-                    value={isMuted ? 0 : volume}
-                    onChange={handleVolumeChange}
-                    // Animated width: shows on hover for all screens
-                    className="w-0 group-hover/volume:w-16 md:group-hover/volume:w-24 transition-all duration-300 h-1 accent-white cursor-pointer bg-white/20 rounded-full appearance-none overflow-hidden"
-                  />
-                </div>
-
+              <div className="absolute bottom-6 right-4 md:bottom-10 md:right-10 z-30 flex items-center gap-4">
+                <button onClick={toggleMute} className="p-4 bg-black/40 backdrop-blur-md border border-white/10 rounded-full text-white">
+                  {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                </button>
                 {isPlaying && (
-                  <button onClick={(e) => { e.stopPropagation(); handlePlayToggle(); }} className="p-2 md:p-4 bg-black/40 backdrop-blur-md border border-white/10 rounded-full text-white">
-                    <Pause size={14} className="md:w-[18px]" />
+                  <button onClick={(e) => { e.stopPropagation(); handlePlayToggle(); }} className="p-4 bg-black/40 backdrop-blur-md border border-white/10 rounded-full text-white">
+                    <Pause size={18} />
                   </button>
                 )}
-                
-                <button onClick={(e) => { e.stopPropagation(); setShowMoreMenu(true); }} className="p-2 md:p-4 bg-black/40 backdrop-blur-md border border-white/10 rounded-full text-white">
-                  <MoreVertical size={14} className="md:w-[18px]" />
+                <button onClick={(e) => { e.stopPropagation(); setShowMoreMenu(true); }} className="p-4 bg-black/40 backdrop-blur-md border border-white/10 rounded-full text-white">
+                  <MoreVertical size={18} />
                 </button>
               </div>
 
-              {/* MORE MENU OVERLAY */}
+              {/* VIDEO SETTINGS MENU */}
               <AnimatePresence>
                 {showMoreMenu && (
-                  <motion.div 
-                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-md flex items-end md:items-center justify-center p-0 md:p-6"
-                    onClick={() => setShowMoreMenu(false)}
-                  >
-                    <motion.div 
-                      initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
-                      transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                      className="bg-white w-full md:max-w-sm rounded-t-[2.5rem] md:rounded-[2.5rem] p-6 md:p-8 space-y-6 relative shadow-2xl max-h-[80vh] overflow-y-auto custom-scrollbar"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div className="w-12 h-1.5 bg-stone-200 rounded-full mx-auto md:hidden mb-4" />
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-md flex items-end md:items-center justify-center p-0 md:p-6" onClick={() => setShowMoreMenu(false)}>
+                    <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }} className="bg-white w-full md:max-w-sm rounded-t-[2.5rem] md:rounded-[2.5rem] p-6 md:p-8 space-y-6 relative shadow-2xl max-h-[80vh] overflow-y-auto custom-scrollbar" onClick={(e) => e.stopPropagation()}>
                       <button onClick={() => setShowMoreMenu(false)} className="absolute top-6 right-6 text-stone-400 hover:text-black"><CloseIcon size={20} /></button>
-                      
-                      <div className="text-center md:text-left space-y-2">
-                        <p className="text-[10px] uppercase tracking-[0.4em] text-stone-400 font-bold">Options</p>
-                        <h4 className="text-2xl font-serif italic">Video Settings</h4>
-                      </div>
-
+                      <div className="text-center md:text-left space-y-2"><p className="text-[10px] uppercase tracking-[0.4em] text-stone-400 font-bold">Options</p><h4 className="text-2xl font-serif italic">Video Settings</h4></div>
                       <div className="space-y-2">
                         <MenuButton icon={<Download size={16} />} label="Download Message" onClick={handleDownload} />
                         <MenuButton icon={<MonitorPlay size={16} />} label="Picture-in-Picture" onClick={togglePiP} />
                         <MenuButton icon={<Maximize size={16} />} label="Full-Screen" onClick={toggleFullScreen} />
                         <div className="h-px bg-stone-100 my-4" />
-                        <div className="px-3 py-2 text-[10px] uppercase tracking-widest text-stone-400 font-bold flex items-center gap-2"><Gauge size={12}/> Playback Speed</div>
-                        <div className="flex justify-between px-2 py-2">
-                          {[0.5, 1, 1.5, 2].map(s => (
-                            <button key={s} onClick={() => changeSpeed(s)} className="text-sm hover:text-black font-bold p-2 px-4 rounded-xl hover:bg-stone-50 border border-stone-100">{s}x</button>
-                          ))}
-                        </div>
-                        <div className="h-px bg-stone-100 my-4" />
-                        <button onClick={() => { setShowShareMenu(true); setShowMoreMenu(false); }} className="w-full flex items-center justify-between px-6 py-4 bg-black text-white rounded-2xl group transition-all">
-                          <span className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest"><Share2 size={16} /> Share Video</span>
-                          <ArrowRight size={14} />
+                        <div className="flex justify-between px-2 py-2 mb-4">{[0.5, 1, 1.5, 2].map(s => (<button key={s} onClick={() => changeSpeed(s)} className="text-sm hover:text-black font-bold p-2 px-4 rounded-xl hover:bg-stone-50 border border-stone-100">{s}x</button>))}</div>
+                        
+                        {/* SHARE VIDEO BUTTON AS REQUESTED */}
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setShowMoreMenu(false); setShowShareModal(true); }}
+                          className="w-full bg-black text-white rounded-2xl py-4 flex items-center justify-center gap-3 group transition-transform active:scale-95"
+                        >
+                          <Share2 size={18} className="group-hover:rotate-12 transition-transform" />
+                          <span className="text-[11px] font-bold uppercase tracking-[0.3em]">Share Video</span>
+                          <ArrowRight size={14} className="opacity-50 group-hover:translate-x-1 transition-transform" />
                         </button>
                       </div>
                     </motion.div>
@@ -301,23 +286,28 @@ export default function AboutPage() {
                 )}
               </AnimatePresence>
 
-              {/* SHARE MENU OVERLAY */}
+              {/* SHARE VISION MODAL (FROM SCREENSHOT) */}
               <AnimatePresence>
-                {showShareMenu && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-md flex items-end md:items-center justify-center p-0 md:p-6" onClick={() => setShowShareMenu(false)}>
-                    <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} className="bg-[#FBFBF9] w-full md:max-w-sm rounded-t-[2.5rem] md:rounded-[2rem] p-8 space-y-8 relative shadow-2xl text-center" onClick={(e) => e.stopPropagation()}>
-                      <button onClick={() => setShowShareMenu(false)} className="absolute top-6 right-6 text-stone-400 hover:text-black"><CloseIcon size={20} /></button>
-                      <h4 className="text-2xl font-serif italic text-stone-900">Share Vision</h4>
-                      <div className="grid grid-cols-3 gap-3">
-                        <ShareOption icon={<MessageCircle size={18} />} label="WhatsApp" onClick={() => shareOnPlatform("whatsapp")} />
-                        <ShareOption icon={<Linkedin size={18} />} label="LinkedIn" onClick={() => shareOnPlatform("linkedin")} />
-                        <ShareOption icon={<Twitter size={18} />} label="X" onClick={() => shareOnPlatform("twitter")} />
+                {showShareModal && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-md flex items-center justify-center p-6" onClick={() => setShowShareModal(false)}>
+                    <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-white w-full max-w-sm rounded-[2.5rem] p-10 relative shadow-2xl text-center" onClick={(e) => e.stopPropagation()}>
+                      <button onClick={() => setShowShareModal(false)} className="absolute top-6 right-6 text-stone-300 hover:text-black"><CloseIcon size={20} /></button>
+                      
+                      <h4 className="text-3xl font-serif italic mb-10">Share Vision</h4>
+                      
+                      <div className="flex justify-center gap-8 mb-10">
+                        <ShareOption icon={<MessageCircle size={24} />} label="Whatsapp" />
+                        <ShareOption icon={<Linkedin size={24} />} label="Linkedin" />
+                        <ShareOption icon={<Twitter size={24} />} label="X" />
                       </div>
-                      <div className="pt-4 border-t border-stone-100">
-                        <button onClick={copyLink} className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-stone-900 text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-black transition-all">
-                          {isCopied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />} {isCopied ? "Link Copied" : "Copy Page Link"}
-                        </button>
-                      </div>
+
+                      <button 
+                        onClick={handleCopyLink}
+                        className="w-full bg-[#1A1817] text-white rounded-2xl py-4 flex items-center justify-center gap-3 font-bold text-[10px] uppercase tracking-[0.2em]"
+                      >
+                        {copied ? <Check size={16} /> : <Copy size={16} />}
+                        {copied ? "Link Copied" : "Copy Page Link"}
+                      </button>
                     </motion.div>
                   </motion.div>
                 )}
@@ -327,32 +317,26 @@ export default function AboutPage() {
         </div>
       </section>
 
-      
       {/* BRAND SECTION */}
-      <section className="py-20 md:py-32 px-8 flex justify-center bg-[#F5F5F2]">
+      <section className="relative z-10 py-20 md:py-32 px-8 flex justify-center bg-[#F5F5F2]/50 backdrop-blur-sm">
         <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="max-w-4xl text-center space-y-12">
           <div className="space-y-4">
             <span className="text-[10px] uppercase tracking-[0.5em] text-stone-400 font-bold">The Aurindel Narrative</span>
             <h2 className="text-3xl md:text-6xl font-serif leading-tight text-stone-800 italic">Where Golden Heritage Meets Indian Elegance</h2>
           </div>
           <p className="text-lg md:text-xl text-stone-600 font-light leading-relaxed">At Puriva Industries Pvt. Ltd., we believe every handicraft creation tells a story. Rooted in India’s rich legacy of craftsmanship, we bring timeless artistry into the modern world. Aurindel collections blend traditional techniques with contemporary designs, celebrating the beauty of heritage while embracing global elegance.</p>
-          <div className="inline-block p-8 border border-black/5 rounded-2xl bg-black/[0.02]">
-            <p className="text-stone-500 italic font-serif text-lg">"As a dedicated handicraft company for Indian handicraft exports, we connect traditional artisans with global markets, ensuring that our rich heritage reaches homes across the world."</p>
-          </div>
         </motion.div>
       </section>
 
       {/* VISION CARDS */}
-      <section className="max-w-[1400px] mx-auto px-8 py-20 md:py-32 grid grid-cols-1 md:grid-cols-3 gap-8">
+      <section className="relative z-10 max-w-[1400px] mx-auto px-8 py-20 md:py-32 grid grid-cols-1 md:grid-cols-3 gap-8">
           <VisionCard index={0} icon={<Users size={28} />} title="01. Who We Are" desc="We work with skilled artisans across India to curate and export authentic handicrafts that blend heritage and artistry." />
           <VisionCard index={1} icon={<Target size={28} />} title="02. Our Mission" desc="To be a trusted partner for global buyers by offering high-quality handicrafts with competitive pricing and timely delivery." />
           <VisionCard index={2} icon={<Globe size={28} />} title="03. Our Vision" desc="To be a global name in exports, ensuring Indian craftsmanship earns the recognition it deserves worldwide." />
       </section>
 
-      
-
       {/* FOUNDER SECTION */}
-      <section className="py-20 md:py-40 bg-[#F5F5F2] text-stone-900 rounded-[2.5rem] md:rounded-[6rem] mx-2 md:mx-12 overflow-hidden border border-black/5">
+      <section className="relative z-10 py-20 md:py-40 bg-[#F5F5F2]/50 backdrop-blur-sm text-stone-900 rounded-[2.5rem] md:rounded-[6rem] mx-2 md:mx-12 overflow-hidden border border-black/5">
         <div className="max-w-[1200px] mx-auto px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
           <motion.div initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 1 }} viewport={{ once: true }} className="space-y-12">
             <div className="space-y-4">
@@ -374,53 +358,68 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <footer className="bg-stone-900 text-stone-400 pt-32 pb-12 rounded-t-[4rem] md:rounded-t-[6rem]">
-        <div className="max-w-[1400px] mx-auto px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-16 pb-24 border-b border-white/5">
-            <div className="lg:col-span-1 space-y-8">
-              <Link href="/" className="relative block w-[180px] h-[50px]"><Image src="/images/AurindelLogo.png" alt="Aurindel" fill className="object-contain object-left brightness-0 invert" /></Link>
-              <p className="text-sm leading-relaxed max-w-xs">A legacy of Indian craftsmanship, exported with contemporary elegance to the world's most discerning spaces.</p>
-            </div>
+      {/* FOOTER (MATCHING IMAGE_B02760) */}
+      <footer className="relative z-10 bg-[#0D0C0C] text-stone-400 pt-24 pb-12 rounded-t-[4rem] md:rounded-t-[7rem]">
+        <div className="max-w-[1400px] mx-auto px-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 pb-20">
+            {/* Branding Column */}
             <div className="space-y-8">
-              <h4 className="text-white text-[10px] uppercase tracking-[0.4em] font-bold">Navigation</h4>
-              <ul className="space-y-4 text-sm">
-                <li><Link href="/collections" className="hover:text-white transition-colors flex items-center gap-2 group"><ArrowRight size={12} className="opacity-0 group-hover:opacity-100 -ml-4 group-hover:ml-0 transition-all"/> Collections</Link></li>
-                <li><Link href="/heritage" className="hover:text-white transition-colors flex items-center gap-2 group"><ArrowRight size={12} className="opacity-0 group-hover:opacity-100 -ml-4 group-hover:ml-0 transition-all"/> Our Heritage</Link></li>
-                <li><Link href="/artisans" className="hover:text-white transition-colors flex items-center gap-2 group"><ArrowRight size={12} className="opacity-0 group-hover:opacity-100 -ml-4 group-hover:ml-0 transition-all"/> Master Artisans</Link></li>
+              <div className="relative w-[120px] h-[40px]">
+                <Image src="/images/AurindelLogo.png" alt="Aurindel" fill className="object-contain object-left invert brightness-0" />
+              </div>
+              <p className="text-[13px] leading-relaxed text-stone-400 max-w-[240px]">
+               Aurindel a legacy of Indian craftsmanship, exported with contemporary elegance to the world.
+              </p>
+            </div>
+
+            {/* Navigation Column */}
+            <div className="space-y-6">
+              <h4 className="text-white text-[10px] uppercase tracking-[0.5em] font-black">Navigation</h4>
+              <ul className="space-y-4 text-[13px]">
+                <li><Link href="#" className="hover:text-white transition-colors">Collections</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Our Heritage</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Master Artisans</Link></li>
               </ul>
             </div>
-            <div className="space-y-8">
-              <h4 className="text-white text-[10px] uppercase tracking-[0.4em] font-bold">Inquiries</h4>
-              <ul className="space-y-4 text-sm">
-                <li className="flex items-center gap-3"><Mail size={16} /> abhinav.purivaindustries@gmail.com</li>
-                <li className="flex items-center gap-3"><Phone size={16} /> +91 8340220161</li>
-                <li className="flex items-center gap-3"><Globe size={16} /> www.aurindel.com</li>
+
+            {/* Inquiries Column */}
+            <div className="space-y-6">
+              <h4 className="text-white text-[10px] uppercase tracking-[0.5em] font-black">Inquiries</h4>
+              <ul className="space-y-4 text-[13px]">
+                <li className="flex items-center gap-3"><Mail size={14} /> abhinav.purivaindustries@gmail.com</li>
+                <li className="flex items-center gap-3"><Phone size={14} /> +91 8340220161</li>
+                <li className="flex items-center gap-3"><Globe size={14} /> www.aurindel.com</li>
               </ul>
             </div>
-            <div className="space-y-8"><h4 className="text-white text-[10px] uppercase tracking-[0.4em] font-bold">Studio</h4><ul className="space-y-4 text-sm"><li className="flex items-start gap-3"><MapPin size={16} className="mt-1 flex-shrink-0" /><span>8th Floor 8125, Gaur City Mall Office Space, <br/>Greater Noida (201318) UP, INDIA</span></li></ul></div>
+
+            {/* Studio Column */}
+            <div className="space-y-6">
+              <h4 className="text-white text-[10px] uppercase tracking-[0.5em] font-black">Studio</h4>
+              <div className="flex gap-3 text-[13px] leading-relaxed">
+                <MapPin size={18} className="shrink-0" />
+                <p>8th Floor 8125, Gaur City Mall Office Space, <br /> Greater Noida (201318) UP, INDIA</p>
+              </div>
+            </div>
           </div>
-          <div className="flex flex-col md:flex-row justify-between items-center pt-12 gap-8 text-[9px] uppercase tracking-[0.6em]"><p>© 2026 Aurindel Studio by Puriva Industries Pvt. Ltd.</p><div className="flex gap-8"><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></div></div>
+
+          <div className="pt-10 border-t border-white/5 flex flex-col md:row items-center justify-between gap-6">
+             <p className="text-[9px] uppercase tracking-[0.6em] text-stone-500">© 2026 Aurindel Studio by Puriva Industries Pvt. Ltd.</p>
+             <div className="flex gap-8 text-[9px] uppercase tracking-[0.4em] font-bold">
+               <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+               <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+             </div>
+          </div>
         </div>
       </footer>
       
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar { width: 2px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #d6d3d1; border-radius: 10px; }
-        input[type='range']::-webkit-slider-thumb { 
-          -webkit-appearance: none; 
-          width: 12px; 
-          height: 12px; 
-          background: white; 
-          border-radius: 50%; 
-          cursor: pointer; 
-          box-shadow: 0 0 10px rgba(0,0,0,0.3); 
-        }
       `}</style>
     </main>
   );
 }
 
-// HELPERS
 function VisionCard({ icon, title, desc, index }: { icon: React.ReactNode, title: string, desc: string, index: number }) {
   return (
     <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.15 }} className="p-12 border border-black/5 rounded-[4rem] bg-black/[0.01] hover:bg-black hover:text-white transition-all group h-full">
@@ -448,11 +447,13 @@ function MenuButton({ icon, label, onClick }: { icon: React.ReactNode, label: st
   );
 }
 
-function ShareOption({ icon, label, onClick }: { icon: React.ReactNode, label: string, onClick: () => void }) {
+function ShareOption({ icon, label }: { icon: React.ReactNode, label: string }) {
   return (
-    <button onClick={onClick} className="flex flex-col items-center gap-2 group">
-      <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-stone-100 flex items-center justify-center text-stone-400 group-hover:bg-black group-hover:text-white transition-all">{icon}</div>
-      <span className="text-[8px] md:text-[9px] uppercase tracking-widest font-bold text-stone-400 group-hover:text-black">{label}</span>
-    </button>
+    <div className="flex flex-col items-center gap-3 group cursor-pointer">
+      <div className="w-16 h-16 rounded-full bg-black text-white flex items-center justify-center transition-transform group-hover:scale-110 active:scale-90">
+        {icon}
+      </div>
+      <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 group-hover:text-black">{label}</span>
+    </div>
   );
 }

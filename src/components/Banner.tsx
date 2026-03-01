@@ -104,18 +104,18 @@ const Banner = () => {
               transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
             >
               <span className={`${poppins.className} block text-[9px] uppercase tracking-[0.6em] text-stone-400 font-medium mb-4`}>
-                Social Enterprise
+                Handcrafted Heritage
               </span>
               
               <h1 className={`${cormorant.className} text-5xl md:text-8xl lg:text-9xl font-light text-[#1A1A18] leading-[1.1] mb-8`}>
-                Every choice <br /> 
-                <span className="italic font-light text-stone-400/80">sustains a life.</span>
+                Modern home <br /> 
+                <span className="italic font-light text-stone-400/80">design.</span>
               </h1>
 
               <div className="flex flex-col md:flex-row items-start md:items-center gap-6 mb-10">
                 <div className="h-[30px] w-[1px] bg-stone-300 hidden md:block" />
                 <p className={`${poppins.className} text-stone-500 text-sm md:text-lg leading-relaxed max-w-sm font-light italic`}>
-                  Bringing rural mastery into the modern home.
+                  Bringing Aurindel designs into the modern homes.
                 </p>
               </div>
               
@@ -170,7 +170,7 @@ const Banner = () => {
                          bg-white/80 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none p-6 lg:p-0 rounded-sm"
             >
               <StatItem end="21+" label="States" delay={0.4} />
-              <StatItem end="2000" label="Artisans" delay={0.6} />
+              <StatItem end="500+" label="Artisans" delay={0.6} />
             </motion.div>
           </div>
         </div>

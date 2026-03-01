@@ -125,19 +125,7 @@ const BestSellers = () => {
             </div>
           </div>
 
-          <div className="mt-10 md:mt-14">
-            <Link
-              href="/all"
-              className="group flex flex-col items-center gap-3 md:gap-4 text-[9px] md:text-[10px] font-black uppercase tracking-[0.4em] text-gray-900"
-            >
-              <span className="transition-all md:group-hover:tracking-[0.6em]">
-                View Entire Edit
-              </span>
-              <span className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-full border border-gray-200 transition-all duration-500 md:group-hover:bg-black md:group-hover:text-white">
-                <ArrowRight size={16} />
-              </span>
-            </Link>
-          </div>
+         
         </div>
 
         {/* GRID */}

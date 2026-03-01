@@ -6,13 +6,14 @@ import Image from "next/image";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import {
   Instagram,
-  ArrowUpRight,
-  Mail,
-  Globe,
-  ArrowRight,
   Linkedin,
+  Mail,
+  MapPin,
+  Phone,
+  ArrowRight,
   Check,
-  FileText
+  ArrowUpRight,
+  Heart
 } from "lucide-react";
 
 /* ================= TYPES ================= */
@@ -38,7 +39,7 @@ type SocialBtnProps = {
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const containerRef = useRef<HTMLDivElement | null>(null);
-  
+
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
 
@@ -52,58 +53,72 @@ const Footer = () => {
   const animatedRotateX = useSpring(rotateX, { stiffness: 100, damping: 30 });
   const animatedScale = useSpring(scale, { stiffness: 100, damping: 30 });
 
-  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
+
     setStatus("sending");
+
     setTimeout(() => {
       setStatus("sent");
       setEmail("");
-      setTimeout(() => setStatus("idle"), 5000);
+      setTimeout(() => setStatus("idle"), 4000);
     }, 1000);
   };
 
   return (
     <footer
       ref={containerRef}
-      className="bg-[#faf9f6] pt-32 pb-12 px-6 md:px-12 lg:px-24 overflow-hidden perspective-1000"
+      className="bg-[#faf9f6] pt-32 pb-16 px-6 md:px-12 lg:px-24 overflow-hidden perspective-1000"
     >
       <motion.div
         style={{ rotateX: animatedRotateX, scale: animatedScale }}
         className="max-w-[1700px] mx-auto origin-bottom"
       >
-        {/* TOP SECTION */}
-        <div className="flex flex-col lg:flex-row justify-between gap-16 mb-32">
+        {/* ================= TOP BRAND SECTION ================= */}
+
+        <div className="flex flex-col lg:flex-row justify-between gap-16 mb-28">
           <div className="space-y-8 max-w-2xl">
             <div className="relative h-14 w-56">
-              <Image
-                src="/images/AurindelLogo.png"
-                alt="Aurindel"
-                fill
-                className="object-contain object-left"
-              />
+              <Link href="/">
+                <Image
+                  src="/images/AurindelLogo.png"
+                  alt="Aurindel"
+                  fill
+                  className="object-contain object-left"
+                />
+              </Link>
             </div>
 
             <p className="text-stone-400 text-3xl md:text-5xl font-extralight leading-[1.1]">
               Honoring the <span className="italic text-stone-800">hand</span>,<br />
               Elevating the <span className="italic text-stone-800">soul</span>.
             </p>
+
+            <p className="text-stone-500 text-sm max-w-md">
+              Aurindel curates timeless handcrafted collections that celebrate
+              artisan mastery and heritage craftsmanship from India.
+            </p>
           </div>
 
           {/* NEWSLETTER */}
+
           <motion.div
             whileHover={{ translateZ: 20 }}
             className="w-full lg:w-[450px] bg-white p-8 md:p-12 rounded-3xl border border-stone-100 shadow-[0_40px_80px_-15px_rgba(0,0,0,0.05)]"
           >
             <h3 className="text-[10px] uppercase tracking-[0.5em] text-stone-400 mb-6 font-bold">
-              The Aurindel Club
+              Join The Aurindel Circle
             </h3>
 
             <p className="text-stone-500 text-sm mb-8">
-              Join for exclusive access to heritage drops and artisan stories.
+              Receive exclusive access to curated launches & export collections.
             </p>
 
-            <form onSubmit={handleNewsletterSubmit} className="flex items-center border-b border-stone-200 pb-3">
+            <form
+              onSubmit={handleNewsletterSubmit}
+              className="flex items-center border-b border-stone-200 pb-3"
+            >
               <input
                 type="email"
                 required
@@ -111,9 +126,10 @@ const Footer = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={status === "sent" ? "THANK YOU" : "YOUR EMAIL"}
                 disabled={status !== "idle"}
-                className="w-full bg-transparent outline-none text-[11px] tracking-[0.2em] disabled:text-stone-400"
+                className="w-full bg-transparent outline-none text-[11px] tracking-[0.2em]"
               />
-              <button type="submit" disabled={status !== "idle"} className="transition-all">
+
+              <button type="submit" disabled={status !== "idle"}>
                 {status === "sent" ? (
                   <span className="text-green-600 text-[10px] font-bold tracking-widest flex items-center gap-1">
                     SENT <Check size={14} />
@@ -128,104 +144,114 @@ const Footer = () => {
           </motion.div>
         </div>
 
-        {/* LINKS GRID */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-32">
+        {/* ================= MAIN GRID ================= */}
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-14 mb-28">
+
+          {/* COLLECTIONS */}
+
           <FooterGroup
-            title="Curation"
+            title="Collections"
             links={[
-              { n: "Pots and Planters", h: "/categories/pots-and-planters" },
+              { n: "Pots & Planters", h: "/categories/pots-and-planters" },
               { n: "Furniture", h: "/categories/furniture" },
               { n: "Kitchen Accessories", h: "/categories/kitchen-accessories" },
-              { n: "Lighting and Candle Holders", h: "/categories/lighting-candles" },
+              { n: "Lighting & Candle Holders", h: "/categories/lighting-candles" },
             ]}
           />
 
+          {/* BUSINESS */}
+
           <FooterGroup
-            title="Heritage"
+            title="Business"
             links={[
-              { n: "Our Story", h: "/about" },
-              { n: "Artisans", h: "/about/artisans" },
-              { n: "Sustainability", h: "/about/sustainability" },
-              { n: "Contact", h: "/contact" },
+              { n: "Wholesale Inquiries", h: "/contact" },
+              { n: "Export Partnerships", h: "/contact" },
+              { n: "Bulk Orders", h: "/contact" },
             ]}
           />
 
-          <FooterGroup
-            title="Services"
-            links={[
-              { n: "Shipping Policy", h: "/policies/shipping" },
-              { n: "Returns", h: "/policies/refund" },
-              { n: "Care Guide", h: "/care" },
-              { n: "Bespoke", h: "/bespoke" },
-            ]}
-          />
+          {/* COMPANY */}
 
           <div>
             <h4 className="text-[10px] uppercase tracking-[0.4em] mb-10 font-black">
-              Socials
+              Company
             </h4>
-            <div className="flex gap-6">
-              <SocialBtn 
-                icon={<Instagram size={18} />} 
-                link="https://www.instagram.com/aurindelexports" 
+
+            <ul className="space-y-5">
+              <li>
+                <a
+                  href="/images/Company Profile- Puriva Industries.pdf"
+                  download
+                  className="text-[11px] uppercase tracking-[0.25em] text-stone-400 hover:text-stone-900 transition"
+                >
+                  Company Profile
+                </a>
+              </li>
+
+              <li>
+                <Link
+                  href="/contact"
+                  className="text-[11px] uppercase tracking-[0.25em] text-stone-400 hover:text-stone-900 transition"
+                >
+                  Contact Office
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* CONNECT */}
+
+          <div>
+            <h4 className="text-[10px] uppercase tracking-[0.4em] mb-10 font-black">
+              Connect
+            </h4>
+
+            <div className="flex gap-6 mb-8">
+              <SocialBtn
+                icon={<Instagram size={18} />}
+                link="https://www.instagram.com/aurindelexports"
                 label="Instagram"
               />
-              <SocialBtn 
-                icon={<Linkedin size={18} />} 
-                link="https://www.linkedin.com/company/purivaindustries/" 
-                label="LinkedIn" 
+              <SocialBtn
+                icon={<Linkedin size={18} />}
+                link="https://www.linkedin.com/company/purivaindustries/"
+                label="LinkedIn"
               />
             </div>
 
-            <div className="mt-10 space-y-4 text-[10px] uppercase tracking-[0.2em] text-stone-400">
+            <div className="space-y-4 text-sm text-stone-500">
               <div className="flex items-start gap-2">
-                <Mail size={12} className="mt-0.5 flex-shrink-0" /> 
-                <span className="break-all whitespace-normal">abhinav.purivaindustries@gmail.com</span>
+                <Mail size={14} />
+                abhinav.purivaindustries@gmail.com
               </div>
+
               <div className="flex items-start gap-2">
-                <Globe size={12} className="mt-0.5 flex-shrink-0" /> 
-                <span className="leading-relaxed">8th Floor 8125, Gaur City Mall Office Space, Greater Noida (201318) UP, INDIA</span>
+                <Phone size={14} />
+                +91 8340220161
               </div>
-              
-              {/* PREMIUM DOWNLOAD SECTION */}
-              <div className="pt-4 flex flex-col gap-3">
-                <a 
-                  href="/images/Company Profile- Puriva Industries.pdf" 
-                  download 
-                  className="group relative inline-block w-20 h-28 bg-white border border-stone-100 rounded-sm overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-700 hover:-translate-y-1"
-                >
-                  <Image 
-                    src="/images/Company Profile- Puriva Industries.png" 
-                    alt="Company Profile"
-                    fill
-                    className="object-cover opacity-90 group-hover:opacity-100 transition-opacity"
-                  />
-                  <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors" />
-                  <div className="absolute top-2 right-2 p-1 bg-white/80 backdrop-blur-md rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                    <FileText size={10} className="text-black" />
-                  </div>
-                </a>
-                
-                <a 
-                  href="/images/Company Profile- Puriva Industries.pdf" 
-                  download="Company Profile- Puriva Industries.pdf"
-                  className="flex items-center gap-2 text-stone-800 font-bold hover:text-black transition-colors group"
-                >
-                  Download Profile
-                  <ArrowUpRight size={10} className="opacity-0 group-hover:opacity-100 transition-all -translate-x-1 group-hover:translate-x-0" />
-                </a>
+
+              <div className="flex items-start gap-2">
+                <MapPin size={14} />
+                8th Floor 8125, Gaur City Mall Office Space, Greater Noida (201318) UP, INDIA
               </div>
             </div>
           </div>
         </div>
 
-        {/* FOOTER BASE */}
-        <div className="pt-10 border-t text-[9px] uppercase tracking-[0.4em] text-stone-400 flex flex-col md:flex-row justify-between">
-          <p>© {currentYear} Aurindel Studio</p>
-          <div className="flex gap-10 mt-4 md:mt-0">
-            <span>Accessibility</span>
-            <span>Terms</span>
-            <span>Privacy</span>
+        {/* ================= BOTTOM ================= */}
+
+        <div className="pt-12 border-t text-[10px] text-stone-400 flex flex-col md:flex-row justify-between items-center gap-6">
+
+          <p>
+            © {currentYear} Aurindel Studio. Crafted with{" "}
+            <Heart size={12} className="inline mb-1" /> in India.
+          </p>
+
+          <div className="flex gap-8 uppercase tracking-[0.3em] text-[9px]">
+            <span>Handcrafted</span>
+            <span>Export Quality</span>
+            <span>Artisan Made</span>
           </div>
         </div>
       </motion.div>

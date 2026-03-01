@@ -29,9 +29,9 @@ const Bulking = () => {
           <div className="relative group order-2 lg:order-1">
             <div className="absolute inset-0 bg-stone-200 rounded-full blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-700" />
             <img
-              src="/images/bulking.jpeg"
+              src="/images/2.png"
               alt="Bespoke Bulk Orders"
-              className="relative w-full h-auto object-contain drop-shadow-2xl transition-transform duration-700 group-hover:scale-105"
+              className="relative w-full h-auto object-contain drop-shadow-2xl transition-transform duration-700 group-hover:scale-105 rounded-lg"
             />
           </div>
 
@@ -40,7 +40,7 @@ const Bulking = () => {
             <div className="flex items-center gap-3 mb-4">
               <div className="h-[1px] w-8 bg-stone-400" />
               <p className={`${poppins.className} text-[10px] uppercase tracking-[0.4em] text-stone-500 font-semibold`}>
-                Global Wholesale & Custom
+                INDIAN HANDICRAFT EXPORTER
               </p>
             </div>
 
@@ -50,10 +50,10 @@ const Bulking = () => {
             </h1>
 
             <p className={`${poppins.className} text-stone-600 text-base md:text-lg mt-8 leading-relaxed max-w-lg font-light`}>
-              From exclusive artisanal boutiques to large-scale corporate gifting, we specialize in 
-              <span className="text-stone-900 font-medium"> tailored craft solutions</span>. Our artisans are ready 
-              to bring your custom requirements to life with precision and heritage.
-            </p>
+              Puriva Industries Pvt. Ltd. is a leading Indian handicraft exporter specializing in premium artisan products, custom craft manufacturing, and global wholesale supply.
+
+We deliver handcrafted décor, heritage crafts, private-label solutions with verified artisan networks.
+              <span className="text-stone-900 font-medium"> </span>.            </p>
 
             {/* ACTION BUTTONS */}
             <div className="mt-12 flex flex-col sm:flex-row gap-5">
@@ -73,7 +73,7 @@ const Bulking = () => {
 
             {/* Subtle Trust Indicator */}
             <p className="mt-10 text-[10px] text-stone-400 uppercase tracking-widest font-medium border-t border-stone-100 pt-6">
-              Verified Artisan Network  •  Custom Branding Available  •  Global Logistics
+              Verified Artisan Network • Private Label Manufacturing • Global Handicraft Export • Custom Branding & Bulk Orders
             </p>
           </div>
 

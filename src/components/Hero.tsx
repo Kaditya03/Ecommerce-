@@ -20,23 +20,35 @@ const poppins = Poppins({
 
 const slides = [
   {
-    image: "/images/hero3.jpg",
+    image: "/images/Vase Hero 1.png",
     tag: "Collection 2026",
     title: "New Arrivals",
     desc: "Discover handcrafted elegance made for you.",
   },
   {
-    image: "/images/hero2.jpg",
-    tag: "The Artisan Way",
+    image: "/images/hero image 2.png",
+    tag: "Luxury European Feel",
     title: "Handmade With Love",
     desc: "Exclusive artisan creations crafted by skilled hands.",
   },
   {
-    image: "/images/hero1.jpg",
-    tag: "Limited Edition",
+    image: "/images/dining table 3.png",
+    tag: "Signature Collection",
     title: "Premium Designs",
     desc: "Elevate your space with our premium-edition decor.",
   },
+  // {
+  //   image: "/images/dining table 3.png",
+  //   tag: "Limited Edition",
+  //   title: "Premium Designs",
+  //   desc: "Elevate your space with our premium-edition decor.",
+  // },
+  // {
+  //   image: "/images/dining table 3.png",
+  //   tag: "Limited Edition",
+  //   title: "Premium Designs",
+  //   desc: "Elevate your space with our premium-edition decor.",
+  // },
 ];
 
 const Hero = () => {

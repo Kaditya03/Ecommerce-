@@ -1,202 +1,260 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, useScroll, useTransform, useSpring, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { 
-  ArrowLeft, 
-  FileText, 
-  Newspaper, 
-  BarChart3, 
-  BookOpen, 
-  Instagram, 
-  Twitter, 
-  Facebook, 
-  ExternalLink, 
-  Calendar,
-  PenTool,
+  FileCheck, 
+  Globe2, 
+  Ship, 
+  Award,
+  ArrowRight,
+  ShieldCheck,
+  Mail,
   MapPin,
-  Layers,
-  Sparkles
+  Globe,
+  Phone,
+  Instagram,
+  Linkedin,
+  Clock,
+  History
 } from "lucide-react";
 import { Cormorant_Garamond, Poppins } from "next/font/google";
-
-// Integrated Navbar
 import Navbar from "@/components/Navbar";
 
 const cormorant = Cormorant_Garamond({ subsets: ["latin"], weight: ["300", "400", "600"] });
-const poppins = Poppins({ subsets: ["latin"], weight: ["300", "400", "600"] });
+const poppins = Poppins({ subsets: ["latin"], weight: ["300", "400", "500", "600"] });
 
-// --- DATA ---
-const archiveItems = [
-  { year: "2023", title: "The Silk Road", category: "Textiles", image: "/images/hero1.jpg", desc: "A journey through ancient weaving techniques and natural dyes." },
-  { year: "2024", title: "Ceramic Echoes", category: "Pottery", image: "/images/hero2.jpg", desc: "Exploring the resonance of clay and fire in the heart of the desert." },
-  { year: "2025", title: "Golden Hour", category: "Jewelry", image: "/images/hero3.jpg", desc: "Hand-forged brilliance inspired by the transient beauty of the sunset." },
-  { year: "2026", title: "Midnight Loom", category: "Apparel", image: "/images/hero4.webp", desc: "Complex patterns woven under the moonlight using recycled fibers." },
-];
-
-const pressReleases = [
-  { year: "2026", title: "Aurindel Partners with Global Artisans Fund", tag: "Partnership" },
-  { year: "2025", title: "Opening of the London Flagship Atelier", tag: "Expansion" },
-  { year: "2024", title: "Revolutionizing Ethical Supply Chains", tag: "Innovation" },
-  { year: "2023", title: "Series A Funding: Preserving Craft for the Future", tag: "Announcement" },
+// --- GENUINE BUSINESS TIMELINE DATA ---
+const milestones = [
+  {
+    date: "February 24, 2025",
+    title: "Inception & Incorporation",
+    desc: "Puriva Industries Private Limited was legally incorporated, establishing the foundation for a premier handicraft export house committed to Indian artistry.",
+    icon: <FileCheck className="w-5 h-5" />,
+  },
+  {
+    date: "July 2025",
+    title: "Birth of Aurindel",
+    desc: "Launch of the 'Aurindel' brand—a curated identity focused on bringing sustainable, handcrafted luxury from Indian artisan clusters to global markets.",
+    icon: <Award className="w-5 h-5" />,
+  },
+  {
+    date: "September 2025",
+    title: "Compliances & Licensing",
+    desc: "Successfully secured Import Export Code (IEC), GST registration, and EPCH (Export Promotion Council for Handicrafts) RCMC, ensuring full regulatory readiness.",
+    icon: <ShieldCheck className="w-5 h-5" />,
+  },
+  {
+    date: "October 2025",
+    title: "Global Trade Commencement",
+    desc: "Official rollout of international export operations, successfully dispatching our first consignments of premium handicrafts to global décor partners.",
+    icon: <Ship className="w-5 h-5" />,
+  },
 ];
 
 export default function ArchivesPage() {
   const containerRef = useRef(null);
-  const { scrollYProgress } = useScroll({ target: containerRef });
-  const scaleProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+  const { scrollYProgress } = useScroll();
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
 
   return (
-    <div ref={containerRef} className={`bg-[#FBFBFA] min-h-screen ${poppins.className} overflow-x-hidden text-[#1A1A18]`}>
-      
-      {/* 1. NAVBAR INTEGRATION */}
+    <div ref={containerRef} className={`bg-[#FBFBFA] min-h-screen ${poppins.className} text-[#1A1A18] selection:bg-stone-200 overflow-x-hidden`}>
       <Navbar />
 
-      {/* 2. CINEMATIC HERO - Adjusted padding for Navbar clearance */}
-      <section className="relative h-[90vh] flex flex-col items-center justify-center text-center px-6 pt-20">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.5 }} className="z-10">
-          <span className="text-[10px] uppercase tracking-[1em] text-stone-400 mb-6 block underline underline-offset-8">Legacy & Lore</span>
-          <h1 className={`${cormorant.className} text-7xl md:text-[10rem] font-light leading-none`}>
-            Provenanc<span className="italic text-stone-300">e</span>
-          </h1>
-        </motion.div>
+      {/* --- HERO SECTION: PREMIUM VIDEO BACKGROUND --- */}
+      <section className="relative h-[90vh] flex items-center justify-center overflow-hidden bg-black">
+        <div className="absolute inset-0 opacity-50">
+          <video 
+            autoPlay 
+            muted 
+            loop 
+            playsInline 
+            className="w-full h-full object-cover scale-105"
+          >
+            {/* Using your provided founder video as a cinematic background loop */}
+            <source src="https://res.cloudinary.com/dcgmsnhro/video/upload/v1770226463/video-founder_rg01pp.mp4" type="video/mp4" />
+          </video>
+        </div>
         
-        {/* PARALLAX WATERMARK */}
-        <motion.div 
-          style={{ x: useTransform(scaleProgress, [0, 1], ["0%", "-30%"]) }} 
-          className="absolute text-[18vw] font-black text-stone-100 pointer-events-none whitespace-nowrap z-0"
-        >
-          AURINDEL HOUSE
-        </motion.div>
-      </section>
+        {/* Cinematic Vignette */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-[#FBFBFA]" />
 
-      {/* 3. PROVENANCE MAP VISUAL */}
-      <section className="max-w-[1400px] mx-auto px-6 py-20 text-center">
-          <div className="flex flex-col items-center gap-4 mb-12">
-            <MapPin size={20} className="text-stone-300" />
-            <h3 className={`${cormorant.className} text-4xl italic`}>Global Footprint</h3>
-            <p className="text-[10px] uppercase tracking-[0.4em] text-stone-400 font-bold">Sourced from 14 regions worldwide</p>
-          </div>
-          <div className="relative aspect-[21/9] w-full bg-stone-100/50 rounded-3xl flex items-center justify-center overflow-hidden border border-stone-100">
-             <span className="text-stone-100 text-[10vw] font-black tracking-tighter select-none">WORLD OF CRAFT</span>
-             <div className="absolute top-1/4 left-1/3 w-2 h-2 bg-stone-300 rounded-full animate-ping" />
-             <div className="absolute bottom-1/3 right-1/4 w-2 h-2 bg-stone-300 rounded-full animate-ping" />
-          </div>
-      </section>
-
-      {/* 4. CASE STUDIES & MARKETING COLLATERAL */}
-      <section className="max-w-[1400px] mx-auto px-6 py-32 border-t border-stone-100">
-        <div className="max-w-xl mb-16">
-          <span className="text-[10px] uppercase tracking-[0.4em] text-stone-400 font-bold mb-4 block">Marketing Intelligence</span>
-          <h2 className={`${cormorant.className} text-5xl md:text-6xl font-light italic`}>Case Studies & Success</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <CaseStudyCard title="The 'Soul of Earth' Campaign" category="Global Ad Series" stats="2.4M Reach" image="/images/hero1.jpg" desc="A cinematic digital strategy highlighting artisan origins and sustainable practices." />
-            <CaseStudyCard title="Heritage Holiday Brochure" category="Premium Collateral" stats="High Conversion" image="/images/hero4.webp" desc="Our flagship physical and digital seasonal lookbook showcasing past collections." />
+        <div className="relative z-10 text-center px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2 }}
+          >
+            <span className="text-[10px] uppercase tracking-[1em] text-white/80 mb-8 block font-medium">
+              Puriva Industries Legacy
+            </span>
+            <h1 className={`${cormorant.className} text-6xl md:text-[11rem] text-white font-light leading-none mb-8 tracking-tighter`}>
+              Archiv<span className="italic text-white/50">es</span>
+            </h1>
+            <div className="flex flex-col md:flex-row items-center justify-center gap-6 text-white/70">
+              <div className="h-[1px] w-12 bg-white/30 hidden md:block" />
+              <p className="text-[11px] uppercase tracking-[0.4em] max-w-lg leading-loose">
+                Tracing the evolution of a global handicraft export house
+              </p>
+              <div className="h-[1px] w-12 bg-white/30 hidden md:block" />
+            </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* 5. THE MATERIAL ARCHIVE */}
-      <section className="bg-[#1A1A18] text-white py-32">
-        <div className="max-w-[1400px] mx-auto px-6">
-          <div className="flex items-center gap-3 mb-16">
-            <Layers size={20} className="text-stone-500" />
-            <span className="text-[10px] uppercase tracking-[0.5em] font-bold">Foundational Materials</span>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <MaterialItem label="Organic Silk" origin="Kyoto, JP" />
-            <MaterialItem label="Pure Earth Clay" origin="Oaxaca, MX" />
-            <MaterialItem label="24K Leaf" origin="Florence, IT" />
-            <MaterialItem label="Highland Wool" origin="Cusco, PE" />
-          </div>
-        </div>
-      </section>
-
-      {/* 6. PRESS RELEASES BY YEAR */}
-      <section className="bg-white py-32 border-y border-stone-100">
-        <div className="max-w-[1400px] mx-auto px-6">
-          <div className="flex items-center gap-2 text-stone-400 mb-12">
-             <Newspaper size={16} />
-             <span className="text-[10px] uppercase tracking-[0.4em] font-bold">Press Archives & Growth</span>
-          </div>
-          <div className="space-y-0">
-            {pressReleases.map((news, idx) => (
-              <div key={idx} className="group flex flex-col md:flex-row md:items-center justify-between py-10 border-b border-stone-50 hover:bg-stone-50/50 px-4 transition-all cursor-pointer">
-                <div className="flex items-center gap-12">
-                  <span className={`${cormorant.className} text-2xl text-stone-300 group-hover:text-black transition-colors`}>{news.year}</span>
-                  <div>
-                    <span className="text-[8px] uppercase tracking-[0.3em] font-bold text-stone-400 block mb-1">{news.tag}</span>
-                    <h4 className="text-lg md:text-xl font-light text-stone-800 tracking-tight group-hover:translate-x-2 transition-transform">{news.title}</h4>
-                  </div>
+      {/* --- BRAND STORY SECTION --- */}
+      <section className="max-w-[1400px] mx-auto px-8 py-32 border-b border-stone-100">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+          <motion.div 
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="space-y-8"
+          >
+            <div className="flex items-center gap-3 text-stone-400">
+              <History size={18} />
+              <span className="text-[10px] uppercase tracking-[0.5em] font-bold">Provenance</span>
+            </div>
+            <h2 className={`${cormorant.className} text-5xl md:text-7xl leading-[1.1] italic text-stone-800`}>
+              Bridging Indian Clusters <br/> to Global Spaces.
+            </h2>
+            <p className="text-stone-500 text-lg font-light leading-relaxed max-w-xl">
+              Puriva Industries Pvt. Ltd. was founded with a singular vision: to formalize the bridge between India's unorganized artisan clusters and the world's most discerning luxury markets. Aurindel is the realization of that vision.
+            </p>
+          </motion.div>
+          
+          <div className="grid grid-cols-2 gap-4">
+             <div className="space-y-4">
+                <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl">
+                   <Image src="/images/hero1.jpg" alt="Artisan Work" fill className="object-cover" />
                 </div>
-                <ExternalLink size={18} className="text-stone-200 group-hover:text-black transition-colors" />
-              </div>
+                <div className="bg-stone-900 p-8 rounded-2xl text-white">
+                   <h4 className="text-3xl font-serif italic mb-2">100%</h4>
+                   <p className="text-[10px] uppercase tracking-widest text-stone-400">Export Compliant</p>
+                </div>
+             </div>
+             <div className="space-y-4 pt-12">
+                <div className="bg-white border border-stone-100 p-8 rounded-2xl">
+                   <h4 className="text-3xl font-serif italic mb-2 text-stone-800">EPCH</h4>
+                   <p className="text-[10px] uppercase tracking-widest text-stone-400">Certified Member</p>
+                </div>
+                <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl">
+                   <Image src="/images/hero2.jpg" alt="Handicraft" fill className="object-cover" />
+                </div>
+             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* --- TIMELINE SECTION --- */}
+      <section className="py-40 bg-[#F5F5F2]/30">
+        <div className="max-w-[1000px] mx-auto px-8 relative">
+          <div className="text-center mb-32">
+             <span className="text-[10px] uppercase tracking-[0.6em] text-stone-400 font-bold mb-4 block">Chronicles</span>
+             <h2 className={`${cormorant.className} text-5xl md:text-6xl italic`}>The Journey of Puriva</h2>
+          </div>
+
+          <div className="absolute left-1/2 -translate-x-1/2 top-[300px] bottom-0 w-px bg-stone-200 hidden lg:block" />
+
+          <div className="space-y-32">
+            {milestones.map((item, idx) => (
+              <motion.div 
+                key={idx}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className={`relative flex flex-col ${idx % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"} items-center gap-12`}
+              >
+                <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 w-12 h-12 bg-white border border-stone-100 rounded-full items-center justify-center z-10 shadow-sm text-stone-400">
+                  {item.icon}
+                </div>
+                
+                <div className="w-full lg:w-1/2 flex flex-col px-4 text-center lg:text-left">
+                  <span className={`${cormorant.className} text-3xl italic text-stone-300 mb-2 block`}>
+                    {item.date}
+                  </span>
+                  <h3 className="text-xl font-bold uppercase tracking-widest text-stone-900 mb-4">{item.title}</h3>
+                  <p className="text-stone-500 text-sm leading-relaxed font-light">
+                    {item.desc}
+                  </p>
+                </div>
+                <div className="w-full lg:w-1/2" />
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 7. CURATOR'S JOURNAL (BLOG) */}
-      <section className="max-w-[1400px] mx-auto px-6 py-32">
-        <div className="flex items-center gap-2 text-stone-400 mb-8">
-            <PenTool size={16} />
-            <span className="text-[10px] uppercase tracking-[0.4em] font-bold">Curator's Journal</span>
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-            <ArticleCard title="The Intelligence of the Hand" excerpt="Exploring why manual craft is the ultimate luxury in a digital-first world." image="/images/hero3.jpg" />
-            <ArticleCard title="Sourcing the Sacred" excerpt="A deep dive into our ethical sourcing roadmap and global artisan partnerships." image="/images/hero2.jpg" />
-        </div>
-      </section>
-
-      {/* 8. VISUAL ARCHIVE GALLERY */}
-      <section className="max-w-[1600px] mx-auto px-6 py-40 border-t border-stone-100">
-        <h2 className={`${cormorant.className} text-4xl mb-24 text-center italic text-stone-400`}>Visual Archive</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-32">
-          {archiveItems.map((item, idx) => (
-            <ArchiveEntry key={idx} item={item} index={idx} />
-          ))}
-        </div>
-      </section>
-
-      {/* 9. GRAND FOOTER */}
-      <footer className="bg-[#0D0D0C] text-white pt-32 pb-12 px-6 md:px-20 relative overflow-hidden">
-        <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-full opacity-[0.04] pointer-events-none select-none flex justify-center">
-          <h2 className="text-[20vw] leading-none font-black tracking-tight uppercase whitespace-nowrap">
-            AURINDEL
-          </h2>
-        </div>
-
-        <div className="max-w-[1800px] mx-auto relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 border-b border-stone-800 pb-28">
-            <div className="lg:col-span-6 space-y-10">
-              <Image src="/images/AurindelLogo.png" alt="Logo" width={160} height={50} className="brightness-0 invert" />
-              <p className={`${cormorant.className} text-3xl text-stone-400 italic max-w-sm`}>
-                "The intelligence of the hand, manifested by the heart."
-              </p>
-              <div className="flex gap-4">
-                 <SocialIcon icon={<Instagram size={18}/>} />
-                 <SocialIcon icon={<Twitter size={18}/>} />
-                 <SocialIcon icon={<Facebook size={18}/>} />
+      {/* --- B2B TRUST & COMPLIANCE --- */}
+      <section className="bg-stone-900 py-32">
+        <div className="max-w-[1400px] mx-auto px-8">
+           <div className="flex flex-col lg:flex-row justify-between items-end gap-12 mb-20 border-b border-white/10 pb-12">
+              <div className="max-w-2xl">
+                 <h3 className={`${cormorant.className} text-5xl text-white italic mb-4`}>Global Trade Certifications</h3>
+                 <p className="text-stone-400 text-sm font-light">Puriva Industries operates with complete transparency and international compliance standards.</p>
               </div>
+              <Link href="/contact" className="px-10 py-5 bg-white text-black text-[10px] font-bold uppercase tracking-[0.3em] rounded-full hover:bg-stone-200 transition-all flex items-center gap-3 mb-4">
+                 Partner With Us <ArrowRight size={14} />
+              </Link>
+           </div>
+
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <ComplianceCard icon={<ShieldCheck size={24}/>} title="IEC License" desc="Registered Import Export Code ensuring legally verified global shipments." />
+              <ComplianceCard icon={<FileCheck size={24}/>} title="GST Registered" desc="Tax compliant entity under Indian regulatory frameworks." />
+              <ComplianceCard icon={<Award size={24}/>} title="EPCH Member" desc="Handicraft RCMC holder promoting certified Indian craftsmanship." />
+              <ComplianceCard icon={<Globe2 size={24}/>} title="Direct Export" desc="B2B focused operations shipping from source to global destination." />
+           </div>
+        </div>
+      </section>
+
+      {/* --- FOOTER --- */}
+      <footer className="relative z-10 bg-stone-900 text-stone-400 pt-32 pb-12 rounded-t-[4rem] md:rounded-t-[6rem]">
+        <div className="max-w-[1400px] mx-auto px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-16 pb-24 border-b border-white/5">
+            <div className="lg:col-span-1 space-y-8 text-left">
+              <Link href="/" className="relative block w-[180px] h-[50px]">
+                <Image src="/images/AurindelLogo.png" alt="Aurindel" fill className="object-contain object-left brightness-0 invert" />
+              </Link>
+              <p className="text-sm leading-relaxed max-w-xs">A legacy of Indian craftsmanship, exported with contemporary elegance to the world's most discerning spaces.</p>
             </div>
-            <div className="lg:col-span-3 space-y-8">
-              <h5 className="text-stone-600 text-[9px] uppercase tracking-[0.5em] font-bold">Archives & Media</h5>
-              <ul className="flex flex-col gap-4 text-xs font-light text-stone-400">
-                <li className="hover:text-white cursor-pointer transition-all flex items-center gap-2"><FileText size={12}/> Media Kit 2026</li>
-                <li className="hover:text-white cursor-pointer transition-all flex items-center gap-2"><BookOpen size={12}/> Brand Book</li>
-                <li className="hover:text-white cursor-pointer transition-all flex items-center gap-2"><BarChart3 size={12}/> Milestone Report</li>
+            
+            <div className="space-y-8 text-left">
+              <h4 className="text-white text-[10px] uppercase tracking-[0.4em] font-bold">Navigation</h4>
+              <ul className="space-y-4 text-sm font-light">
+                <li><Link href="/about" className="hover:text-white transition-colors flex items-center gap-2 group"><ArrowRight size={12} className="opacity-0 group-hover:opacity-100 -ml-4 group-hover:ml-0 transition-all"/> About Us</Link></li>
+                <li><Link href="/contact" className="hover:text-white transition-colors flex items-center gap-2 group"><ArrowRight size={12} className="opacity-0 group-hover:opacity-100 -ml-4 group-hover:ml-0 transition-all"/> Contact Us</Link></li>
+                <li><Link href="/archives" className="text-white flex items-center gap-2"><ArrowRight size={12} /> Archives</Link></li>
               </ul>
             </div>
-            <div className="lg:col-span-3 space-y-8">
-              <h5 className="text-stone-600 text-[9px] uppercase tracking-[0.5em] font-bold">Atelier Contact</h5>
-              <p className="text-xs text-stone-500 leading-relaxed font-mono">abhinav.purivaindustries@gmail.com</p>
-              <p className="text-[10px] uppercase tracking-widest text-stone-600">Noida</p>
+
+            <div className="space-y-8 text-left">
+              <h4 className="text-white text-[10px] uppercase tracking-[0.4em] font-bold">Inquiries</h4>
+              <ul className="space-y-4 text-sm font-light">
+                <li className="flex items-center gap-3"><Mail size={16} /> abhinav.purivaindustries@gmail.com</li>
+                <li className="flex items-center gap-3"><Phone size={16} /> +91 8340220161</li>
+                <li className="flex items-center gap-3"><Globe size={16} /> www.aurindel.com</li>
+              </ul>
+            </div>
+
+            <div className="space-y-8 text-left">
+              <h4 className="text-white text-[10px] uppercase tracking-[0.4em] font-bold">Atelier Studio</h4>
+              <ul className="space-y-4 text-sm font-light">
+                <li className="flex items-start gap-3">
+                  <MapPin size={16} className="mt-1 flex-shrink-0" />
+                  <span>8th Floor 8125, Gaur City Mall Office Space, <br/>Greater Noida (201318) UP, INDIA</span>
+                </li>
+              </ul>
             </div>
           </div>
-          <div className="mt-16 text-center text-[9px] text-stone-600 tracking-[0.4em] uppercase">
-            <p>© 2026 Aurindel House. All Rights Reserved.</p>
+
+          <div className="flex flex-col md:flex-row justify-between items-center pt-12 gap-8 text-[9px] uppercase tracking-[0.6em]">
+            <p>© 2026 Aurindel Studio by Puriva Industries Pvt. Ltd.</p>
+            <div className="flex gap-8">
+              <Link href="https://www.instagram.com/theabhinavanand" target="_blank" className="hover:text-white transition-colors"><Instagram size={14}/></Link>
+              <Link href="https://in.linkedin.com/in/abhinavanandofficial" target="_blank" className="hover:text-white transition-colors"><Linkedin size={14}/></Link>
+            </div>
           </div>
         </div>
       </footer>
@@ -204,70 +262,16 @@ export default function ArchivesPage() {
   );
 }
 
-/* SUB-COMPONENTS */
-function MaterialItem({ label, origin }: { label: string, origin: string }) {
-    return (
-        <div className="group border-l border-stone-800 pl-6 py-4 hover:border-stone-500 transition-colors">
-            <Sparkles size={12} className="text-stone-700 group-hover:text-stone-300 mb-4 transition-colors" />
-            <h4 className="text-lg font-light mb-1">{label}</h4>
-            <p className="text-[10px] uppercase tracking-widest text-stone-500">{origin}</p>
-        </div>
-    );
-}
+// --- SUB-COMPONENTS ---
 
-function CaseStudyCard({ title, category, stats, image, desc }: any) {
+function ComplianceCard({ icon, title, desc }: { icon: React.ReactNode, title: string, desc: string }) {
   return (
-    <div className="group cursor-pointer">
-      <div className="relative aspect-video overflow-hidden rounded-sm bg-stone-100 mb-6">
-        <Image src={image} alt={title} fill className="object-cover group-hover:scale-105 transition-transform duration-[1.5s]" />
-        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 shadow-sm">
-          <BarChart3 size={10} /> {stats}
-        </div>
-      </div>
-      <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">{category}</p>
-      <h3 className={`${cormorant.className} text-3xl mb-3`}>{title}</h3>
-      <p className="text-sm text-stone-500 font-light leading-relaxed">{desc}</p>
+    <div className="p-8 border border-white/5 rounded-3xl bg-white/[0.02] flex flex-col gap-5 hover:bg-white/[0.04] transition-all">
+       <div className="text-stone-500">{icon}</div>
+       <div>
+         <h4 className="text-white font-medium mb-2">{title}</h4>
+         <p className="text-stone-500 text-[11px] leading-relaxed">{desc}</p>
+       </div>
     </div>
   );
-}
-
-function ArticleCard({ title, excerpt, image }: any) {
-    return (
-        <div className="group cursor-pointer">
-            <div className="relative h-80 w-full overflow-hidden mb-8 bg-stone-100">
-                <Image src={image} alt={title} fill className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
-            </div>
-            <h3 className={`${cormorant.className} text-4xl mb-4 group-hover:italic transition-all`}>{title}</h3>
-            <p className="text-sm text-stone-500 font-light leading-relaxed max-w-md mb-6">{excerpt}</p>
-            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest border-b border-black w-fit pb-1 group-hover:text-stone-400 group-hover:border-stone-400 transition-colors">
-                Read Article
-            </div>
-        </div>
-    );
-}
-
-function ArchiveEntry({ item, index }: { item: any, index: number }) {
-  return (
-    <motion.div initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className={`flex flex-col ${index % 2 !== 0 ? "md:mt-40" : ""}`}>
-      <div className="group relative aspect-[3/4] overflow-hidden bg-stone-100 shadow-2xl">
-        <Image src={item.image} alt={item.title} fill className="object-cover transition-transform duration-[2s] group-hover:scale-110" />
-        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex flex-col justify-end p-10">
-           <span className="text-white text-[10px] tracking-[0.4em] uppercase mb-2">{item.year}</span>
-           <h3 className={`${cormorant.className} text-4xl text-white italic`}>{item.title}</h3>
-        </div>
-      </div>
-      <div className="mt-8">
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400 mb-3">{item.category}</p>
-        <p className="text-sm text-stone-600 font-light leading-relaxed max-w-sm">{item.desc}</p>
-      </div>
-    </motion.div>
-  );
-}
-
-function SocialIcon({ icon }: { icon: React.ReactNode }) {
-    return (
-        <div className="w-10 h-10 border border-stone-800 rounded-full flex items-center justify-center text-stone-500 hover:text-white hover:border-white transition-all cursor-pointer">
-          {icon}
-        </div>
-    );
 }
