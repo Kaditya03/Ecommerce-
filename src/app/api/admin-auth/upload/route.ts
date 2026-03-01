@@ -1,39 +1,41 @@
 import { NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
-import path from "path";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { r2 } from "@/lib/r2";
+
+export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
-    const file = formData.get("file") as File;
+    const files = formData.getAll("files") as File[];
 
-    if (!file) {
-      return NextResponse.json(
-        { message: "No file found" },
-        { status: 400 }
-      );
+    if (!files.length) {
+      return NextResponse.json({ message: "No files uploaded" }, { status: 400 });
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    const uploadedUrls: string[] = [];
 
-    // Save inside public folder (BEST METHOD)
-    const uploadDir = path.join(process.cwd(), "public/uploads/products");
+    for (const file of files) {
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const fileName = `${Date.now()}-${file.name}`;
 
-    const fileName = `${Date.now()}-${file.name}`;
-    const filePath = path.join(uploadDir, fileName);
+      await r2.send(
+        new PutObjectCommand({
+          Bucket: process.env.R2_BUCKET_NAME!,
+          Key: fileName,
+          Body: buffer,
+          ContentType: file.type,
+        })
+      );
 
-    await writeFile(filePath, buffer);
+      const imageUrl = `${process.env.R2_PUBLIC_URL}/${fileName}`;
+      uploadedUrls.push(imageUrl);
+    }
 
-    return NextResponse.json({
-      url: `/uploads/products/${fileName}`,
-    });
+    return NextResponse.json({ urls: uploadedUrls });
 
   } catch (error) {
     console.error("UPLOAD ERROR:", error);
-    return NextResponse.json(
-      { message: "Upload failed" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Upload failed" }, { status: 500 });
   }
 }

@@ -15,38 +15,45 @@ export default function ImageUploader({
     if (!e.target.files || e.target.files.length === 0) return;
 
     setUploading(true);
-    const uploadedUrls: string[] = [];
 
-    for (const file of Array.from(e.target.files)) {
+    try {
       const formData = new FormData();
-      formData.append("file", file);
 
-      try {
-        const res = await fetch("/api/admin-auth/upload", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!res.ok) {
-          console.error("Upload failed");
-          continue;
-        }
-
-        const data = await res.json();
-
-        // ✅ IMPORTANT: Cloudinary secure_url
-        uploadedUrls.push(data.url);
-      } catch (err) {
-        console.error("Upload error:", err);
+      // IMPORTANT: must match backend key name "files"
+      for (const file of Array.from(e.target.files)) {
+        formData.append("files", file);
       }
-    }
 
-    // ✅ SEND URLS BACK TO PARENT
-    onUpload(uploadedUrls);
+      const res = await fetch("/api/admin-auth/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        console.error("Upload failed:", err);
+        alert("Upload failed");
+        setUploading(false);
+        return;
+      }
+
+      const data = await res.json();
+
+      // R2 API returns: { urls: [] }
+      if (data.urls && Array.isArray(data.urls)) {
+        onUpload(data.urls);
+      } else {
+        console.error("Invalid response format:", data);
+      }
+
+    } catch (err) {
+      console.error("Upload error:", err);
+      alert("Something went wrong while uploading");
+    }
 
     setUploading(false);
 
-    // reset input so same file can be uploaded again
+    // Reset input so same file can be selected again
     e.target.value = "";
   };
 
@@ -67,9 +74,7 @@ export default function ImageUploader({
           </p>
         ) : (
           <>
-            <div className="text-4xl text-indigo-600 mb-2">
-              +
-            </div>
+            <div className="text-4xl text-indigo-600 mb-2">+</div>
             <p className="text-sm font-medium text-indigo-700">
               Upload Images
             </p>
