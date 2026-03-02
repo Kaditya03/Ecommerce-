@@ -3,42 +3,33 @@ import mongoose from "mongoose";
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-  throw new Error("Please define MONGODB_URI in your environment variables.");
+  throw new Error("MONGODB_URI is missing from Vercel Environment Variables");
 }
 
-/**
- * Global is used here to maintain a cached connection across hot reloads
- * in development and function invocations in serverless environments.
- */
-let cached = (global as any).mongoose;
+// @ts-ignore
+let cached = global.mongoose;
 
 if (!cached) {
-  cached = (global as any).mongoose = { conn: null, promise: null };
+  // @ts-ignore
+  cached = global.mongoose = { conn: null, promise: null };
 }
 
 async function connectDB() {
-  if (cached.conn) {
-    return cached.conn;
-  }
+  if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      // Best practices for serverless:
-      maxPoolSize: 10, 
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
+      maxPoolSize: 10, // Important for Serverless
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI as string, opts).then((mongoose) => {
-      return mongoose;
-    });
+    cached.promise = mongoose.connect(MONGODB_URI!, opts).then((m) => m);
   }
 
   try {
     cached.conn = await cached.promise;
   } catch (e) {
-    cached.promise = null; // Reset promise on failure
+    cached.promise = null;
     throw e;
   }
 
