@@ -238,7 +238,7 @@ export default function Navbar() {
           >
             <div className="max-w-[1400px] mx-auto w-full flex flex-col min-h-full">
               <div className="flex justify-between items-center mb-12">
-                <Image src="/images/AurindelLogo.png" alt="Logo" width={110} height={40} className="object-contain" />
+                <Image src="/images/AurindelLogo.png" alt="Handicraft Exporter" width={110} height={40} className="object-contain" />
                 <button onClick={() => setSearchOpen(false)} className="p-4 bg-stone-100 rounded-full hover:bg-black hover:text-white transition-all">
                   <X size={20} />
                 </button>
@@ -316,7 +316,7 @@ export default function Navbar() {
         {menuOpen && (
           <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} className="fixed inset-0 bg-[#FBFBFA] z-[200] flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-stone-100">
-              <Image src="/images/AurindelLogo.png" alt="Logo" width={110} height={40} className="object-contain" />
+              <Image src="/images/AurindelLogo.png" alt="Aurindel Handicraft" width={110} height={40} className="object-contain" />
               <button onClick={() => setMenuOpen(false)} className="w-10 h-10 flex items-center justify-center bg-black text-white rounded-full"><X size={20} /></button>
             </div>
 
@@ -394,7 +394,7 @@ export default function Navbar() {
                 <div className="pt-8 space-y-4 border-t border-stone-100 text-left">
                   <MobileLink href="/about" label="About Us" onClick={() => setMenuOpen(false)} />
                   <MobileLink href="/contact" label="Contact Us" onClick={() => setMenuOpen(false)} />
-                  <MobileLink href="/archives" label="Blogs" onClick={() => setMenuOpen(false)} />
+                  <MobileLink href="/archives" label="Archives" onClick={() => setMenuOpen(false)} />
                 </div>
               </div>
             </div>

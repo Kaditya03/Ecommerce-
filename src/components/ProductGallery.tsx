@@ -9,7 +9,7 @@ export default function ProductGallery({ images }: any) {
     <div>
       <img
         src={active}
-        alt="product"
+        alt="Modern home decor"
         className="w-full h-[420px] object-cover rounded-lg"
       />
 

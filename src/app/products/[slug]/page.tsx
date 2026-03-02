@@ -32,13 +32,35 @@ export async function generateMetadata({
 
   const product = await res.json();
 
-  return {
+return {
+  title: `${product.name} | Handcrafted Export Product | Aurindel India`,
+  description:
+    product.description ||
+    `Buy ${product.name} from Aurindel – a premium Indian handicraft exporter under Puriva Industries Pvt. Ltd. Supplying handcrafted decor and artisan products globally.`,
+
+  openGraph: {
     title: `${product.name} | Aurindel Handicrafts`,
     description: product.description,
-    openGraph: {
-      images: product.images || [],
-    },
-  };
+    url: `https://${host}/product/${slug}`,
+    siteName: "Aurindel",
+    images: product.images?.length
+      ? [
+          {
+            url: product.images[0],
+            width: 1200,
+            height: 630,
+          },
+        ]
+      : [],
+    locale: "en_IN",
+    type: "website",
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 }
 
 /* ================= PAGE ================= */

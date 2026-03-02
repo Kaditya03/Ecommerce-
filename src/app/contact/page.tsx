@@ -28,7 +28,7 @@ export default function ContactPage() {
 
   const whatsappNumber = "+918340220161"; 
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hello%20Aurindel...`;
-  const mapUrl = "https://maps.google.com";
+  const mapUrl = "https://maps.app.goo.gl/oCGRymhD7kSwuZYG7";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,12 +65,12 @@ export default function ContactPage() {
       {/* 1. NAVBAR  */}
       <Navbar />
 
-      {/* 2. HEADER */}
-      <section className="pt-52 pb-20 px-6 max-w-4xl mx-auto text-center">
-        <h2 className="text-[10px] uppercase tracking-[0.5em] text-stone-400 font-bold mb-8">Aurindel — Contact Us</h2>
-        <h1 className={`${cormorant.className} text-6xl md:text-8xl font-light italic leading-tight mb-8`}>The Start of a Story</h1>
+      {/* 2. HEADER - ADJUSTED TOP PADDING FOR MOBILE SPACING */}
+      <section className="pt-12 md:pt-50 pb-16 md:pb-20 px-6 max-w-4xl mx-auto text-center">
+        <h2 className="text-[10px] uppercase tracking-[0.5em] text-stone-400 font-bold mb-6 md:mb-8">Aurindel — Contact Us</h2>
+        <h1 className={`${cormorant.className} text-5xl md:text-8xl font-light italic leading-tight mb-6 md:mb-8`}>The Start of a Story</h1>
         <p className="text-stone-500 text-sm md:text-base leading-relaxed max-w-2xl mx-auto font-light">
-          At <span className="text-black font-medium">Puriva Industries Pvt. Ltd.</span> we believe every conversation is the start of a story. Whether you have a question about our collections, need support, or simply want to share your thoughts, we’re always here for you.
+          At <span className="text-black font-medium">Puriva Industries Pvt. Ltd.</span> we believe every inquiry is an opportunity to connect. Whether you are looking for details on our latest collections, need assistance with an order, or are interested in corporate partnerships, we are always here to provide dedicated support.
         </p>
       </section>
 
@@ -89,7 +89,7 @@ export default function ContactPage() {
             </div>
           </a>
 
-          <div className="p-10 bg-stone-50 border border-stone-100 rounded-[2.5rem] relative overflow-hidden">
+          <div className="p-10 bg-stone-100 border border-stone-100 rounded-[2.5rem] relative overflow-hidden">
             <h3 className="text-[10px] uppercase font-black tracking-widest text-stone-400 mb-8">Atelier Location</h3>
             <div className="space-y-6">
                 <AddressBlock city="Corporate Office" desc="Unit No. 8125, 8th Floor, Gaur City Mall Office Space, Sector 4, Greater Noida, Uttar Pradesh-201318" />
@@ -110,7 +110,7 @@ export default function ContactPage() {
         <div className="lg:col-span-7 bg-[#1A1A18] p-12 md:p-16 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden">
           <form ref={formRef} onSubmit={handleSubmit} className="relative z-10 h-full flex flex-col justify-between">
             <div>
-              <h3 className={`${cormorant.className} text-4xl md:text-5xl italic mb-10`}>Inquiry Details</h3>
+              <h3 className={`${cormorant.className} text-4xl md:text-5xl italic mb-10`}>Inquiry Form</h3>
               <div className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <FormInput name="from_name" label="Your Name" placeholder="Ex: Julian Thorne" required />
@@ -120,7 +120,7 @@ export default function ContactPage() {
                 <div className="space-y-4">
                     <label className="text-[9px] uppercase tracking-[0.4em] text-stone-500 font-bold">Nature of Inquiry</label>
                     <div className="flex flex-wrap gap-3">
-                      {["Bespoke Commission", "Press/Media", "Trade Partnership", "General"].map((opt) => (
+                      {["Bespoke Commission", "Wholesale", "Trade Partnership", "General"].map((opt) => (
                           <button 
                             type="button"
                             key={opt} 
@@ -153,7 +153,7 @@ export default function ContactPage() {
                   >
                     {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : (
                       <>
-                        {selectedInquiry === "Trade Partnership" || selectedInquiry === "Bespoke Commission" ? "Schedule Consultation" : "Dispatch Inquiry"}
+                        {selectedInquiry === "Trade Partnership" || selectedInquiry === "Bespoke Commission" ? "Schedule Meeting" : "Dispatch Inquiry"}
                         <Send size={14} />
                       </>
                     )}
@@ -172,7 +172,7 @@ export default function ContactPage() {
             <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="bg-white max-w-md w-full rounded-[2.5rem] p-10 text-center relative">
                 <button onClick={() => setShowCalendar(false)} className="absolute top-6 right-6 text-stone-400 hover:text-black"><X size={20}/></button>
                 <h4 className={`${cormorant.className} text-4xl mb-4`}>Artisan Booking</h4>
-                <p className="text-xs text-stone-500 mb-8">Scheduling a direct bridge to our production house.</p>
+                <p className="text-xs text-stone-500 mb-8">Scheduling a direct bridge to our Export house.</p>
                 <div className="bg-stone-50 h-48 rounded-2xl flex items-center justify-center border border-dashed border-stone-200 mb-6 text-center px-4">
                     <p className="text-[10px] uppercase tracking-widest text-stone-400 leading-relaxed">Please email us at abhinav.purivaindustries@gmail.com for appointment slots.</p>
                 </div>
@@ -186,8 +186,8 @@ export default function ContactPage() {
       <footer className="bg-[#0D0D0C] text-white pt-24 pb-12 px-6 relative overflow-hidden">
         <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 text-left mb-20 border-b border-stone-900 pb-20">
             <div>
-                <Image src="/images/AurindelLogo.png" alt="Logo" width={140} height={45} className="brightness-0 invert mb-6" />
-                <p className="text-stone-500 text-xs leading-relaxed max-w-xs">Crafting excellence through Puriva Industries Pvt. Ltd. Our pieces are more than decor; they are legacies for your home.</p>
+                <Image src="/images/AurindelLogo.png" alt="Aurindel Export Collections Contact Page" width={140} height={45} className="brightness-0 invert mb-6" />
+                <p className="text-stone-500 text-xs leading-relaxed max-w-xs">Defining the art of living through bespoke home decor and luxury craftsmanship. As part of Puriva Industries Pvt. Ltd., we curate timeless legacies that transform spaces into stories.</p>
             </div>
             <div>
                 <h4 className="text-[10px] uppercase tracking-[0.3em] font-bold mb-6 text-stone-300">Explore</h4>

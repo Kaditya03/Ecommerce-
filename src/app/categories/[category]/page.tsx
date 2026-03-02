@@ -1,6 +1,13 @@
 import { headers } from "next/headers";
 import CategoryLayout from "@/components/category/CategoryLayout";
 
+export const metadata = {
+  robots: {
+    index: false,
+    follow: true, // allow product links inside
+  },
+};
+
 export default async function CategoryPage({
   params,
 }: {
@@ -13,6 +20,8 @@ export default async function CategoryPage({
   const host = headersList.get("host");
   const protocol = host?.includes("localhost") ? "http" : "https";
   const baseUrl = `${protocol}://${host}`;
+
+
 
   try {
     const res = await fetch(
