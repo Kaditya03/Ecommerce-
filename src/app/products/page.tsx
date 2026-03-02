@@ -3,12 +3,7 @@ import Product from "@/models/Product";
 import ProductCard from "@/components/products/ProductCard";
 
 
-export const metadata = {
-  robots: {
-    index: false,
-    follow: false,
-  },
-};
+
 
 export default async function ProductsPage() {
   await connectDB();
