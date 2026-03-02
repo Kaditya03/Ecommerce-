@@ -3,15 +3,17 @@ import ProductClient from "@/components/ProductClient";
 import connectDB from "@/lib/db";
 import Product from "@/models/Product";
 
-/* ================= METADATA ================= */
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string };
-}) {
-  await connectDB();
+/* ================= TYPES ================= */
+type Props = {
+  params: Promise<{ slug: string }>; // In Next.js 15, params is a Promise
+};
 
-  const product = await Product.findOne({ slug: params.slug });
+/* ================= METADATA ================= */
+export async function generateMetadata({ params }: Props) {
+  const { slug } = await params; // Await the params here
+  
+  await connectDB();
+  const product = await Product.findOne({ slug });
 
   if (!product) {
     return { title: "Product Not Found | Aurindel" };
@@ -27,18 +29,18 @@ export async function generateMetadata({
 }
 
 /* ================= PAGE ================= */
-export default async function ProductPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
-  await connectDB();
+export default async function ProductPage({ params }: Props) {
+  const { slug } = await params; // Await the params here
 
-  const product = await Product.findOne({ slug: params.slug });
+  await connectDB();
+  const product = await Product.findOne({ slug });
 
   if (!product) {
     notFound();
   }
 
-  return <ProductClient product={JSON.parse(JSON.stringify(product))} />;
+  // Convert Mongoose doc to plain object for Client Component
+  const plainProduct = JSON.parse(JSON.stringify(product));
+
+  return <ProductClient product={plainProduct} />;
 }

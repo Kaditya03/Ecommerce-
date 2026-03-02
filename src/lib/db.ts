@@ -3,13 +3,18 @@ import mongoose from "mongoose";
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-  throw new Error(" Please define MONGODB_URI in .env.local");
+  throw new Error("Please define MONGODB_URI in your environment variables.");
 }
 
-let cached = (global as any).mongoose || {
-  conn: null as typeof mongoose | null,
-  promise: null as Promise<typeof mongoose> | null,
-};
+/**
+ * Global is used here to maintain a cached connection across hot reloads
+ * in development and function invocations in serverless environments.
+ */
+let cached = (global as any).mongoose;
+
+if (!cached) {
+  cached = (global as any).mongoose = { conn: null, promise: null };
+}
 
 async function connectDB() {
   if (cached.conn) {
@@ -17,14 +22,27 @@ async function connectDB() {
   }
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI as string);
+    const opts = {
+      bufferCommands: false,
+      // Best practices for serverless:
+      maxPoolSize: 10, 
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    };
+
+    cached.promise = mongoose.connect(MONGODB_URI as string, opts).then((mongoose) => {
+      return mongoose;
+    });
   }
 
-  cached.conn = await cached.promise;
-  (global as any).mongoose = cached;
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null; // Reset promise on failure
+    throw e;
+  }
 
   return cached.conn;
 }
-// console.log("Connected to DB:", mongoose.connection.name);
 
 export default connectDB;
