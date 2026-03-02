@@ -1,28 +1,14 @@
 import { notFound } from "next/navigation";
-import { headers } from "next/headers";
 import ProductClient from "@/components/ProductClient";
 
 /* ================= METADATA ================= */
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) {
-  const { slug } = await params;
-
- 
-  const h = await headers();
-  const host = h.get("host");
-
-  if (!host) {
-    return { title: "Product | Aurindel" };
-  }
-
-  const protocol =
-    process.env.NODE_ENV === "development" ? "http" : "https";
-
   const res = await fetch(
-    `${protocol}://${host}/api/products/slug/${slug}`,
+    `${process.env.NEXT_PUBLIC_APP_URL}/api/products/slug/${params.slug}`,
     { cache: "no-store" }
   );
 
@@ -45,23 +31,10 @@ export async function generateMetadata({
 export default async function ProductPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) {
-  const { slug } = await params;
-
-  // ✅ headers() IS ASYNC
-  const h = await headers();
-  const host = h.get("host");
-
-  if (!host) {
-    notFound();
-  }
-
-  const protocol =
-    process.env.NODE_ENV === "development" ? "http" : "https";
-
   const res = await fetch(
-    `${protocol}://${host}/api/products/slug/${slug}`,
+    `${process.env.NEXT_PUBLIC_APP_URL}/api/products/slug/${params.slug}`,
     { cache: "no-store" }
   );
 
@@ -72,4 +45,4 @@ export default async function ProductPage({
   const product = await res.json();
 
   return <ProductClient product={product} />;
-}  
+}
