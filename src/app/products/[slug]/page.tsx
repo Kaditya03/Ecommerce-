@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import ProductClient from "@/components/ProductClient";
+import connectDB from "@/lib/db";
+import Product from "@/models/Product";
 
 /* ================= METADATA ================= */
 export async function generateMetadata({
@@ -7,16 +9,13 @@ export async function generateMetadata({
 }: {
   params: { slug: string };
 }) {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL}/api/products/slug/${params.slug}`,
-    { cache: "no-store" }
-  );
+  await connectDB();
 
-  if (!res.ok) {
+  const product = await Product.findOne({ slug: params.slug });
+
+  if (!product) {
     return { title: "Product Not Found | Aurindel" };
   }
-
-  const product = await res.json();
 
   return {
     title: `${product.name} | Aurindel Handicrafts`,
@@ -33,16 +32,13 @@ export default async function ProductPage({
 }: {
   params: { slug: string };
 }) {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL}/api/products/slug/${params.slug}`,
-    { cache: "no-store" }
-  );
+  await connectDB();
 
-  if (!res.ok) {
+  const product = await Product.findOne({ slug: params.slug });
+
+  if (!product) {
     notFound();
   }
 
-  const product = await res.json();
-
-  return <ProductClient product={product} />;
+  return <ProductClient product={JSON.parse(JSON.stringify(product))} />;
 }
