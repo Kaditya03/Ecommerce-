@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Product from "@/models/Product";
 
+
+export const runtime = "nodejs";
+
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ slug: string }> }
@@ -9,7 +12,7 @@ export async function GET(
   try {
     await connectDB();
 
-    // ✅ Correct for Next 15 typing
+    
     const { slug } = await context.params;
 
     const product = await Product.findOne({ slug });

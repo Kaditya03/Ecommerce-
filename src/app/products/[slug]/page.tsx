@@ -3,6 +3,10 @@ import ProductClient from "@/components/ProductClient";
 import connectDB from "@/lib/db";
 import Product from "@/models/Product";
 
+
+export const runtime = "nodejs";
+
+
 type Props = {
   params: Promise<{ slug: string }>;
 };
