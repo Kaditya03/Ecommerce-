@@ -44,7 +44,7 @@ const STORY_BEATS = [
   },
   {
     id: 3,
-    image: "https://tetrainspection.com/product-quality/",
+    image: "https://blog.ipleaders.in/wp-content/uploads/2017/05/iPleaders-12.jpg",
   },
   {
     id: 4,
@@ -168,7 +168,6 @@ export default function AboutPage() {
   return (
     <main ref={containerRef} className="relative bg-[#FBFBF9] text-stone-900 min-h-screen selection:bg-black selection:text-white overflow-x-hidden">
       <Navbar />
-
       {/* BACKGROUND DECORATIVE ANIMATIONS */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <motion.div 
@@ -219,6 +218,8 @@ export default function AboutPage() {
         </div>
 
         <motion.div style={{ scale: heroScale, opacity: heroOpacity, y: textY }} className="relative z-20 text-center px-6 max-w-5xl mt-[-2rem] md:mt-0">
+        <h2 className="text-[10px] uppercase tracking-[0.5em] text-stone-400 font-bold mb-6 md:mb-8">Aurindel — About Us</h2>
+
           <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-stone-500 uppercase tracking-[0.4em] md:tracking-[0.8em] text-[8px] md:text-[10px] font-bold mb-2 md:mb-6">
             Puriva Industries Pvt. Ltd. Presents
           </motion.p>
