@@ -24,7 +24,7 @@ export default function ImageUploader({
         formData.append("files", file);
       }
 
-      const res = await fetch("/api/admin-auth/upload", {
+      const res = await fetch("/api/upload/product-images", {
         method: "POST",
         body: formData,
       });
