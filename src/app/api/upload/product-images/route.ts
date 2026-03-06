@@ -32,18 +32,19 @@ export async function POST(req: Request) {
           ContentType: file.type,
         })
       );
-
+      
       const imageUrl = `${process.env.R2_PUBLIC_URL}/${fileName}`;
       uploadedUrls.push(imageUrl);
     }
 
     return NextResponse.json({ urls: uploadedUrls });
 
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { message: "Upload failed" },
-      { status: 500 }
-    );
-  }
+  } catch (error: any) {
+  console.error("UPLOAD ERROR:", error);
+
+  return NextResponse.json(
+    { message: error?.message || "Upload failed", error },
+    { status: 500 }
+  );
+}
 }
