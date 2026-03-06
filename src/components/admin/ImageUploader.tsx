@@ -9,53 +9,58 @@ export default function ImageUploader({
 }) {
   const [uploading, setUploading] = useState(false);
 
-  const handleUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    if (!e.target.files || e.target.files.length === 0) return;
+const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  if (!e.target.files) return;
 
-    setUploading(true);
+  setUploading(true);
 
-    try {
-      const formData = new FormData();
+  try {
+    const uploadedUrls: string[] = [];
 
-      // IMPORTANT: must match backend key name "files"
-      for (const file of Array.from(e.target.files)) {
-        formData.append("files", file);
-      }
+    for (const file of Array.from(e.target.files)) {
 
-      const res = await fetch("/api/upload/product-images", {
+      const res = await fetch("/api/upload/signed-url", {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fileName: file.name,
+          fileType: file.type,
+        }),
       });
 
       if (!res.ok) {
-        const err = await res.json();
-        console.error("Upload failed:", err);
-        alert("Upload failed");
-        setUploading(false);
-        return;
+        throw new Error("Failed to generate upload URL");
       }
 
-      const data = await res.json();
+      const { signedUrl, publicUrl } = await res.json();
 
-      // R2 API returns: { urls: [] }
-      if (data.urls && Array.isArray(data.urls)) {
-        onUpload(data.urls);
-      } else {
-        console.error("Invalid response format:", data);
+      const uploadRes = await fetch(signedUrl, {
+        method: "PUT",
+        body: file,
+        headers: {
+          "Content-Type": file.type,
+        },
+      });
+
+      if (!uploadRes.ok) {
+        throw new Error("Upload failed");
       }
 
-    } catch (err) {
-      console.error("Upload error:", err);
-      alert("Something went wrong while uploading");
+      uploadedUrls.push(publicUrl);
     }
 
-    setUploading(false);
+    onUpload(uploadedUrls);
 
-    // Reset input so same file can be selected again
-    e.target.value = "";
-  };
+  } catch (error) {
+    console.error("Upload error:", error);
+    alert("Upload failed");
+  }
+
+  setUploading(false);
+  e.target.value = "";
+};
 
   return (
     <label className="flex h-48 border-2 border-dashed rounded-2xl cursor-pointer items-center justify-center bg-indigo-50 hover:bg-indigo-100 transition">

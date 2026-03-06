@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { r2 } from "@/lib/r2";
 
-export const runtime = "nodejs"; // IMPORTANT
+export const runtime = "nodejs"; 
 
 export async function POST(req: Request) {
   try {
