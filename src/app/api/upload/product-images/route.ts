@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { r2 } from "@/lib/r2";
 
-export const runtime = "nodejs"; 
+export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
@@ -10,19 +10,14 @@ export async function POST(req: Request) {
     const files = formData.getAll("files") as File[];
 
     if (!files.length) {
-      return NextResponse.json(
-        { message: "No files uploaded" },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: "No files uploaded" }, { status: 400 });
     }
 
-    const uploadedUrls: string[] = [];
+    const urls: string[] = [];
 
     for (const file of files) {
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-
-      const fileName = `${Date.now()}-${crypto.randomUUID()}-${file.name}`;
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const fileName = `${Date.now()}-${file.name}`;
 
       await r2.send(
         new PutObjectCommand({
@@ -32,19 +27,13 @@ export async function POST(req: Request) {
           ContentType: file.type,
         })
       );
-      
-      const imageUrl = `${process.env.R2_PUBLIC_URL}/${fileName}`;
-      uploadedUrls.push(imageUrl);
+
+      urls.push(`${process.env.R2_PUBLIC_URL}/${fileName}`);
     }
 
-    return NextResponse.json({ urls: uploadedUrls });
-
-  } catch (error: any) {
-  console.error("UPLOAD ERROR:", error);
-
-  return NextResponse.json(
-    { message: error?.message || "Upload failed", error },
-    { status: 500 }
-  );
-}
+    return NextResponse.json({ urls });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ message: "Upload failed" }, { status: 500 });
+  }
 }

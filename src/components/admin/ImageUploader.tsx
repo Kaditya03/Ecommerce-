@@ -9,58 +9,37 @@ export default function ImageUploader({
 }) {
   const [uploading, setUploading] = useState(false);
 
-const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  if (!e.target.files) return;
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
 
-  setUploading(true);
+    setUploading(true);
 
-  try {
-    const uploadedUrls: string[] = [];
+    try {
+      const formData = new FormData();
 
-    for (const file of Array.from(e.target.files)) {
+      for (const file of Array.from(e.target.files)) {
+        formData.append("files", file);
+      }
 
-      const res = await fetch("/api/upload/signed-url", {
+      const res = await fetch("/api/upload/product-images", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          fileName: file.name,
-          fileType: file.type,
-        }),
+        body: formData,
       });
 
-      if (!res.ok) {
-        throw new Error("Failed to generate upload URL");
-      }
+      const data = await res.json();
 
-      const { signedUrl, publicUrl } = await res.json();
+      if (!res.ok) throw new Error(data.message || "Upload failed");
 
-      const uploadRes = await fetch(signedUrl, {
-        method: "PUT",
-        body: file,
-        headers: {
-          "Content-Type": file.type,
-        },
-      });
+      onUpload(data.urls);
 
-      if (!uploadRes.ok) {
-        throw new Error("Upload failed");
-      }
-
-      uploadedUrls.push(publicUrl);
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("Upload failed");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
     }
-
-    onUpload(uploadedUrls);
-
-  } catch (error) {
-    console.error("Upload error:", error);
-    alert("Upload failed");
-  }
-
-  setUploading(false);
-  e.target.value = "";
-};
+  };
 
   return (
     <label className="flex h-48 border-2 border-dashed rounded-2xl cursor-pointer items-center justify-center bg-indigo-50 hover:bg-indigo-100 transition">
